@@ -1,0 +1,1085 @@
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aceites y Lípidos BD</title>
+    <style>
+        /* Marca de agua */
+        .marca-de-agua {
+            position: fixed;
+            bottom: 0;
+            right: 0;
+            margin: 10px;
+            opacity: 0.2;
+            font-size: 50px;
+            color: black;
+            pointer-events: none;
+        }
+
+        /* Body Styling */
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #2a3c4f;
+            color: #d0d0d0;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 5%;
+            background-size: cover;
+            position: relative;
+        }
+
+        /* Onda verde en la pared izquierda */
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 50%;
+            height: 100%;
+            background: radial-gradient(circle at 20% 50%, #00b954, transparent 70%);
+            opacity: 0.15;
+            z-index: -1;
+        }
+
+        /* Info Container */
+        .info-container {
+            color: #ffffff;
+            max-width: 500px;
+            margin-right: 5%;
+        }
+
+        .info-container h1 {
+            font-size: 36px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #00b954;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+        }
+
+        .info-container ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .info-container li {
+            margin-bottom: 20px;
+            font-size: 18px;
+        }
+
+        .info-container li:before {
+            content: '✔️';
+            color: #00ed64;
+            margin-right: 10px;
+        }
+
+        /* Login/Signin Containers */
+        .login-container, .signin-container {
+            background-color: #ffffff;
+            padding: 35px;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            color: #000000;
+            text-align: center;
+            max-width: 400px;
+            width: 100%;
+        }
+
+        h1 {
+            color: #00b954;
+            margin-bottom: 20px;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+            color: #333;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        input:focus {
+            border-color: #00b954;
+            outline: none;
+        }
+
+        /* Botón */
+        .button {
+            width: 100%;
+            padding: 15px;
+            background-color: #00b954;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+        }
+
+        .button:hover {
+            background-color: #009847;
+        }
+
+        /* Loading Container */
+        .loading-container {
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            z-index: 999;
+        }
+
+        .loader {
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #00ed64;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Menu Container */
+        .menu-container {
+            display: none;
+            background-color: transparent;
+            padding: 40px;
+            box-sizing: border-box;
+            color: #000000;
+            width: 100vw;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 20px;
+        }
+
+        .tabs div {
+            padding: 10px 20px;
+            background-color: #4b5e6e;
+            color: #fff;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .tabs div.active {
+            background-color: #00b954;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Table Styling */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            font-size: 16px;
+            color: #333;
+        }
+
+        table th, table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        table td {
+            color: #00b954;
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        /* Links */
+        .file-link {
+            color: #00b954;
+            text-decoration: none;
+            transition: text-decoration 0.2s;
+        }
+
+        .file-link:hover {
+            text-decoration: underline;
+        }
+
+        .no-file {
+            color: #a9a9a9;
+        }
+
+        /* Switch Container */
+        .switch-container {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .switch-container a {
+            color: #00b954;
+            cursor: pointer;
+            font-weight: bold;
+            transition: color 0.3s ease;
+        }
+
+        .switch-container a:hover {
+            color: #009847;
+        }
+
+        /* User Box */
+        .user-box {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            padding: 10px;
+            background-color: #00b954;
+            color: #ffffff;
+            border-radius: 50%;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.3s ease;
+        }
+
+        .user-box:hover {
+            background-color: #009847;
+        }
+
+        /* Dropdown Menu */
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            top: 60px;
+            right: 20px;
+            background-color: #2a3c4f;
+            border-radius: 8px;
+            width: 200px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            color: #ffffff;
+            font-size: 14px;
+            z-index: 1000;
+        }
+
+        .dropdown-menu a {
+            display: block;
+            padding: 10px 15px;
+            color: #ffffff;
+            text-decoration: none;
+            border-bottom: 1px solid #444;
+        }
+
+        .dropdown-menu a:hover {
+            background-color: #00b954;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1001;
+            padding-top: 60px;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(3px);
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 600px;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.2s ease;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: #000;
+        }
+
+        /* Contenedor principal del organigrama */
+        .organigrama-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 20px;
+        }
+
+/* Nuevo botón de tres puntos */
+        .three-dots-menu {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        .three-dots-dropdown {
+            display: none;
+            position: absolute;
+            top: 50px;
+            left: 20px;
+            background-color: #2a3c4f;
+            color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+        }
+
+        .three-dots-dropdown a {
+            display: block;
+            padding: 10px 15px;
+            color: #ffffff;
+            text-decoration: none;
+            border-bottom: 1px solid #444;
+        }
+
+        .three-dots-dropdown a:hover {
+            background-color: #00b954;
+        }
+
+        .three-dots-dropdown a:last-child {
+            border-bottom: none;
+        }
+
+       <style>
+    /* Estilo general del modal */
+    .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.7);
+        z-index: 9999;
+        backdrop-filter: blur(8px);
+        justify-content: center;
+        align-items: center;
+    }
+
+    .modal-content {
+        background: #ffffff;
+        padding: 30px;
+        border-radius: 15px;
+        width: 90%;
+        max-width: 400px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        text-align: center;
+    }
+
+    .modal-content h2 {
+        margin-bottom: 20px;
+        font-size: 24px;
+        color: #00b954;
+        text-transform: uppercase;
+        font-weight: bold;
+        letter-spacing: 1px;
+    }
+
+    .modal-content ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .modal-content ul li {
+        margin: 15px 0;
+    }
+
+    .modal-content ul li a {
+        text-decoration: none;
+        font-size: 18px;
+        font-weight: bold;
+        color: #333;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 10px;
+        border: 2px solid #00b954;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+    }
+
+    .modal-content ul li a:hover {
+        background: #00b954;
+        color: #ffffff;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    }
+
+    .modal-content ul li a img {
+        margin-right: 10px;
+    }
+
+    .modal-content .close {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        font-size: 20px;
+        color: #333;
+        cursor: pointer;
+        font-weight: bold;
+        transition: color 0.3s ease;
+    }
+
+    .modal-content .close:hover {
+        color: #00b954;
+    }
+
+
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
+</head>
+<body>
+    <!-- Contenedor de usuario y menú desplegable -->
+    <div class="user-box" id="user-box">👤</div>
+    <div class="dropdown-menu" id="dropdown-menu">
+        <a href="#" id="viewProfile">Ver mi perfil</a>
+        <a href="#">Administrar perfil</a>
+        <a href="#" id="openOrgChart">Ver mi puesto y responsabilidades</a>
+        <a href="#" id="logout">Cerrar sesión</a>
+    </div>
+    <div class="marca-de-agua">α4</div>
+
+    <!-- Modal para el organigrama -->
+    <div id="orgChartModal" class="modal">
+        <div class="modal-content">
+            <span class="close" id="closeOrgChart">&times;</span>
+            <h2>Organigrama</h2>
+            <img src="https://firebasestorage.googleapis.com/v0/b/YOUR_PROJECT_ID.appspot.com/o/Imagen%20de%20WhatsApp%202024-10-31%20a%20las%2023.40.09_c810af33.jpg?alt=media" alt="Organigrama" style="width: 100%;">
+        </div>
+    </div>
+
+   
+  
+  <!-- Modal para el perfil de usuario -->
+    <div id="profileModal" class="modal">
+        <div class="modal-content">
+            <span class="close" id="closeProfile">&times;</span>
+            <h2>Mi Perfil</h2>
+            <p><strong>Nombre:</strong> <span id="userName"></span></p>
+            <p><strong>Apellido:</strong> <span id="userLastName"></span></p>
+            <p><strong>Rol:</strong> <span id="userRole"></span></p>
+            <p><strong>Correo Electrónico:</strong> <span id="userEmail"></span></p>
+        </div>
+    </div>
+
+    <!-- Contenedor de la información -->
+    <div class="info-container" id="info-container">
+        <h1>Aceites y Lípidos BD</h1>
+        <ul>
+            <li>
+                <p><strong>Política de calidad y inocuidad</strong><br>
+                Nos comprometemos a proveer aceites y mantecas comestibles desarrollando y adecuando las formulaciones de nuevos productos mediante el cumplimiento de las regulaciones nacionales.</p>
+            </li>
+            <li>
+                <p>Gestión de los impactos del cambio climático en nuestros procesos y resultados, y comunicación con todas las partes interesadas para satisfacer sus necesidades y expectativas y lograr la mejora continua.</p>
+            </li>
+            <li>
+                <p>Asimismo otorgamos asesoría para el manejo de nuestra gama de productos y desarrollos, generando total confianza y satisfacción plena en nuestros clientes.</p>
+            </li>
+        </ul>
+    </div>
+
+    <!-- Contenedor de login y registro -->
+    <div class="login-container" id="register-screen">
+        <h1>Crear cuenta</h1>
+        <input type="text" id="nombre" placeholder="Nombre" required>
+        <input type="text" id="apellido" placeholder="Apellido" required>
+        <input type="text" id="rol" placeholder="Rol" required>
+        <input type="email" id="email" placeholder="Correo Electrónico" required>
+        <input type="password" id="password" placeholder="Contraseña" required>
+        <button class="button" id="registerBtn">Crear cuenta</button>
+        <div class="switch-container">
+            <p>¿Ya tienes cuenta? <a id="switchToSignIn">Iniciar sesión</a></p>
+        </div>
+    </div>
+
+    <div class="signin-container" id="signin-screen" style="display: none;">
+        <h1>Iniciar sesión</h1>
+        <input type="email" id="loginEmail" placeholder="Correo Electrónico" required>
+        <input type="password" id="loginPassword" placeholder="Contraseña" required>
+        <button class="button" id="loginBtn">Iniciar sesión</button>
+        <div class="switch-container">
+            <p>¿No tienes cuenta? <a id="switchToRegister">Crear cuenta</a></p>
+        </div>
+    </div>
+
+    <div class="loading-container" id="loading-screen">
+        <div class="loader"></div>
+        <p>Cargando...</p>
+    </div>
+
+    <div class="menu-container" id="menu-screen">
+        <h1>ACEITES Y LIPIDOS BD TE DA LA BIENVENIDA</h1>
+        
+        <div class="tabs">
+            <div id="tab-home" class="active">Inicio</div>
+            <div id="tab-lists">Listas</div>
+            <div id="tab-files">Archivos</div>
+            <div id="tab-entries">Entradas y Salidas</div> <!-- Nueva pestaña -->
+            <div id="tab-settings">Configuración</div>
+        </div>
+
+        <div id="home" class="tab-content active">
+            <h2>Bienvenido a la Plataforma de Gestión</h2>
+            <p>Aquí puedes navegar por las distintas secciones de la plataforma.</p>
+        </div>
+
+        <div id="lists" class="tab-content">
+            <h2>Lista Maestra</h2>
+            <div class="dropdown-menu" id="listsDropdownMenu" style="display: block;">
+                <a href="#" onclick="showListContent('documentada')">Información Documentada Mantenida</a>
+                <a href="#" onclick="showListContent('externos')">Documentos Externos</a>
+                <a href="#" onclick="showListContent('registros')">Registros</a>
+                <a href="#" onclick="showListContent('perfil')">Perfil Funcional</a>
+                <a href="#" onclick="showListContent('responsabilidades')">Responsabilidades</a>
+            </div>
+            <div id="list-content">
+            </div>
+        </div>
+
+       <!-- Menú de tres puntos -->
+ <div class="three-dots-menu" id="threeDotsMenu">⋮</div>
+    <div class="three-dots-dropdown" id="threeDotsDropdown" style="display: none;">
+        <a href="#" id="nonConformities">No conformidades</a>
+        <a href="#" id="directiveDecisions">Decisiones directivas</a>
+        <a href="#" id="correctiveActions">Acciones correctivas</a>
+        <a href="#" id="otherOptions">Otras Opciones</a> <!-- Nueva opción -->
+    </div>
+
+
+
+        <div id="files" class="tab-content">
+            <h2>Archivo</h2>
+            <input type="file" id="fileInput" />
+            <button class="button" id="uploadBtn">Subir Archivo</button>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>Título</th>
+                        <th>Código</th>
+                        <th>Archivo</th>
+                    </tr>
+                </thead>
+                <tbody id="fileTableBody">
+                </tbody>
+            </table>
+        </div>
+
+        <div id="settings" class="tab-content">
+            <h2>Configuración</h2>
+            <p>Aquí se configurarán los ajustes del sistema.</p>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore.js";
+        import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-storage.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyD323PEVx7xnnBWpMr2usOEEFQQ20YUcD8",
+            authDomain: "plataforma-39bde.firebaseapp.com",
+            databaseURL: "https://plataforma-39bde-default-rtdb.firebaseio.com",
+            projectId: "plataforma-39bde",
+            storageBucket: "plataforma-39bde.appspot.com",
+            messagingSenderId: "313253115880",
+            appId: "1:313253115880:web:fcaf513b16c4f892ae965d",
+            measurementId: "G-D959K30F9R"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const storage = getStorage(app);
+
+        async function loadOrgChartImage() {
+            const storageRef = ref(storage, 'Imagen de WhatsApp 2024-10-31 a las 23.40.09_c810af33.jpg');
+            const url = await getDownloadURL(storageRef);
+            document.querySelector("#orgChartModal img").src = url;
+        }
+
+        document.getElementById("openOrgChart").addEventListener("click", () => {
+            loadOrgChartImage();
+            document.getElementById("orgChartModal").style.display = "block";
+        });
+
+        document.getElementById("closeOrgChart").addEventListener("click", () => {
+            document.getElementById("orgChartModal").style.display = "none";
+        });
+
+        window.addEventListener("click", (event) => {
+            if (event.target == document.getElementById("orgChartModal")) {
+                document.getElementById("orgChartModal").style.display = "none";
+            }
+        });
+
+        document.getElementById("user-box").addEventListener("click", () => {
+            const dropdownMenu = document.getElementById("dropdown-menu");
+            dropdownMenu.style.display = dropdownMenu.style.display === "block" ? "none" : "block";
+        });
+
+        window.addEventListener("click", (event) => {
+            if (!event.target.matches("#user-box")) {
+                document.getElementById("dropdown-menu").style.display = "none";
+            }
+        });
+
+        async function extractCodeFromPDF(file) {
+            const fileReader = new FileReader();
+            return new Promise((resolve, reject) => {
+                fileReader.onload = async function () {
+                    const typedarray = new Uint8Array(this.result);
+                    const pdf = await pdfjsLib.getDocument(typedarray).promise;
+                    let extractedText = '';
+                    for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+                        const page = await pdf.getPage(pageNum);
+                        const textContent = await page.getTextContent();
+                        textContent.items.forEach((item) => {
+                            extractedText += item.str + ' ';
+                        });
+                    }
+                    const codeMatch = extractedText.match(/REG-\d{4}-\d{2}/);
+                    resolve(codeMatch ? codeMatch[0] : "Código no encontrado");
+                };
+                fileReader.onerror = () => reject("Error al leer el PDF");
+                fileReader.readAsArrayBuffer(file);
+            });
+        }
+
+        document.getElementById('registerBtn').addEventListener('click', async () => {
+            const nombre = document.getElementById('nombre').value;
+            const apellido = document.getElementById('apellido').value;
+            const rol = document.getElementById('rol').value;
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            if (!nombre || !apellido || !rol || !email || !password) {
+                alert('Por favor complete todos los campos.');
+                return;
+            }
+
+            try {
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
+
+                await setDoc(doc(db, "users", user.uid), {
+                    nombre: nombre,
+                    apellido: apellido,
+                    rol: rol,
+                    email: email
+                });
+
+                showLoadingScreen();
+            } catch (error) {
+                console.error('Error al registrar usuario:', error.message);
+                alert('Error al registrar usuario: ' + error.message);
+            }
+        });
+
+        document.getElementById('loginBtn').addEventListener('click', async () => {
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+
+            if (!email || !password) {
+                alert('Por favor ingrese su correo electrónico y contraseña.');
+                return;
+            }
+
+            try {
+                await signInWithEmailAndPassword(auth, email, password);
+                showLoadingScreen();
+            } catch (error) {
+                console.error('Error al iniciar sesión:', error.message);
+                alert('Error al iniciar sesión: ' + error.message);
+            }
+        });
+
+        function showLoadingScreen() {
+            document.getElementById('register-screen').style.display = 'none';
+            document.getElementById('signin-screen').style.display = 'none';
+            document.getElementById('info-container').style.display = 'none';
+            document.getElementById('loading-screen').style.display = 'flex';
+
+            setTimeout(() => {
+                document.getElementById('loading-screen').style.display = 'none';
+                document.getElementById('menu-screen').style.display = 'block';
+                loadFiles();
+            }, 5000);
+        }
+
+        document.getElementById('switchToSignIn').addEventListener('click', () => {
+            document.getElementById('register-screen').style.display = 'none';
+            document.getElementById('signin-screen').style.display = 'block';
+        });
+
+        document.getElementById('switchToRegister').addEventListener('click', () => {
+            document.getElementById('signin-screen').style.display = 'none';
+            document.getElementById('register-screen').style.display = 'block';
+        });
+
+        document.getElementById('uploadBtn').addEventListener('click', async () => {
+            const fileInput = document.getElementById("fileInput");
+            const file = fileInput.files[0];
+
+            if (!file) {
+                alert("Por favor seleccione un archivo para subir.");
+                return;
+            }
+
+            const code = await extractCodeFromPDF(file);
+
+            try {
+                const fileName = file.name;
+                const storageRef = ref(storage, `uploads/${fileName}`);
+                await uploadBytes(storageRef, file);
+                const downloadURL = await getDownloadURL(storageRef);
+
+                await addDoc(collection(db, "files"), {
+                    name: fileName,
+                    url: downloadURL,
+                    code: code,
+                    date: new Date().toLocaleDateString()
+                });
+
+                loadFiles();
+                fileInput.value = "";
+            } catch (error) {
+                console.error("Error al subir el archivo:", error.message);
+                alert("Error al subir el archivo: " + error.message);
+            }
+        });
+
+        async function loadFiles() {
+            const fileTableBody = document.getElementById("fileTableBody");
+            fileTableBody.innerHTML = '';
+            const querySnapshot = await getDocs(collection(db, "files"));
+
+            querySnapshot.forEach((doc) => {
+                const fileData = doc.data();
+                const row = document.createElement("tr");
+
+                const titleCell = document.createElement("td");
+                titleCell.textContent = fileData.name;
+
+                const codeCell = document.createElement("td");
+                codeCell.textContent = fileData.code || "Código no encontrado";
+
+                const fileCell = document.createElement("td");
+                if (fileData.url) {
+                    const link = document.createElement("a");
+                    link.href = fileData.url;
+                    link.target = "_blank";
+                    link.classList.add("file-link");
+                    link.innerHTML = `<img src="https://img.icons8.com/ios-filled/50/000000/pdf.png" class="icon" /> Ver archivo`;
+                    fileCell.appendChild(link);
+                } else {
+                    fileCell.textContent = "Sin Archivo";
+                    fileCell.classList.add("no-file");
+                }
+
+                row.appendChild(titleCell);
+                row.appendChild(codeCell);
+                row.appendChild(fileCell);
+                fileTableBody.appendChild(row);
+            });
+        }
+
+        window.showListContent = function(type) {
+            const listContent = document.getElementById("list-content");
+            listContent.innerHTML = `
+                <h3>${getListTitle(type)}</h3>
+                <input type="file" id="fileInput-${type}" />
+                <button class="button" onclick="uploadListFile('${type}')">Subir archivo</button>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Título</th>
+                            <th>Código</th>
+                            <th>Archivo</th>
+                        </tr>
+                    </thead>
+                    <tbody id="fileTableBody-${type}">
+                    </tbody>
+                </table>
+            `;
+            loadListFiles(type);
+        };
+
+        function getListTitle(type) {
+            switch (type) {
+                case 'documentada': return 'Información Documentada Mantenida';
+                case 'externos': return 'Documentos Externos';
+                case 'registros': return 'Registros';
+                case 'perfil': return 'Perfil Funcional';
+                case 'responsabilidades': return 'Responsabilidades';
+                default: return 'Lista';
+            }
+        }
+
+        // Define la función como global para resolver el error de referencia
+        window.uploadListFile = async function(type) {
+            const fileInput = document.getElementById(`fileInput-${type}`);
+            const file = fileInput.files[0];
+
+            if (!file) {
+                alert("Por favor seleccione un archivo para subir.");
+                return;
+            }
+
+            const code = await extractCodeFromPDF(file);
+
+            try {
+                const fileName = file.name;
+                const storageRef = ref(storage, `uploads/${type}/${fileName}`);
+                await uploadBytes(storageRef, file);
+                const downloadURL = await getDownloadURL(storageRef);
+
+                await addDoc(collection(db, `files-${type}`), {
+                    name: fileName,
+                    url: downloadURL,
+                    code: code,
+                    date: new Date().toLocaleDateString()
+                });
+
+                loadListFiles(type);
+                fileInput.value = "";
+            } catch (error) {
+                console.error("Error al subir el archivo:", error.message);
+                alert("Error al subir el archivo: " + error.message);
+            }
+        };
+
+        async function loadListFiles(type) {
+            const fileTableBody = document.getElementById(`fileTableBody-${type}`);
+            fileTableBody.innerHTML = '';
+            const querySnapshot = await getDocs(collection(db, `files-${type}`));
+
+            querySnapshot.forEach((doc) => {
+                const fileData = doc.data();
+                const row = document.createElement("tr");
+
+                const titleCell = document.createElement("td");
+                titleCell.textContent = fileData.name;
+
+                const codeCell = document.createElement("td");
+                codeCell.textContent = fileData.code || "Código no encontrado";
+
+                const fileCell = document.createElement("td");
+                if (fileData.url) {
+                    const link = document.createElement("a");
+                    link.href = fileData.url;
+                    link.target = "_blank";
+                    link.classList.add("file-link");
+                    link.innerHTML = `<img src="https://img.icons8.com/ios-filled/50/000000/pdf.png" class="icon" /> Ver archivo`;
+                    fileCell.appendChild(link);
+                } else {
+                    fileCell.textContent = "Sin Archivo";
+                    fileCell.classList.add("no-file");
+                }
+
+                row.appendChild(titleCell);
+                row.appendChild(codeCell);
+                row.appendChild(fileCell);
+                fileTableBody.appendChild(row);
+            });
+        }
+
+        document.getElementById('tab-home').addEventListener('click', () => {
+            showTabContent('home');
+        });
+
+        document.getElementById('tab-lists').addEventListener('click', () => {
+            showTabContent('lists');
+        });
+
+        document.getElementById('tab-files').addEventListener('click', () => {
+            showTabContent('files');
+        });
+
+        document.getElementById('tab-settings').addEventListener('click', () => {
+            showTabContent('settings');
+        });
+
+        // Evento para redirigir a la página de Entradas y Salidas
+        document.getElementById('tab-entries').addEventListener('click', () => {
+            window.location.href = 'https://ctalexander.github.io/entradas_y_salidas_2.0/';
+        });
+
+        function showTabContent(tabId) {
+            const tabContents = document.querySelectorAll('.tab-content');
+            tabContents.forEach(content => {
+                content.classList.remove('active');
+            });
+            document.getElementById(tabId).classList.add('active');
+
+            const tabs = document.querySelectorAll('.tabs div');
+            tabs.forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.getElementById(`tab-${tabId}`).classList.add('active');
+        }
+
+        loadFiles();
+
+       document.getElementById("logout").addEventListener("click", () => {
+    signOut(auth).then(() => {
+        alert("Confirma cerrar sesión.");
+        // Cambiar redirección a la pantalla de creación de cuenta e inicio de sesión
+        document.getElementById('menu-screen').style.display = 'none';
+        document.getElementById('signin-screen').style.display = 'block';
+         document.getElementById('info-container').style.display = 'block';
+    }).catch((error) => {
+        console.error("Error al cerrar sesión:", error);
+    });
+});
+
+// Función para cargar los datos del perfil del usuario
+async function loadUserProfile() {
+    const user = auth.currentUser;
+
+    if (user) {
+        const userRef = doc(db, "users", user.uid); // Asegúrate de que los datos del usuario estén en la colección "users"
+        const userDoc = await getDoc(userRef);
+
+        if (userDoc.exists()) {
+            const userData = userDoc.data();
+            document.getElementById("userName").textContent = userData.nombre;
+            document.getElementById("userLastName").textContent = userData.apellido;
+            document.getElementById("userRole").textContent = userData.rol;
+            document.getElementById("userEmail").textContent = userData.email;
+
+            document.getElementById("profileModal").style.display = "block";
+        } else {
+            alert("No se encontraron datos del usuario.");
+        }
+    } else {
+        alert("No se ha iniciado sesión.");
+    }
+}
+
+// Mostrar modal de perfil al hacer clic en "Ver mi perfil"
+document.getElementById("viewProfile").addEventListener("click", loadUserProfile);
+
+// Cerrar modal de perfil
+document.getElementById("closeProfile").addEventListener("click", () => {
+    document.getElementById("profileModal").style.display = "none";
+});
+
+// Cerrar modal al hacer clic fuera de él
+window.addEventListener("click", (event) => {
+    if (event.target == document.getElementById("profileModal")) {
+        document.getElementById("profileModal").style.display = "none";
+    }
+});
+   // Funcionalidad para el menú de tres puntos
+      document.addEventListener("DOMContentLoaded", () => {
+            const threeDotsMenu = document.getElementById("threeDotsMenu");
+            const threeDotsDropdown = document.getElementById("threeDotsDropdown");
+
+            // Mostrar/ocultar el menú
+            threeDotsMenu.addEventListener("click", (event) => {
+                event.stopPropagation();
+                const isVisible = threeDotsDropdown.style.display === "block";
+                threeDotsDropdown.style.display = isVisible ? "none" : "block";
+            });
+
+            // Cerrar el menú al hacer clic fuera
+            window.addEventListener("click", () => {
+                if (threeDotsDropdown.style.display === "block") {
+                    threeDotsDropdown.style.display = "none";
+                }
+            });
+
+            // Funcionalidad para "Otras Opciones"
+             });
+    document.getElementById("otherOptions").addEventListener("click", () => {
+        const modal = `
+            <div id="otherOptionsModal" class="modal" style="display: flex;">
+                <div class="modal-content">
+                    <span class="close" id="closeOtherOptions">&times;</span>
+                    <h2>Otras Opciones</h2>
+                    <ul>
+                        <li>
+                            <a href="https://ctalexander.github.io/entradas_y_salidas_2.0/" target="_blank">
+                                <img src="https://img.icons8.com/ios-filled/50/00b954/enter.png" alt="Entradas">
+                                Entradas y Salidas
+                            </a>
+                        </li>
+                        <li>
+                            <a href="https://ctalexander.github.io/controles_de_aceites/" target="_blank">
+                                <img src="https://img.icons8.com/ios-filled/50/00b954/oil.png" alt="Aceites">
+                                Controles de Aceites
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        `;
+        document.body.insertAdjacentHTML("beforeend", modal);
+
+        // Cerrar modal
+        document.getElementById("closeOtherOptions").addEventListener("click", () => {
+            document.getElementById("otherOptionsModal").remove();
+        });
+
+        // Cerrar modal al hacer clic fuera de él
+        window.addEventListener("click", (event) => {
+            const modalElement = document.getElementById("otherOptionsModal");
+            if (event.target === modalElement) {
+                modalElement.remove();
+            }
+        });
+    });
+    
+                
+    </script>
+</body>
+</html>

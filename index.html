@@ -470,6 +470,7 @@
     }
 
 
+
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
 </head>
@@ -559,14 +560,17 @@
         <div class="tabs">
             <div id="tab-home" class="active">Inicio</div>
             <div id="tab-lists">Listas</div>
+          <div id="tab-settings">Tablero</div>
             <div id="tab-files">Archivos</div>
-            <div id="tab-settings">Configuración</div>
         </div>
+
 
         <div id="home" class="tab-content active">
             <h2>Bienvenido a la Plataforma de Gestión</h2>
             <p>Aquí puedes navegar por las distintas secciones de la plataforma.</p>
         </div>
+
+
 
         <div id="lists" class="tab-content">
             <h2>Lista Maestra</h2>
@@ -579,8 +583,31 @@
                 <a href="#" onclick="showListContent('Procesos')">Procesos</a>
             </div>
             <div id="list-content">
-            </div>
+      </div>
         </div>
+
+
+<div id="settings" class="tab-content">
+    <h2>Tablero</h2>
+    <div class="dropdown-menu" id="listsDropdownMenu" style="display: block;">
+        <ul>
+            <li><a href="#"onclick="showTableroContent('informacion', this)">Información Importante</a></li>
+            <li><a href="#" onclick="showTableroContent('revision', this)">Resultados de la Revisión</a></li>
+            <li><a href="#" onclick="showTableroContent('revision', this)">Resultados de la Revisión</a></li>
+            <li><a href="#" onclick="showTableroContent('contexto', this)">Resultados del Análisis del Contexto</a></li>
+            <li><a href="#" onclick="showTableroContent('satisfaccion', this)">Satisfacción del Cliente</a></li>
+            <li><a href="#"onclick="showTableroContent('retroalimentacion', this)">Retroalimentación de Partes Interesadas </a></li>
+            <li><a href="#" onclick="showTableroContent('objetivos', this)">Cumplimiento de los Objetivos de la Calidad</a></li>
+        </ul>
+    </div>
+    <div id="tablero-dynamic-content">
+        <!-- Aquí se cargará el contenido dinámico del tablero -->
+    </div>
+</div>
+
+
+    
+
 
        <!-- Menú de tres puntos -->
  <div class="three-dots-menu" id="threeDotsMenu">⋮</div>
@@ -610,15 +637,10 @@
                 </tbody>
             </table>
         </div>
-
-        <div id="settings" class="tab-content">
-            <h2>Configuración</h2>
-            <p>Aquí se configurarán los ajustes del sistema.</p>
-        </div>
-    </div>
-
+        
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js";
+        
+       import { initializeApp } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js";
         import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-auth.js";
         import { getFirestore, doc, setDoc, getDoc, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore.js";
         import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-storage.js";
@@ -978,6 +1000,129 @@
     });
 });
 
+
+
+// Función para TABERLO 
+
+window.showTableroContent = function (type, tabElement) {
+    // Cambiar la pestaña activa
+    const tabLinks = document.querySelectorAll(".tab-link");
+    tabLinks.forEach(link => link.classList.remove("active"));
+    tabElement.classList.add("active");
+
+    // Generar contenido dinámico
+    const tableroContent = document.getElementById("tablero-dynamic-content");
+    tableroContent.innerHTML = `
+        <h3>${getTableroTitle(type)}</h3>
+        <input type="file" id="fileInput-${type}" />
+        <button class="button" onclick="uploadTableroFile('${type}')">Subir archivo</button>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>Título</th>
+                    <th>Código</th>
+                    <th>Archivo</th>
+                </tr>
+            </thead>
+            <tbody id="fileTableBody-${type}">
+            </tbody>
+        </table>
+    `;
+    loadTableroFiles(type);
+};
+
+function getTableroTitle(type) {
+    switch (type) {
+        case "informacion":
+            return "Información Importante";
+        case "revision":
+            return "Resultados de la Revisión";
+        case "contexto":
+            return "Resultados del Análisis del Contexto";
+        case "satisfaccion":
+            return "Satisfacción del Cliente";
+        case "retroalimentacion":
+            return "Retroalimentación de Partes Interesadas";
+        case "objetivos":
+            return "Cumplimiento de los Objetivos de la Calidad";
+        default:
+            return "Sección Desconocida";
+    }
+}
+
+window.uploadTableroFile = async function (type) {
+    const fileInput = document.getElementById(`fileInput-${type}`);
+    const file = fileInput.files[0];
+
+    if (!file) {
+        alert("Por favor seleccione un archivo para subir.");
+        return;
+    }
+
+    const code = await extractCodeFromPDF(file);
+
+    try {
+        const fileName = file.name;
+        const storageRef = ref(storage, `uploads/${type}/${fileName}`);
+        await uploadBytes(storageRef, file);
+        const downloadURL = await getDownloadURL(storageRef);
+
+        await addDoc(collection(db, `tablero-files-${type}`), {
+            name: fileName,
+            url: downloadURL,
+            code: code,
+            date: new Date().toLocaleDateString(),
+        });
+
+        loadTableroFiles(type);
+        fileInput.value = "";
+    } catch (error) {
+        console.error("Error al subir el archivo:", error.message);
+        alert("Error al subir el archivo: " + error.message);
+    }
+};
+
+async function loadTableroFiles(type) {
+    const fileTableBody = document.getElementById(`fileTableBody-${type}`);
+    fileTableBody.innerHTML = '';
+    const querySnapshot = await getDocs(collection(db, `tablero-files-${type}`));
+
+    querySnapshot.forEach((doc) => {
+        const fileData = doc.data();
+        const row = document.createElement("tr");
+
+        const titleCell = document.createElement("td");
+        titleCell.textContent = fileData.name;
+
+        const codeCell = document.createElement("td");
+        codeCell.textContent = fileData.code || "Código no encontrado";
+
+        const fileCell = document.createElement("td");
+        if (fileData.url) {
+            const link = document.createElement("a");
+            link.href = fileData.url;
+            link.target = "_blank";
+            link.classList.add("file-link");
+            link.innerHTML = `<img src="https://img.icons8.com/ios-filled/50/000000/pdf.png" class="icon" /> Ver archivo`;
+            fileCell.appendChild(link);
+        } else {
+            fileCell.textContent = "Sin Archivo";
+            fileCell.classList.add("no-file");
+        }
+
+        row.appendChild(titleCell);
+        row.appendChild(codeCell);
+        row.appendChild(fileCell);
+        fileTableBody.appendChild(row);
+    });
+}
+
+
+
+
+
+
 // Función para cargar los datos del perfil del usuario
 async function loadUserProfile() {
     const user = auth.currentUser;
@@ -1074,7 +1219,8 @@ window.addEventListener("click", (event) => {
             }
         });
     });
-    
+
+
                 
     </script>
 </body>

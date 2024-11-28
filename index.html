@@ -930,13 +930,28 @@ if (normasIsoButton) {
     });
 }
 
-// Cerrar modal de Normas ISO
-if (closePdfModal) {
-    closePdfModal.addEventListener("click", () => {
-        pdfModal.style.display = "none";
-    });
-};
 
+
+// Obtener el modal y el botón de cerrar
+const pdfModal = document.getElementById("pdfModal");
+const closePdfModal = document.getElementById("closePdfModal");
+
+// Función para cerrar el modal
+function closeModal() {
+    pdfModal.style.display = "none";
+}
+
+
+
+// Cerrar el modal al hacer clic en la X
+closePdfModal.addEventListener("click", closeModal);
+
+// Cerrar el modal al hacer clic fuera del contenido
+window.addEventListener("click", (event) => {
+    if (event.target === pdfModal) {
+        closeModal();
+    }
+});
 
 
 

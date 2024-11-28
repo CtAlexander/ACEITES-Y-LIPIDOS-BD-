@@ -468,6 +468,68 @@
     .modal-content .close:hover {
         color: #00b954;
     }
+/* Estilo del botón */
+#normasIsoButton {
+    background-color: #28a745; /* Color verde principal */
+    color: #FFFFFF; /* Texto blanco */
+    font-family: 'Arial', sans-serif; /* Fuente profesional */
+    font-size: 14px; /* Tamaño del texto más pequeño */
+    padding: 10px 15px; /* Espaciado interno reducido */
+    border: none; /* Sin borde */
+    border-radius: 6px; /* Bordes redondeados */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Sombra más pequeña */
+    cursor: pointer; /* Cambia el cursor al pasar */
+    display: inline-block; /* Mantenerlo en línea */
+    text-align: center; /* Centrar el contenido */
+    transition: background-color 0.3s, box-shadow 0.3s; /* Efectos suaves */
+    position: absolute; /* Posicionamiento absoluto */
+    top: 20px; /* Despegado de la parte superior */
+    right: 80px; /* Separado 50px de la esquina derecha */
+}
+
+/* Hover del botón */
+#normasIsoButton:hover {
+    background-color: #218838; /* Verde más oscuro al pasar */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15); /* Aumenta la sombra */
+}
+
+/* Activo al presionar */
+#normasIsoButton:active {
+    background-color: #1e7e34; /* Verde más intenso */
+    box-shadow: 0 2px 3px rgba(0, 0, 0, 0.2); /* Reduce la sombra */
+}
+
+#pdfModal iframe {
+    border: none;
+}
+
+.search-container {
+    margin: 20px 0;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+#searchInput {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    flex-grow: 1;
+}
+
+#searchButton {
+    padding: 10px 20px;
+    background-color: #00b954;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+#searchButton:hover {
+    background-color: #009847;
+}
+
 
 
 
@@ -475,8 +537,43 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
 </head>
 <body>
+
+<div id="pdfModal" class="modal">
+    <div class="modal-content" style="width: 90%; height: 90%; max-width: 1200px; max-height: 800px;">
+        <span class="close" id="closePdfModal">&times;</span>
+        <h2>Normas ISO</h2>
+
+        <!-- Selector de Normas -->
+        <select id="normasSelector">
+            <option value="iso9001">ISO 9001:2015</option>
+            <option value="iso22000">ISO 22000:2018</option>
+        </select>
+
+        <!-- Buscador en el documento -->
+        <div class="search-container" style="margin: 20px 0; display: flex; gap: 10px;">
+            <input type="text" id="searchInput" placeholder="Buscar en el documento" style="flex-grow: 1; padding: 10px; border: 1px solid #ccc; border-radius: 5px;">
+            <button id="searchButton" style="padding: 10px 20px; background-color: #00b954; color: white; border: none; border-radius: 5px; cursor: pointer;">Buscar</button>
+        </div>
+
+        <div style="margin: 20px 0; display: flex; justify-content: center; gap: 20px;">
+    <button id="prevMatchButton" style="padding: 10px; font-size: 18px;">⬅️ Anterior</button>
+    <button id="nextMatchButton" style="padding: 10px; font-size: 18px;">➡️ Siguiente</button>
+</div>
+<div id="pdfViewerContainer" style="width: 100%; height: auto; overflow-y: auto;"></div>
+
+    </div>
+</div>
+
+
+
+
+
+
+
+
     <!-- Contenedor de usuario y menú desplegable -->
     <div class="user-box" id="user-box">👤</div>
+      <div class="user-box" id="normasIsoButton">📜 Normas ISO</div>
     <div class="dropdown-menu" id="dropdown-menu">
         <a href="#" id="viewProfile">Ver mi perfil</a>
         <a href="#">Administrar perfil</a>
@@ -560,17 +657,14 @@
         <div class="tabs">
             <div id="tab-home" class="active">Inicio</div>
             <div id="tab-lists">Listas</div>
-          <div id="tab-settings">Tablero</div>
             <div id="tab-files">Archivos</div>
+            <div id="tab-settings">Configuración</div>
         </div>
-
 
         <div id="home" class="tab-content active">
             <h2>Bienvenido a la Plataforma de Gestión</h2>
             <p>Aquí puedes navegar por las distintas secciones de la plataforma.</p>
         </div>
-
-
 
         <div id="lists" class="tab-content">
             <h2>Lista Maestra</h2>
@@ -583,31 +677,8 @@
                 <a href="#" onclick="showListContent('Procesos')">Procesos</a>
             </div>
             <div id="list-content">
-      </div>
+            </div>
         </div>
-
-
-<div id="settings" class="tab-content">
-    <h2>Tablero</h2>
-    <div class="dropdown-menu" id="listsDropdownMenu" style="display: block;">
-        <ul>
-            <li><a href="#"onclick="showTableroContent('informacion', this)">Información Importante</a></li>
-            <li><a href="#" onclick="showTableroContent('revision', this)">Resultados de la Revisión</a></li>
-            <li><a href="#" onclick="showTableroContent('revision', this)">Resultados de la Revisión</a></li>
-            <li><a href="#" onclick="showTableroContent('contexto', this)">Resultados del Análisis del Contexto</a></li>
-            <li><a href="#" onclick="showTableroContent('satisfaccion', this)">Satisfacción del Cliente</a></li>
-            <li><a href="#"onclick="showTableroContent('retroalimentacion', this)">Retroalimentación de Partes Interesadas </a></li>
-            <li><a href="#" onclick="showTableroContent('objetivos', this)">Cumplimiento de los Objetivos de la Calidad</a></li>
-        </ul>
-    </div>
-    <div id="tablero-dynamic-content">
-        <!-- Aquí se cargará el contenido dinámico del tablero -->
-    </div>
-</div>
-
-
-    
-
 
        <!-- Menú de tres puntos -->
  <div class="three-dots-menu" id="threeDotsMenu">⋮</div>
@@ -637,29 +708,242 @@
                 </tbody>
             </table>
         </div>
-        
+
+        <div id="settings" class="tab-content">
+            <h2>Configuración</h2>
+            <p>Aquí se configurarán los ajustes del sistema.</p>
+        </div>
+    </div>
+
     <script type="module">
-        
-       import { initializeApp } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js";
-        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-auth.js";
-        import { getFirestore, doc, setDoc, getDoc, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore.js";
-        import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-storage.js";
+            import { initializeApp } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-auth.js";
+import { getFirestore, doc, setDoc, getDoc, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore.js";
+import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-storage.js";
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyD323PEVx7xnnBWpMr2usOEEFQQ20YUcD8",
-            authDomain: "plataforma-39bde.firebaseapp.com",
-            databaseURL: "https://plataforma-39bde-default-rtdb.firebaseio.com",
-            projectId: "plataforma-39bde",
-            storageBucket: "plataforma-39bde.appspot.com",
-            messagingSenderId: "313253115880",
-            appId: "1:313253115880:web:fcaf513b16c4f892ae965d",
-            measurementId: "G-D959K30F9R"
-        };
+const firebaseConfig = {
+    apiKey: "AIzaSyD323PEVx7xnnBWpMr2usOEEFQQ20YUcD8",
+    authDomain: "plataforma-39bde.firebaseapp.com",
+    databaseURL: "https://plataforma-39bde-default-rtdb.firebaseio.com",
+    projectId: "plataforma-39bde",
+    storageBucket: "plataforma-39bde.appspot.com",
+    messagingSenderId: "313253115880",
+    appId: "1:313253115880:web:fcaf513b16c4f892ae965d",
+    measurementId: "G-D959K30F9R"
+};
 
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-        const storage = getStorage(app);
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+const storage = getStorage(app);
+// Variables globales
+let pdfDocument = null; // Documento PDF cargado
+let currentPage = 1; // Página actual
+let currentMatches = []; // Coincidencias actuales
+let currentMatchIndex = -1; // Índice de la coincidencia actual
+const pdfViewerContainer = document.getElementById("pdfViewerContainer");
+
+// Archivos de PDF en Firebase Storage
+const pdfFiles = {
+    iso9001: "normas/NORMA_ISO_9001-2015_Req.PDF",
+    iso22000: "normas/ISO-22000-2018.pdf",
+};
+
+// Obtener la URL del PDF desde Firebase Storage
+async function getPdfUrl(filePath) {
+    const fileRef = ref(storage, filePath);
+    try {
+        const url = await getDownloadURL(fileRef);
+        return url;
+    } catch (error) {
+        console.error(`Error al obtener la URL de ${filePath}:`, error);
+        alert("No se pudo cargar el archivo PDF. Intenta de nuevo más tarde.");
+        return null;
+    }
+}
+
+// Renderizar una página en un canvas
+async function renderPage(pageNumber, searchTerm = null) {
+    const page = await pdfDocument.getPage(pageNumber);
+    const viewport = page.getViewport({ scale: 1.5 });
+
+    // Crear canvas para la página
+    const canvas = document.createElement("canvas");
+    const context = canvas.getContext("2d");
+    canvas.width = viewport.width;
+    canvas.height = viewport.height;
+    canvas.style.marginBottom = "20px";
+
+    // Renderizar el PDF en el canvas
+    const renderContext = {
+        canvasContext: context,
+        viewport: viewport,
+    };
+    await page.render(renderContext).promise;
+
+    // Agregar el canvas al contenedor
+    pdfViewerContainer.appendChild(canvas);
+
+    // Si hay un término de búsqueda, subrayar coincidencias
+    if (searchTerm) {
+        return underlineFullWords(page, viewport, searchTerm, context, pageNumber);
+    }
+
+    return [];
+}
+
+// Subrayar texto coincidente en la página
+async function underlineFullWords(page, viewport, searchTerm, context, pageNumber) {
+    const textContent = await page.getTextContent();
+    const scale = viewport.scale;
+    const matches = [];
+
+    textContent.items.forEach((item) => {
+        const text = item.str;
+
+        if (text.toLowerCase().includes(searchTerm.toLowerCase())) {
+            // Posición y dimensiones del texto
+            const transform = item.transform;
+            const x = transform[4]; // Posición X
+            const y = transform[5]; // Posición Y
+            const width = context.measureText(text).width * scale; // Ancho de la palabra completa
+            const height = item.height * scale; // Altura de la palabra
+
+            // Dibujar un rectángulo amarillo debajo de la palabra coincidente
+            context.fillStyle = "rgba(255, 255, 0, 0.6)";
+            context.fillRect(x * scale, viewport.height - y * scale - height, width, height);
+
+            // Guardar la posición de la coincidencia
+            matches.push({ page: pageNumber, x: x * scale, y: viewport.height - y * scale, width, height });
+        }
+    });
+
+    return matches;
+}
+
+// Cargar el PDF y renderizar sus páginas
+async function loadPdfAndInitializeViewer(norma) {
+    const filePath = pdfFiles[norma];
+    if (filePath) {
+        const pdfUrl = await getPdfUrl(filePath);
+        if (pdfUrl) {
+            pdfViewerContainer.innerHTML = ""; // Limpiar contenedor
+            pdfDocument = await pdfjsLib.getDocument(pdfUrl).promise;
+
+            // Renderizar todas las páginas
+            for (let i = 1; i <= pdfDocument.numPages; i++) {
+                await renderPage(i);
+            }
+            alert("Documento cargado correctamente. Ahora puedes buscar.");
+        } else {
+            alert("Error al cargar el archivo seleccionado.");
+        }
+    } else {
+        alert("No se encontró el archivo para la norma seleccionada.");
+    }
+}
+
+// Ejecutar la búsqueda y subrayar las coincidencias
+const searchButton = document.getElementById("searchButton");
+const searchInput = document.getElementById("searchInput");
+const prevMatchButton = document.getElementById("prevMatchButton");
+const nextMatchButton = document.getElementById("nextMatchButton");
+
+searchButton.addEventListener("click", async () => {
+    const searchTerm = searchInput.value.trim();
+    if (!searchTerm) {
+        alert("Ingresa una palabra para buscar.");
+        return;
+    }
+
+    if (!pdfDocument) {
+        alert("Primero debes cargar un documento.");
+        return;
+    }
+
+    // Volver a renderizar las páginas con subrayado y obtener coincidencias
+    pdfViewerContainer.innerHTML = ""; // Limpiar contenedor
+    currentMatches = []; // Reiniciar coincidencias
+    for (let i = 1; i <= pdfDocument.numPages; i++) {
+        const matches = await renderPage(i, searchTerm);
+        currentMatches = currentMatches.concat(matches);
+    }
+
+    if (currentMatches.length > 0) {
+        alert(`Se encontraron ${currentMatches.length} coincidencias.`);
+        currentMatchIndex = 0;
+        goToMatch(currentMatchIndex);
+    } else {
+        alert("No se encontraron coincidencias.");
+    }
+});
+
+// Navegar a una coincidencia específica
+function goToMatch(index) {
+    const match = currentMatches[index];
+    if (!match) return;
+
+    // Cambiar a la página de la coincidencia
+    pdfViewerContainer.innerHTML = ""; // Limpiar contenedor
+    renderPage(match.page).then(() => {
+        const canvas = pdfViewerContainer.querySelector("canvas");
+        const context = canvas.getContext("2d");
+
+        // Resaltar la coincidencia actual
+        context.strokeStyle = "red";
+        context.lineWidth = 2;
+        context.strokeRect(match.x, match.y - match.height, match.width, match.height);
+    });
+}
+
+// Botón "Anterior"
+prevMatchButton.addEventListener("click", () => {
+    if (currentMatches.length === 0) return;
+    currentMatchIndex = (currentMatchIndex - 1 + currentMatches.length) % currentMatches.length;
+    goToMatch(currentMatchIndex);
+});
+
+// Botón "Siguiente"
+nextMatchButton.addEventListener("click", () => {
+    if (currentMatches.length === 0) return;
+    currentMatchIndex = (currentMatchIndex + 1) % currentMatches.length;
+    goToMatch(currentMatchIndex);
+});
+
+// Cargar el PDF inicial (por defecto ISO 9001)
+loadPdfAndInitializeViewer("iso9001");
+
+
+// Cambiar PDF según la norma seleccionada
+if (normasSelector) {
+    normasSelector.addEventListener("change", (e) => {
+        const norma = e.target.value;
+        loadPdfAndInitializeViewer(norma);
+    });
+}
+
+// Abrir modal de Normas ISO
+if (normasIsoButton) {
+    normasIsoButton.addEventListener("click", () => {
+        pdfModal.style.display = "flex";
+        loadPdfAndInitializeViewer("iso9001"); // Cargar ISO 9001 por defecto
+    });
+}
+
+// Cerrar modal de Normas ISO
+if (closePdfModal) {
+    closePdfModal.addEventListener("click", () => {
+        pdfModal.style.display = "none";
+    });
+};
+
+
+
+
+
+
+
+
 
         async function loadOrgChartImage() {
             const storageRef = ref(storage, 'Imagen de WhatsApp 2024-10-31 a las 23.40.09_c810af33.jpg');
@@ -1000,129 +1284,6 @@
     });
 });
 
-
-
-// Función para TABERLO 
-
-window.showTableroContent = function (type, tabElement) {
-    // Cambiar la pestaña activa
-    const tabLinks = document.querySelectorAll(".tab-link");
-    tabLinks.forEach(link => link.classList.remove("active"));
-    tabElement.classList.add("active");
-
-    // Generar contenido dinámico
-    const tableroContent = document.getElementById("tablero-dynamic-content");
-    tableroContent.innerHTML = `
-        <h3>${getTableroTitle(type)}</h3>
-        <input type="file" id="fileInput-${type}" />
-        <button class="button" onclick="uploadTableroFile('${type}')">Subir archivo</button>
-        
-        <table>
-            <thead>
-                <tr>
-                    <th>Título</th>
-                    <th>Código</th>
-                    <th>Archivo</th>
-                </tr>
-            </thead>
-            <tbody id="fileTableBody-${type}">
-            </tbody>
-        </table>
-    `;
-    loadTableroFiles(type);
-};
-
-function getTableroTitle(type) {
-    switch (type) {
-        case "informacion":
-            return "Información Importante";
-        case "revision":
-            return "Resultados de la Revisión";
-        case "contexto":
-            return "Resultados del Análisis del Contexto";
-        case "satisfaccion":
-            return "Satisfacción del Cliente";
-        case "retroalimentacion":
-            return "Retroalimentación de Partes Interesadas";
-        case "objetivos":
-            return "Cumplimiento de los Objetivos de la Calidad";
-        default:
-            return "Sección Desconocida";
-    }
-}
-
-window.uploadTableroFile = async function (type) {
-    const fileInput = document.getElementById(`fileInput-${type}`);
-    const file = fileInput.files[0];
-
-    if (!file) {
-        alert("Por favor seleccione un archivo para subir.");
-        return;
-    }
-
-    const code = await extractCodeFromPDF(file);
-
-    try {
-        const fileName = file.name;
-        const storageRef = ref(storage, `uploads/${type}/${fileName}`);
-        await uploadBytes(storageRef, file);
-        const downloadURL = await getDownloadURL(storageRef);
-
-        await addDoc(collection(db, `tablero-files-${type}`), {
-            name: fileName,
-            url: downloadURL,
-            code: code,
-            date: new Date().toLocaleDateString(),
-        });
-
-        loadTableroFiles(type);
-        fileInput.value = "";
-    } catch (error) {
-        console.error("Error al subir el archivo:", error.message);
-        alert("Error al subir el archivo: " + error.message);
-    }
-};
-
-async function loadTableroFiles(type) {
-    const fileTableBody = document.getElementById(`fileTableBody-${type}`);
-    fileTableBody.innerHTML = '';
-    const querySnapshot = await getDocs(collection(db, `tablero-files-${type}`));
-
-    querySnapshot.forEach((doc) => {
-        const fileData = doc.data();
-        const row = document.createElement("tr");
-
-        const titleCell = document.createElement("td");
-        titleCell.textContent = fileData.name;
-
-        const codeCell = document.createElement("td");
-        codeCell.textContent = fileData.code || "Código no encontrado";
-
-        const fileCell = document.createElement("td");
-        if (fileData.url) {
-            const link = document.createElement("a");
-            link.href = fileData.url;
-            link.target = "_blank";
-            link.classList.add("file-link");
-            link.innerHTML = `<img src="https://img.icons8.com/ios-filled/50/000000/pdf.png" class="icon" /> Ver archivo`;
-            fileCell.appendChild(link);
-        } else {
-            fileCell.textContent = "Sin Archivo";
-            fileCell.classList.add("no-file");
-        }
-
-        row.appendChild(titleCell);
-        row.appendChild(codeCell);
-        row.appendChild(fileCell);
-        fileTableBody.appendChild(row);
-    });
-}
-
-
-
-
-
-
 // Función para cargar los datos del perfil del usuario
 async function loadUserProfile() {
     const user = auth.currentUser;
@@ -1220,8 +1381,10 @@ window.addEventListener("click", (event) => {
         });
     });
 
+   //isos 
+   
 
-                
-    </script>
+
+     </script>
 </body>
 </html>

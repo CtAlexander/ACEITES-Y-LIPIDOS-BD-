@@ -530,6 +530,25 @@
     background-color: #009847;
 }
 
+.green-button {
+    background-color: #28a745; /* Verde brillante */
+    color: white; /* Texto blanco */
+    border: none; /* Sin bordes */
+    padding: 10px 20px; /* Espaciado interno */
+    font-size: 16px; /* Tamaño de fuente */
+    font-weight: bold; /* Negrita */
+    border-radius: 5px; /* Bordes redondeados */
+    cursor: pointer; /* Cambia el cursor al pasar sobre el botón */
+    transition: background-color 0.3s ease; /* Animación al pasar el ratón */
+}
+
+.green-button:hover {
+    background-color: #218838; /* Verde más oscuro al pasar el ratón */
+}
+
+.green-button:active {
+    background-color: #1e7e34; /* Verde aún más oscuro al hacer clic */
+}
 
 
 
@@ -651,20 +670,48 @@
         <p>Cargando...</p>
     </div>
 
-    <div class="menu-container" id="menu-screen">
-        <h1>ACEITES Y LIPIDOS BD TE DA LA BIENVENIDA</h1>
-        
-        <div class="tabs">
+<div class="menu-container" id="menu-screen">
+    <h1>ACEITES Y LIPIDOS BD TE DA LA BIENVENIDA</h1>
+
+    <!-- Pestañas de navegación -->
+    <div class="tabs">
             <div id="tab-home" class="active">Inicio</div>
             <div id="tab-lists">Listas</div>
             <div id="tab-files">Archivos</div>
             <div id="tab-settings">Configuración</div>
         </div>
 
-        <div id="home" class="tab-content active">
-            <h2>Bienvenido a la Plataforma de Gestión</h2>
-            <p>Aquí puedes navegar por las distintas secciones de la plataforma.</p>
+
+    <!-- Contenido de Inicio -->
+    <div id="home" class="tab-content active">
+        <h2></h2>
+        <p></p>
+        <div class="info-container">
+            <li>
+                <p><strong>Objetivo:</strong><br>Evaluar la documentación y el grado de implementación del 
+                    Sistema de Análisis de Peligros y Puntos Críticos de Control
+                    de la organización así como el cumplimiento 
+                    de requisitos legales aplicables.</p>
+            </li>
+            <li>
+                <p><strong>Alcance:</strong><br>
+                    Formulación de aceites vegetales
+                    para industria de alimentos, 
+                    comercialización de ingredientes para 
+                    la industria de alimentos.</p>
+            </li>
         </div>
+        <!-- Botón para cargar el archivo HACCP -->
+        <button id="btn-haccp" class="green-button">Plan HACCP</button>
+        <!-- Contenedor para mostrar el PDF -->
+        <div id="pdf-container" style="display: none; margin-top: 20px;">
+            <iframe id="pdf-viewer" style="width: 100%; height: 600px; border: none;"></iframe>
+        </div>
+    </div>
+
+    
+    
+        
 
         <div id="lists" class="tab-content">
             <h2>Lista Maestra</h2>
@@ -1396,8 +1443,51 @@ window.addEventListener("click", (event) => {
         });
     });
 
-   //isos 
-   
+   //HACCP
+   // Manejar el clic del botón
+document.getElementById("btn-haccp").addEventListener("click", () => {
+    // Referencia al archivo en Firebase Storage
+    const fileRef = ref(storage, "Plan de Análisis de Peligros y Puntos Críticos de Control (HACCP) OK.pdf");
+
+    // Obtén la URL de descarga
+    getDownloadURL(fileRef)
+        .then((url) => {
+            // Muestra el contenedor del PDF
+            const pdfContainer = document.getElementById("pdf-container");
+            pdfContainer.style.display = "block";
+
+            // Establece la URL del PDF en el iframe
+            const pdfViewer = document.getElementById("pdf-viewer");
+            pdfViewer.src = url;
+        })
+        .catch((error) => {
+            console.error("Error al obtener el archivo:", error);
+   });
+});
+
+
+document.getElementById("btn-haccp").addEventListener("click", (event) => {
+    event.stopPropagation(); // Previene que el clic cierre el contenedor
+    // Resto del código para mostrar el PDF
+
+    // Selecciona el contenedor y el botón
+const pdfContainer = document.getElementById("pdf-container");
+const pdfViewer = document.getElementById("pdf-viewer");
+
+// Función para cerrar el contenedor al hacer clic fuera de él
+document.addEventListener("click", (event) => {
+    // Verifica si el clic ocurrió fuera del contenedor del PDF
+    if (
+        pdfContainer.style.display === "block" && // Solo si el contenedor está visible
+        !pdfContainer.contains(event.target) // Si el clic no es dentro del contenedor
+    ) {
+        pdfContainer.style.display = "none"; // Oculta el contenedor
+        pdfViewer.src = ""; // Limpia el contenido del iframe
+    }
+});
+
+});
+
 
 
      </script>

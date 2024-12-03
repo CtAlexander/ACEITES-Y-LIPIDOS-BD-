@@ -702,8 +702,7 @@
             </li>
         </div>
         <!-- Botón para cargar el archivo HACCP -->
-        <button id="btn-haccp" class="green-button">Manual HACCP
-</button>
+        <button id="btn-haccp" class="green-button">Plan HACCP</button>
         <!-- Contenedor para mostrar el PDF -->
         <div id="pdf-container" style="display: none; margin-top: 20px;">
             <iframe id="pdf-viewer" style="width: 100%; height: 600px; border: none;"></iframe>
@@ -1386,63 +1385,82 @@ window.addEventListener("click", (event) => {
     }
 });
    // Funcionalidad para el menú de tres puntos
-      document.addEventListener("DOMContentLoaded", () => {
-            const threeDotsMenu = document.getElementById("threeDotsMenu");
-            const threeDotsDropdown = document.getElementById("threeDotsDropdown");
+     document.addEventListener("DOMContentLoaded", () => {
+    const threeDotsMenu = document.getElementById("threeDotsMenu");
+    const threeDotsDropdown = document.getElementById("threeDotsDropdown");
 
-            // Mostrar/ocultar el menú
-            threeDotsMenu.addEventListener("click", (event) => {
-                event.stopPropagation();
-                const isVisible = threeDotsDropdown.style.display === "block";
-                threeDotsDropdown.style.display = isVisible ? "none" : "block";
-            });
+    // Mostrar/ocultar el menú de tres puntos
+    threeDotsMenu.addEventListener("click", (event) => {
+        event.stopPropagation();
+        const isVisible = threeDotsDropdown.style.display === "block";
+        threeDotsDropdown.style.display = isVisible ? "none" : "block";
+    });
 
-            // Cerrar el menú al hacer clic fuera
-            window.addEventListener("click", () => {
-                if (threeDotsDropdown.style.display === "block") {
-                    threeDotsDropdown.style.display = "none";
-                }
-            });
+    // Cerrar el menú al hacer clic fuera
+    window.addEventListener("click", () => {
+        if (threeDotsDropdown.style.display === "block") {
+            threeDotsDropdown.style.display = "none";
+        }
+    });
 
-            // Funcionalidad para "Otras Opciones"
-             });
-   document.getElementById("otherOptions").addEventListener("click", () => {
+    // Función para abrir un modal
+    const createModal = (title, content) => {
         const modal = `
-            <div id="otherOptionsModal" class="modal" style="display: flex;">
+            <div class="modal" id="dynamicModal" style="display: flex;">
                 <div class="modal-content">
-                    <span class="close" id="closeOtherOptions">&times;</span>
-                    <h2>Otras Opciones</h2>
-                    <ul>
-                        <li>
-                            <a href="https://ctalexander.github.io/entradas_y_salidas_2.0/" target="_blank">
-                            
-                                Entradas y Salidas
-                            </a>
-                        </li>
-                        <li>
-                            <a href="https://ctalexander.github.io/inventario-de-mps-/">
-                                Inventario de Materias Primas
-                            </a>
-                        </li>
-                    </ul>
+                    <span class="close" id="closeModal">&times;</span>
+                    <h2>${title}</h2>
+                    <ul>${content}</ul>
                 </div>
             </div>
         `;
         document.body.insertAdjacentHTML("beforeend", modal);
 
-        // Cerrar modal
-        document.getElementById("closeOtherOptions").addEventListener("click", () => {
-            document.getElementById("otherOptionsModal").remove();
+        // Cerrar el modal
+        document.getElementById("closeModal").addEventListener("click", () => {
+            document.getElementById("dynamicModal").remove();
         });
 
-        // Cerrar modal al hacer clic fuera de él
+        // Cerrar el modal al hacer clic fuera de él
         window.addEventListener("click", (event) => {
-            const modalElement = document.getElementById("otherOptionsModal");
+            const modalElement = document.getElementById("dynamicModal");
             if (event.target === modalElement) {
                 modalElement.remove();
             }
         });
+    };
+
+    // Configuración para cada enlace del menú
+    document.getElementById("nonConformities").addEventListener("click", (event) => {
+        event.preventDefault();
+        createModal("No Conformidades", `
+            <li><a href="https://ctalexander.github.io/no-conformidades-/" target="_blank">Ir a No Conformidades</a></li>
+        `);
     });
+
+    document.getElementById("directiveDecisions").addEventListener("click", (event) => {
+        event.preventDefault();
+        createModal("Decisiones Directivas", `
+            <li><a href="https://ctalexander.github.io/directive-decisions/" target="_blank">Ir a Decisiones Directivas</a></li>
+        `);
+    });
+
+    document.getElementById("correctiveActions").addEventListener("click", (event) => {
+        event.preventDefault();
+        createModal("Acciones Correctivas", `
+            <li><a href="https://ctalexander.github.io/corrective-actions/" target="_blank">Ir a Acciones Correctivas</a></li>
+        `);
+    });
+
+    document.getElementById("otherOptions").addEventListener("click", (event) => {
+        event.preventDefault();
+        createModal("Otras Opciones", `
+            <li><a href="https://ctalexander.github.io/entradas_y_salidas_2.0/" target="_blank">Entradas y Salidas</a></li>
+            <li><a href="https://ctalexander.github.io/inventario-de-mps-/" target="_blank">Inventario de Materias Primas</a></li>
+        `);
+    });
+});
+
 
    //HACCP
    // Manejar el clic del botón
@@ -1494,4 +1512,3 @@ document.addEventListener("click", (event) => {
      </script>
 </body>
 </html>
-

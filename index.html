@@ -550,6 +550,50 @@
     background-color: #1e7e34; /* Verde aún más oscuro al hacer clic */
 }
 
+.pagination-button {
+    display: inline-block;
+    padding: 10px 15px;
+    margin: 5px;
+    background-color: #00b954; /* Verde */
+    color: #ffffff; /* Blanco */
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.3s;
+}
+
+.pagination-button:hover {
+    background-color: #009847; /* Verde más oscuro */
+}
+
+.pagination-button.active {
+    background-color: #009847;
+}
+
+.green-button {
+    background-color: #28a745; /* Verde brillante */
+    color: white; /* Texto blanco */
+    border: none; /* Sin bordes */
+    padding: 10px 20px; /* Espaciado interno */
+    font-size: 16px; /* Tamaño de fuente */
+    font-weight: bold; /* Negrita */
+    border-radius: 5px; /* Bordes redondeados */
+    cursor: pointer; /* Cambia el cursor al pasar sobre el botón */
+    transition: background-color 0.3s ease; /* Animación al pasar el ratón */
+    margin: 5px 0; /* Espaciado vertical entre botones */
+}
+
+.green-button:hover {
+    background-color: #218838; /* Verde más oscuro al pasar el ratón */
+}
+
+.green-button:active {
+    background-color: #1e7e34; /* Verde aún más oscuro al hacer clic */
+}
+
+
+
 
 
     </style>
@@ -703,29 +747,53 @@
         </div>
         <!-- Botón para cargar el archivo HACCP -->
         <button id="btn-haccp" class="green-button">Manual HACCP</button>
+<button id="btn-proceso" class="green-button">Proceso</button>
+<button id="btn-calidad" class="green-button">Manual de Gestión de Calidad</button>
+
+
+        
         <!-- Contenedor para mostrar el PDF -->
         <div id="pdf-container" style="display: none; margin-top: 20px;">
             <iframe id="pdf-viewer" style="width: 100%; height: 600px; border: none;"></iframe>
         </div>
     </div>
 
+<div id="pdf-container-proceso" style="display: none; margin-top: 20px;">
+    <iframe id="pdf-viewer-proceso" style="width: 100%; height: 600px; border: none;"></iframe>
+</div>
+
     
-    
+<div id="pdf-container-calidad" style="display: none; margin-top: 20px;">
+    <iframe id="pdf-viewer-calidad" style="width: 100%; height: 600px; border: none;"></iframe>
+</div>
+
         
 
         <div id="lists" class="tab-content">
-            <h2>Lista Maestra</h2>
-            <div class="dropdown-menu" id="listsDropdownMenu" style="display: block;">
-                <a href="#" onclick="showListContent('documentada')">Información Documentada Mantenida</a>
-                <a href="#" onclick="showListContent('externos')">Documentos Externos</a>
-                <a href="#" onclick="showListContent('registros')">Registros</a>
-                <a href="#" onclick="showListContent('perfil')">Perfil Funcional</a>
-                <a href="#" onclick="showListContent('responsabilidades')">Responsabilidades</a> 
-                <a href="#" onclick="showListContent('Procesos')">Procesos</a>
-            </div>
-            <div id="list-content">
-            </div>
-        </div>
+    <h2>Lista Maestra</h2>
+    <div class="dropdown-menu" id="listsDropdownMenu" style="display: block;">
+        <a href="#" onclick="showListContent('documentada')">Información Documentada Mantenida</a>
+        <a href="#" onclick="showListContent('externos')">Documentos Externos</a>
+        <a href="#" onclick="showListContent('registros')">Registros</a>
+        <a href="#" onclick="showListContent('perfil')">Perfil Funcional</a>
+        <a href="#" onclick="showListContent('responsabilidades')">Responsabilidades</a>
+        <a href="#" onclick="showListContent('Procesos')">Procesos</a>
+    </div>
+    <div id="list-content">
+        <table>
+            <thead>
+                <tr>
+                    <th>Título</th>
+                    <th>Código</th>
+                    <th>Archivo</th>
+                </tr>
+            </thead>
+            <tbody id="fileTableBody-lists"></tbody>
+        </table>
+        <!-- Contenedor de paginación -->
+        <div id="pagination-container-lists" style="margin-top: 20px; text-align: center;"></div>
+    </div>
+</div>
 
        <!-- Menú de tres puntos -->
  <div class="three-dots-menu" id="threeDotsMenu">⋮</div>
@@ -754,6 +822,10 @@
                 <tbody id="fileTableBody">
                 </tbody>
             </table>
+    <!-- Contenedor de paginación -->
+    <div id="pagination-container-files" style="margin-top: 20px; text-align: center;"></div>
+</div>
+
         </div>
 
         <div id="settings" class="tab-content">
@@ -789,6 +861,160 @@ let currentPage = 1; // Página actual
 let currentMatches = []; // Coincidencias actuales
 let currentMatchIndex = -1; // Índice de la coincidencia actual
 const pdfViewerContainer = document.getElementById("pdfViewerContainer");
+
+
+
+//FUN CION PARA PESTAÑA DE DOCUMENTOS 
+let currentPageFiles = 1;
+let currentPageLists = 1;
+const itemsPerPage = 5;
+
+// Función para cargar los archivos con paginación
+async function loadFilesPaginated() {
+    const fileTableBody = document.getElementById("fileTableBody");
+    const paginationContainer = document.getElementById("pagination-container-files");
+    fileTableBody.innerHTML = "";
+    paginationContainer.innerHTML = "";
+
+    // Obtener todos los archivos
+    const querySnapshot = await getDocs(collection(db, "files"));
+    const files = [];
+    querySnapshot.forEach((doc) => {
+        files.push(doc.data());
+    });
+
+    // Calcular el número total de páginas
+    const totalPages = Math.ceil(files.length / itemsPerPage);
+
+    // Obtener los archivos de la página actual
+    const start = (currentPageFiles - 1) * itemsPerPage;
+    const end = start + itemsPerPage;
+    const currentFiles = files.slice(start, end);
+
+    // Mostrar los archivos en la tabla
+    currentFiles.forEach((fileData) => {
+        const row = document.createElement("tr");
+
+        const titleCell = document.createElement("td");
+        titleCell.textContent = fileData.name;
+
+        const codeCell = document.createElement("td");
+        codeCell.textContent = fileData.code || "Código no encontrado";
+
+        const fileCell = document.createElement("td");
+        if (fileData.url) {
+            const link = document.createElement("a");
+            link.href = fileData.url;
+            link.target = "_blank";
+            link.classList.add("file-link");
+            link.innerHTML = `<img src="https://img.icons8.com/ios-filled/50/000000/pdf.png" class="icon" /> Ver archivo`;
+            fileCell.appendChild(link);
+        } else {
+            fileCell.textContent = "Sin Archivo";
+            fileCell.classList.add("no-file");
+        }
+
+        row.appendChild(titleCell);
+        row.appendChild(codeCell);
+        row.appendChild(fileCell);
+        fileTableBody.appendChild(row);
+    });
+
+    // Crear botones de paginación
+    for (let i = 1; i <= totalPages; i++) {
+        const button = document.createElement("button");
+        button.textContent = i;
+        button.classList.add("pagination-button");
+        if (i === currentPageFiles) button.classList.add("active");
+        button.addEventListener("click", () => {
+            currentPageFiles = i;
+            loadFilesPaginated();
+        });
+        paginationContainer.appendChild(button);
+    }
+}
+
+// Función para cargar las listas con paginación
+async function loadListsPaginated(type) {
+    const fileTableBody = document.getElementById("fileTableBody-lists");
+    const paginationContainer = document.getElementById("pagination-container-lists");
+    fileTableBody.innerHTML = "";
+    paginationContainer.innerHTML = "";
+
+    // Obtener todos los formatos
+    const querySnapshot = await getDocs(collection(db, `files-${type}`));
+    const files = [];
+    querySnapshot.forEach((doc) => {
+        files.push(doc.data());
+    });
+
+    // Calcular el número total de páginas
+    const totalPages = Math.ceil(files.length / itemsPerPage);
+
+    // Obtener los formatos de la página actual
+    const start = (currentPageLists - 1) * itemsPerPage;
+    const end = start + itemsPerPage;
+    const currentFiles = files.slice(start, end);
+
+    // Mostrar los formatos en la tabla
+    currentFiles.forEach((fileData) => {
+        const row = document.createElement("tr");
+
+        const titleCell = document.createElement("td");
+        titleCell.textContent = fileData.name;
+
+        const codeCell = document.createElement("td");
+        codeCell.textContent = fileData.code || "Código no encontrado";
+
+        const fileCell = document.createElement("td");
+        if (fileData.url) {
+            const link = document.createElement("a");
+            link.href = fileData.url;
+            link.target = "_blank";
+            link.classList.add("file-link");
+            link.innerHTML = `<img src="https://img.icons8.com/ios-filled/50/000000/pdf.png" class="icon" /> Ver archivo`;
+            fileCell.appendChild(link);
+        } else {
+            fileCell.textContent = "Sin Archivo";
+            fileCell.classList.add("no-file");
+        }
+
+        row.appendChild(titleCell);
+        row.appendChild(codeCell);
+        row.appendChild(fileCell);
+        fileTableBody.appendChild(row);
+    });
+
+    // Crear botones de paginación
+    for (let i = 1; i <= totalPages; i++) {
+        const button = document.createElement("button");
+        button.textContent = i;
+        button.classList.add("pagination-button");
+        if (i === currentPageLists) button.classList.add("active");
+        button.addEventListener("click", () => {
+            currentPageLists = i;
+            loadListsPaginated(type);
+        });
+        paginationContainer.appendChild(button);
+    }
+}
+
+// Llamar a las funciones de paginación
+loadFilesPaginated();
+window.showListContent = function(type) {
+    currentPageLists = 1; // Reiniciar la página al cambiar de lista
+    loadListsPaginated(type);
+};
+
+
+
+
+
+
+
+
+
+
 
 // Archivos de PDF en Firebase Storage
 const pdfFiles = {
@@ -1505,6 +1731,78 @@ document.addEventListener("click", (event) => {
     }
 });
 
+});
+
+
+// Manejar el clic del botón Proceso
+document.getElementById("btn-proceso").addEventListener("click", () => {
+    // Referencia al archivo en Firebase Storage
+    const fileRef = ref(storage, "Acciones para abordar riesgos y oportunidades y rev dir.pdf");
+
+    // Obtén la URL de descarga
+    getDownloadURL(fileRef)
+        .then((url) => {
+            // Muestra el contenedor del PDF
+            const pdfContainer = document.getElementById("pdf-container-proceso");
+            pdfContainer.style.display = "block";
+
+            // Establece la URL del PDF en el iframe
+            const pdfViewer = document.getElementById("pdf-viewer-proceso");
+            pdfViewer.src = url;
+        })
+        .catch((error) => {
+            console.error("Error al obtener el archivo:", error);
+        });
+});
+
+// Manejar clic fuera del contenedor para cerrar el PDF
+document.addEventListener("click", (event) => {
+    // Selecciona el contenedor y el visor del PDF
+    const pdfContainer = document.getElementById("pdf-container-proceso");
+    const pdfViewer = document.getElementById("pdf-viewer-proceso");
+
+    // Verifica si el clic ocurrió fuera del contenedor
+    if (
+        pdfContainer.style.display === "block" && // Solo si el contenedor está visible
+        !pdfContainer.contains(event.target) // Si el clic no es dentro del contenedor
+    ) {
+        pdfContainer.style.display = "none"; // Oculta el contenedor
+        pdfViewer.src = ""; // Limpia el contenido del iframe
+    }
+});
+
+document.getElementById("btn-calidad").addEventListener("click", () => {
+    // Referencia al archivo en Firebase Storage
+    const fileRef = ref(storage, "Manual de Gestión AyL BD.pdf");
+
+    // Obtén la URL de descarga
+    getDownloadURL(fileRef)
+        .then((url) => {
+            // Muestra el contenedor del PDF
+            const pdfContainer = document.getElementById("pdf-container-calidad");
+            pdfContainer.style.display = "block";
+
+            // Establece la URL del PDF en el iframe
+            const pdfViewer = document.getElementById("pdf-viewer-calidad");
+            pdfViewer.src = url;
+        })
+        .catch((error) => {
+            console.error("Error al obtener el archivo:", error);
+        });
+});
+
+// Manejar clic fuera del contenedor para cerrar el PDF
+document.addEventListener("click", (event) => {
+    const pdfContainer = document.getElementById("pdf-container-calidad");
+    const pdfViewer = document.getElementById("pdf-viewer-calidad");
+
+    if (
+        pdfContainer.style.display === "block" &&
+        !pdfContainer.contains(event.target)
+    ) {
+        pdfContainer.style.display = "none";
+        pdfViewer.src = "";
+    }
 });
 
 

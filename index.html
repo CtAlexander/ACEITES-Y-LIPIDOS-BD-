@@ -592,9 +592,292 @@
     background-color: #1e7e34; /* Verde aún más oscuro al hacer clic */
 }
 
+.tabs {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.tabs div {
+    flex: 1;
+    padding: 10px;
+    text-align: center;
+    background-color: #4b5e6e;
+    color: white;
+    border-radius: 5px;
+    margin-right: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+}
+
+.tabs div.active {
+    background-color: #00b954;
+    color: white;
+}
+
+#requisitos-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    width: 100%; /* Asegura que ocupe todo el ancho disponible */
+    margin: 0 auto; /* Centra horizontalmente */
+    padding: 20px; /* Espaciado interno */
+}
+
+.tabs {
+    display: flex;
+    justify-content: center; /* Centra horizontalmente */
+    gap: 10px; /* Espacio entre pestañas */
+    margin-bottom: 20px; /* Espaciado debajo de las pestañas */
+}
+
+.tabs div {
+    padding: 10px 20px;
+    text-align: center;
+    background-color: #4b5e6e; /* Fondo de las pestañas */
+    color: white;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+}
+
+.tabs div.active {
+    background-color: #00b954; /* Color de la pestaña activa */
+}
+
+h2 {
+    color: #00b954; /* Verde del encabezado */
+    margin-bottom: 20px;
+    text-align: center;
 
 
 
+.tabs {
+    display: flex;
+    justify-content: center; /* Centra las pestañas horizontalmente */
+    gap: 10px; /* Espacio entre las pestañas */
+    margin-bottom: 20px;
+}
+
+.tabs div {
+    padding: 10px 20px;
+    text-align: center;
+    background-color: rgba(75, 94, 110, 0.7); /* Fondo semitransparente */
+    color: white;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+}
+
+.tabs div.active {
+    background-color: rgba(0, 185, 84, 0.7); /* Fondo activo semitransparente */
+}
+
+
+.tab-content {
+    display: none;
+    text-align: center; /* Centra el contenido dentro de cada pestaña */
+    margin: 0 auto;
+    background-color: rgba(0, 0, 0, 0.2); /* Fondo del contenido semitransparente */
+    border-radius: 10px; /* Bordes redondeados */
+    padding: 20px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Sombra ligera */
+}
+
+.tab-content.active {
+    display: block;
+}
+
+#content-mapa {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    height: 100%;
+    padding: 20px;
+    background-color: rgba(255, 255, 255, 0.1); /* Fondo transparente */
+    text-align: center;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Sombra ligera */
+}
+
+
+#requisitos-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    width: 100%;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: rgba(0, 0, 0, 0.1); /* Fondo semitransparente */
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Sombra ligera */
+}
+
+
+/* Tabs */
+.tabs {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px; /* Espacio entre pestañas */
+    margin-bottom: 20px;
+}
+
+.tabs div {
+    padding: 10px 20px;
+    text-align: center;
+    background-color: rgba(75, 94, 110, 0.7);
+    color: white;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+}
+
+.tabs div.active {
+    background-color: rgba(0, 185, 84, 0.7);
+}
+
+.tab-content {
+    display: none;
+    text-align: center;
+    margin: 0 auto;
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.tab-content.active {
+    display: block;
+}
+
+#content-mapa {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    height: 100%;
+    padding: 20px;
+    background-color: rgba(255, 255, 255, 0.1);
+    text-align: center;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+#requisitos-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    width: 100%;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+
+<style>
+/* Ajustar la posición de las pestañas */
+.tabs {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin: 0; /* Sin margen */
+    padding: 10px 0;
+    position: sticky; /* Fijo en la parte superior */
+    top: 0;
+    background-color: rgba(0, 0, 0, 0.8); /* Fondo semitransparente */
+    z-index: 10;
+}
+
+/* Pestañas individuales */
+.tabs div {
+    padding: 10px 20px;
+    text-align: center;
+    background-color: rgba(75, 94, 110, 0.7); /* Fondo semitransparente */
+    color: white;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+}
+
+.tabs div.active {
+    background-color: rgba(0, 185, 84, 0.7); /* Fondo activo semitransparente */
+}
+
+/* Contenido de las pestañas */
+.tab-content {
+    display: none;
+    margin-top: 10px;
+    padding: 20px;
+    background-color: rgba(0, 0, 0, 0.1); /* Fondo semitransparente */
+    border-radius: 10px;
+    text-align: center;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Sombra ligera */
+}
+
+/* Mostrar el contenido activo */
+.tab-content.active {
+    display: block;
+}
+
+/* Contenido específico para el Mapa de Procesos */
+#content-mapa {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    text-align: center;
+    margin-top: 20px;
+}
+
+#mapa-procesos-img {
+    max-width: 80%;
+    height: auto;
+    border: 2px solid #ddd; /* Borde decorativo */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Sombra para la imagen */
+
+ }
+   
+#content-mapa {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    height: 100%;
+    padding: 20px;
+    background-color: transparent; /* Fondo transparente */
+    text-align: center;
+    border-radius: 10px; /* Opcional: Bordes redondeados */
+    box-shadow: none; /* Elimina cualquier sombra */
+}
+
+#mapa-procesos-img {
+    max-width: 90%; /* Ajusta al tamaño del contenedor */
+    height: auto;
+    border: none; /* Elimina cualquier borde */
+    box-shadow: none; /* Elimina cualquier sombra */
+    background-color: transparent; /* Asegura que no haya fondo en la imagen */
+}
+
+
+
+</style>
+
+</style>
 
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
@@ -639,7 +922,6 @@
       <div class="user-box" id="normasIsoButton">📜 Normas ISO</div>
     <div class="dropdown-menu" id="dropdown-menu">
         <a href="#" id="viewProfile">Ver mi perfil</a>
-        <a href="#">Administrar perfil</a>
         <a href="#" id="openOrgChart">Ver mi puesto y responsabilidades</a>
         <a href="#" id="logout">Cerrar sesión</a>
     </div>
@@ -717,13 +999,16 @@
 <div class="menu-container" id="menu-screen">
     <h1>ACEITES Y LIPIDOS BD TE DA LA BIENVENIDA</h1>
 
-    <!-- Pestañas de navegación -->
+
     <div class="tabs">
-            <div id="tab-home" class="active">Inicio</div>
-            <div id="tab-lists">Listas</div>
-            <div id="tab-files">Archivos</div>
-            <div id="tab-settings">Configuración</div>
-        </div>
+    <div id="tab-home" class="active">Inicio</div>
+    <div id="tab-lists">Listas</div>
+    <div id="tab-files">Formatos </div>
+    <div id="tab-requisitos">Requisitos</div>
+    <div id="tab-mapa">Mapa de Procesos</div>
+</div>
+
+
 
 
     <!-- Contenido de Inicio -->
@@ -747,7 +1032,7 @@
         </div>
         <!-- Botón para cargar el archivo HACCP -->
         <button id="btn-haccp" class="green-button">Manual HACCP</button>
-<button id="btn-proceso" class="green-button">Proceso</button>
+<button id="btn-proceso" class="green-button">Procedimiento</button>
 <button id="btn-calidad" class="green-button">Manual de Gestión de Calidad</button>
 
 
@@ -778,7 +1063,9 @@
         <a href="#" onclick="showListContent('perfil')">Perfil Funcional</a>
         <a href="#" onclick="showListContent('responsabilidades')">Responsabilidades</a>
         <a href="#" onclick="showListContent('Procesos')">Procesos</a>
+         <!-- Contenedor de paginación -->
     </div>
+
     <div id="list-content">
         <table>
             <thead>
@@ -790,12 +1077,14 @@
             </thead>
             <tbody id="fileTableBody-lists"></tbody>
         </table>
-        <!-- Contenedor de paginación -->
-        <div id="pagination-container-lists" style="margin-top: 20px; text-align: center;"></div>
-    </div>
+       
+</div>
+<!-- Contenedor de paginación -->
+       <div id="pagination-container-files" style="margin-top: 20px; text-align: center;"></div>
 </div>
 
-       <!-- Menú de tres puntos -->
+
+  <!-- Menú de tres puntos -->
  <div class="three-dots-menu" id="threeDotsMenu">⋮</div>
     <div class="three-dots-dropdown" id="threeDotsDropdown" style="display: none;">
         <a href="#" id="nonConformities">No conformidades</a>
@@ -804,41 +1093,87 @@
         <a href="#" id="otherOptions">Otras Opciones</a> <!-- Nueva opción -->
     </div>
 
-
-
-        <div id="files" class="tab-content">
-            <h2>Archivo</h2>
+    
+  <div id="files" class="tab-content">
+            <h2>Formatos</h2>
             <input type="file" id="fileInput" />
-            <button class="button" id="uploadBtn">Subir Archivo</button>
+            <button class="button" id="uploadBtn">Subir Formatos </button>
             
             <table>
                 <thead>
                     <tr>
                         <th>Título</th>
                         <th>Código</th>
-                        <th>Archivo</th>
+                        <th>Formato</th>
                     </tr>
                 </thead>
                 <tbody id="fileTableBody">
                 </tbody>
             </table>
-    <!-- Contenedor de paginación -->
-    <div id="pagination-container-files" style="margin-top: 20px; text-align: center;"></div>
-</div>
+  <!-- Contenedor de paginación -->
+    
 
-        </div>
 
-        <div id="settings" class="tab-content">
-            <h2>Configuración</h2>
-            <p>Aquí se configurarán los ajustes del sistema.</p>
-        </div>
+     </div>
+
+     <div id="requisitos" class="tab-content">
+    <h2 style="color: #00b954; text-align: center;">Selección de Requisitos</h2>
+    <div class="tabs" style="justify-content: center;">
+        <div id="req-tab-contexto" class="active">4. Contexto</div>
+        <div id="req-tab-liderazgo">5. Liderazgo</div>
+        <div id="req-tab-planificacion">6. Planificación</div>
+        <div id="req-tab-apoyo">7. Apoyo</div>
+        <div id="req-tab-operacion">8. Operación</div>
+        <div id="req-tab-desempeño">9. Desempeño</div>
+        <div id="req-tab-mejora">10. Mejora</div>
     </div>
 
+    <div id="requisitos-content" class="requisitos-content" style="display: flex; flex-direction: column; align-items: center;">
+        <!-- Búsqueda -->
+        <div id="search-bar" style="margin: 20px 0; text-align: center;">
+            <input 
+                type="text" 
+                id="searchInput-requisitos" 
+                placeholder="Buscar en los requisitos..." 
+                style="padding: 10px; border-radius: 5px; border: 1px solid #ccc; width: 250px;"
+            />
+            <button id="searchButton-requisitos" class="green-button" style="margin-left: 10px;">Buscar</button>
+        </div>
+
+        <!-- Tabla -->
+        <table style="width: 80%; border-collapse: collapse; margin: 20px 0; text-align: left;">
+            <thead>
+                <tr>
+                    <th style="padding: 10px; background-color: #4b5e6e; color: white; border: 1px solid #ccc;">Título</th>
+                    <th style="padding: 10px; background-color: #4b5e6e; color: white; border: 1px solid #ccc;">Código</th>
+                    <th style="padding: 10px; background-color: #4b5e6e; color: white; border: 1px solid #ccc;">Archivo</th>
+                </tr>
+            </thead>
+            <tbody id="fileTableBody-requisitos">
+                <!-- Los datos dinámicos aparecerán aquí -->
+            </tbody>
+        </table>
+
+        <!-- Paginación -->
+        <div id="pagination-container-requisitos" style="margin-top: 20px; text-align: center;"></div>
+    </div>
+</div>
+
+<div id="content-mapa" class="tab-content">
+    <h2>Mapa de Procesos</h2>
+    <img id="mapa-procesos-img" src="https://firebasestorage.googleapis.com/v0/b/plataforma-39bde.appspot.com/o/Imagen%20de%20WhatsApp%202024-12-11%20a%20las%2019.25.14_8d4d0dbe.jpg?alt=media&token=7e62d2be-5127-4b8f-a74d-eed009aefaef" alt="Mapa de Procesos">
+   
+</div>
+
+
+  
     <script type="module">
             import { initializeApp } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-auth.js";
 import { getFirestore, doc, setDoc, getDoc, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore.js";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-storage.js";
+// Configuración de Firebase (asegúrate de que ya tienes Firebase configurado)
+
 
 const firebaseConfig = {
     apiKey: "AIzaSyD323PEVx7xnnBWpMr2usOEEFQQ20YUcD8",
@@ -855,6 +1190,59 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 const storage = getStorage(app);
+
+// MAPA DE PROCESOS - Código actualizado para centrar la visualización
+
+// MAPA DE PROCESOS - Mostrar solo cuando se está en la pestaña específica
+document.addEventListener('DOMContentLoaded', () => {
+    const tabs = document.querySelectorAll('.tabs div');
+    const contentMapa = document.getElementById('content-mapa');
+    const imgMapaProcesos = document.getElementById('mapa-procesos-img');
+
+    if (!contentMapa || !imgMapaProcesos) {
+        console.error("No se encontraron los elementos necesarios para el mapa de procesos.");
+        return;
+    }
+
+    tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            // Ocultar el contenido del mapa al cambiar de pestaña
+            if (tab.id !== 'tab-mapa') {
+                contentMapa.style.display = 'none';
+                imgMapaProcesos.src = ''; // Limpiar la imagen
+            } else {
+                // Mostrar el contenido del mapa al entrar en la pestaña "Mapa de Procesos"
+                contentMapa.style.display = 'flex';
+                contentMapa.style.flexDirection = 'column';
+                contentMapa.style.justifyContent = 'center';
+                contentMapa.style.alignItems = 'center';
+                contentMapa.style.height = '100vh';
+                contentMapa.style.backgroundColor = '#f8f8f8';
+
+                // Cargar la imagen desde Firebase Storage
+                const storage = getStorage();
+                const imageRef = ref(storage, 'Imagen de WhatsApp 2024-12-11 a las 19.25.14_8d4d0dbe.jpg');
+
+                getDownloadURL(imageRef)
+                    .then((url) => {
+                        imgMapaProcesos.src = url;
+                        imgMapaProcesos.style.maxWidth = '90%';
+                        imgMapaProcesos.style.height = 'auto';
+                        imgMapaProcesos.style.border = '2px solid #ddd';
+                        imgMapaProcesos.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.1)';
+                    })
+                    .catch((error) => {
+                        console.error('Error al cargar la imagen:', error);
+                        imgMapaProcesos.alt = 'Error al cargar el mapa de procesos.';
+                    });
+            }
+        });
+    });
+});
+
+
+
+
 // Variables globales
 let pdfDocument = null; // Documento PDF cargado
 let currentPage = 1; // Página actual
@@ -865,6 +1253,7 @@ const pdfViewerContainer = document.getElementById("pdfViewerContainer");
 
 
 //FUN CION PARA PESTAÑA DE DOCUMENTOS 
+// Variables para la paginación
 let currentPageFiles = 1;
 let currentPageLists = 1;
 const itemsPerPage = 5;
@@ -876,15 +1265,23 @@ async function loadFilesPaginated() {
     fileTableBody.innerHTML = "";
     paginationContainer.innerHTML = "";
 
-    // Obtener todos los archivos
+    // Obtener todos los archivos desde Firestore
     const querySnapshot = await getDocs(collection(db, "files"));
     const files = [];
     querySnapshot.forEach((doc) => {
         files.push(doc.data());
     });
 
+    // Ordenar los archivos por nombre para consistencia
+    files.sort((a, b) => a.name.localeCompare(b.name));
+
     // Calcular el número total de páginas
     const totalPages = Math.ceil(files.length / itemsPerPage);
+
+    // Validar que la página actual no exceda el total de páginas
+    if (currentPageFiles > totalPages) {
+        currentPageFiles = totalPages;
+    }
 
     // Obtener los archivos de la página actual
     const start = (currentPageFiles - 1) * itemsPerPage;
@@ -937,19 +1334,27 @@ async function loadFilesPaginated() {
 // Función para cargar las listas con paginación
 async function loadListsPaginated(type) {
     const fileTableBody = document.getElementById("fileTableBody-lists");
-    const paginationContainer = document.getElementById("pagination-container-lists");
+    const paginationContainer = document.getElementById("pagination-container-files");
     fileTableBody.innerHTML = "";
     paginationContainer.innerHTML = "";
 
-    // Obtener todos los formatos
+    // Obtener todos los documentos del tipo especificado
     const querySnapshot = await getDocs(collection(db, `files-${type}`));
     const files = [];
     querySnapshot.forEach((doc) => {
         files.push(doc.data());
     });
 
+    // Ordenar los archivos por nombre para consistencia
+    files.sort((a, b) => a.name.localeCompare(b.name));
+
     // Calcular el número total de páginas
     const totalPages = Math.ceil(files.length / itemsPerPage);
+
+    // Validar que la página actual no exceda el total de páginas
+    if (currentPageLists > totalPages) {
+        currentPageLists = totalPages;
+    }
 
     // Obtener los formatos de la página actual
     const start = (currentPageLists - 1) * itemsPerPage;
@@ -1001,13 +1406,12 @@ async function loadListsPaginated(type) {
 
 // Llamar a las funciones de paginación
 loadFilesPaginated();
+
+// Mostrar contenido basado en la categoría seleccionada
 window.showListContent = function(type) {
     currentPageLists = 1; // Reiniciar la página al cambiar de lista
     loadListsPaginated(type);
 };
-
-
-
 
 
 
@@ -1538,10 +1942,9 @@ window.addEventListener("click", (event) => {
         document.getElementById('tab-files').addEventListener('click', () => {
             showTabContent('files');
         });
+document.getElementById('tab-requisitos').addEventListener('click', () => {
+    showTabContent('requisitos');
 
-        document.getElementById('tab-settings').addEventListener('click', () => {
-            showTabContent('settings');
-    
         });
 
         function showTabContent(tabId) {
@@ -1803,6 +2206,159 @@ document.addEventListener("click", (event) => {
         pdfContainer.style.display = "none";
         pdfViewer.src = "";
     }
+});
+
+
+//FUNCION PARA REQUISITOS 
+// Encapsulamos todo dentro de un namespace para evitar conflictos
+const TabManager = (() => {
+    // Función para mostrar el contenido de las pestañas
+    function showTabContent(tabId) {
+        const tabContents = document.querySelectorAll('.tab-content');
+
+        // Ocultar todas las pestañas
+        tabContents.forEach((content) => {
+            content.classList.remove('active');
+        });
+
+        // Mostrar solo la pestaña correspondiente
+        const activeTab = document.getElementById(tabId);
+        if (activeTab) {
+            activeTab.classList.add('active');
+        } else {
+            console.error(`No se encontró la pestaña con ID: ${tabId}`);
+        }
+
+        // Cambiar el estado de las pestañas
+        const tabs = document.querySelectorAll('.tabs div');
+        tabs.forEach((tab) => {
+            tab.classList.remove('active');
+        });
+
+        const activeTabButton = document.getElementById(`tab-${tabId}`);
+        if (activeTabButton) {
+            activeTabButton.classList.add('active');
+        }
+    }
+
+    // Función específica para manejar la pestaña "Requisitos"
+    function handleRequisitosTab(tabId) {
+        const requisitosContent = document.getElementById('requisitos-content');
+        if (!requisitosContent) {
+            console.error('No se encontró el contenedor de requisitos.');
+            return;
+        }
+
+        // Cargar contenido dinámico en base al tabId
+        switch (tabId) {
+            case 'contexto':
+                requisitosContent.innerHTML = `
+                    <h3>4. Contexto</h3>
+                    <ul>
+                        <li>4.1 Comprensión de la organización y su contexto</li>
+                        <li>4.2 Comprensión de las necesidades y expectativas de las partes</li>
+                        <li>4.3 Determinación del alcance del sistema de gestión de la calidad</li>
+                        <li>4.4 Sistema de gestión de la calidad y sus procesos</li>
+                    </ul>
+                `;
+                break;
+            case 'liderazgo':
+                requisitosContent.innerHTML = `
+                    <h3>5. Liderazgo</h3>
+                    <ul>
+                        <li>5.1 Liderazgo y compromiso</li>
+                        <li>5.2 Política</li>
+                        <li>5.3 Roles, responsabilidades y autoridades organizacionales</li>
+                    </ul>
+                `;
+                break;
+            default:
+                requisitosContent.innerHTML = `<p>Contenido no disponible para la pestaña seleccionada.</p>`;
+                break;
+        }
+    }
+
+    // Exponemos las funciones necesarias
+    return {
+        showTabContent,
+        handleRequisitosTab,
+    };
+})();
+
+// Eventos para manejar las pestañas
+document.addEventListener('DOMContentLoaded', () => {
+    const tabs = document.querySelectorAll('.tabs div');
+
+    tabs.forEach((tab) => {
+        tab.addEventListener('click', () => {
+            const tabId = tab.id.replace('tab-', '');
+            TabManager.showTabContent(tabId);
+
+            // Verificar si es la pestaña de "Requisitos"
+            if (tabId === 'requisitos') {
+                TabManager.handleRequisitosTab('contexto'); // Cargar el contenido inicial de Requisitos
+            }
+        });
+    });
+
+    // Carga inicial para la pestaña activa
+    const activeTab = document.querySelector('.tabs div.active');
+    if (activeTab) {
+        const tabId = activeTab.id.replace('tab-', '');
+        TabManager.showTabContent(tabId);
+        if (tabId === 'requisitos') {
+            TabManager.handleRequisitosTab('contexto'); // Cargar el contenido inicial
+        }
+    }
+});
+
+// Tabs de requisitos
+document.addEventListener("DOMContentLoaded", () => {
+    const tabs = document.querySelectorAll(".tabs div");
+    const requisitosContent = document.getElementById("requisitos-content");
+    const tableBody = document.getElementById("fileTableBody-requisitos");
+
+    // Datos simulados para cada pestaña
+    const requisitosData = {
+        contexto: [
+            { titulo: "4.1 Contexto", codigo: "CON-001", archivo: "Archivo1.pdf" },
+            { titulo: "4.2 Necesidades", codigo: "CON-002", archivo: "Archivo2.pdf" },
+        ],
+        liderazgo: [
+            { titulo: "5.1 Liderazgo", codigo: "LID-001", archivo: "Archivo3.pdf" },
+            { titulo: "5.2 Política", codigo: "LID-002", archivo: "Archivo4.pdf" },
+        ],
+        // Añade más datos aquí para las demás pestañas
+    };
+
+    function loadTabContent(tabId) {
+        tableBody.innerHTML = "";
+        const data = requisitosData[tabId] || [];
+
+        data.forEach((item) => {
+            const row = `
+                <tr>
+                    <td>${item.titulo}</td>
+                    <td>${item.codigo}</td>
+                    <td><a href="#" class="file-link">${item.archivo}</a></td>
+                </tr>
+            `;
+            tableBody.innerHTML += row;
+        });
+    }
+
+    tabs.forEach((tab) => {
+        tab.addEventListener("click", (e) => {
+            tabs.forEach((t) => t.classList.remove("active"));
+            tab.classList.add("active");
+
+            const tabId = tab.id.replace("req-tab-", "");
+            loadTabContent(tabId);
+        });
+    });
+
+    // Cargar la primera pestaña por defecto
+    loadTabContent("contexto");
 });
 
 

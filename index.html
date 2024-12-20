@@ -384,7 +384,7 @@
             border-bottom: none;
         }
 
-       <style>
+       
     /* Estilo general del modal */
     .modal {
         display: none;
@@ -788,7 +788,7 @@ h2 {
 }
 
 
-<style>
+
 /* Ajustar la posición de las pestañas */
 .tabs {
     display: flex;
@@ -873,6 +873,59 @@ h2 {
     background-color: transparent; /* Asegura que no haya fondo en la imagen */
 }
 
+/* Letras negras solo en el modal del perfil */
+#profileModal p, #profileModal h2, #profileModal span {
+    color: #000000; /* Cambiar a negro */
+}
+
+/* Aseguramos que los textos dentro del modal tengan el estilo */
+#profileModal strong {
+    color: #000000; /* Títulos destacados en negro */
+}
+
+/* Fondo del modal */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.8); /* Fondo oscuro */
+}
+
+/* Contenedor del modal */
+.modal-content {
+    background-color: #fff;
+    margin: auto;
+    padding: 0;
+    border-radius: 8px;
+    width: 95%; /* Ocupa el 95% del ancho de la pantalla */
+    height: 95%; /* Ocupa el 95% de la altura de la pantalla */
+    text-align: center;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+    position: relative;
+}
+
+/* Encabezado del modal */
+#orgChartHeader {
+    margin: 0;
+    padding: 10px;
+    font-size: 24px;
+    background-color: #f4f4f4;
+    text-align: center;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* Iframe del PDF */
+iframe {
+    width: 100%; /* Ocupa todo el ancho del contenedor */
+    height: calc(100% - 50px); /* Altura restante después del encabezado */
+    border: none;
+}
 
 
 </style>
@@ -927,17 +980,22 @@ h2 {
     </div>
     <div class="marca-de-agua">α4</div>
 
-    <!-- Modal para el organigrama -->
-    <div id="orgChartModal" class="modal">
-        <div class="modal-content">
-            <span class="close" id="closeOrgChart">&times;</span>
-            <h2>Organigrama</h2>
-            <img src="https://firebasestorage.googleapis.com/v0/b/YOUR_PROJECT_ID.appspot.com/o/Imagen%20de%20WhatsApp%202024-10-31%20a%20las%2023.40.09_c810af33.jpg?alt=media" alt="Organigrama" style="width: 100%;">
-        </div>
+   <!-- Modal para el organigrama -->
+<div id="orgChartModal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <span class="close" id="closeOrgChart">&times;</span>
+        <!-- Encabezado -->
+        <h2 id="orgChartHeader">Organigrama</h2>
+        <!-- Iframe para el PDF -->
+        <iframe 
+            id="orgChartIframe"
+            src="https://firebasestorage.googleapis.com/v0/b/plataforma-39bde.appspot.com/o/OrganigramaDiciembre2024.pdf?alt=media&token=299b33c5-1560-4972-b9ec-0480fe71c63e"
+            title="Organigrama">
+        </iframe>
     </div>
+</div>
 
-   
-  
+
   <!-- Modal para el perfil de usuario -->
     <div id="profileModal" class="modal">
         <div class="modal-content">
@@ -1006,6 +1064,10 @@ h2 {
     <div id="tab-files">Formatos </div>
     <div id="tab-requisitos">Requisitos</div>
     <div id="tab-mapa">Mapa de Procesos</div>
+    <div id="tab-procedimientos">Procedimientos</div>
+    <div id="tab-inocuidad">Política de Inocuidad</div>
+
+
 </div>
 
 
@@ -1163,6 +1225,96 @@ h2 {
     <h2>Mapa de Procesos</h2>
     <img id="mapa-procesos-img" src="https://firebasestorage.googleapis.com/v0/b/plataforma-39bde.appspot.com/o/Imagen%20de%20WhatsApp%202024-12-11%20a%20las%2019.25.14_8d4d0dbe.jpg?alt=media&token=7e62d2be-5127-4b8f-a74d-eed009aefaef" alt="Mapa de Procesos">
    
+</div>
+
+
+<div id="procedimientos" class="tab-content">
+    <h2>Procedimientos</h2>
+    <input type="file" id="fileInput-procedimientos" />
+    <button class="button" id="uploadBtn-procedimientos">Subir Procedimientos</button>
+    
+    <table>
+        <thead>
+            <tr>
+                <th>Título</th>
+                <th>Código</th>
+                <th>Archivo</th>
+            </tr>
+        </thead>
+        <tbody id="fileTableBody-procedimientos">
+            <!-- Los archivos se cargarán dinámicamente aquí -->
+        </tbody>
+    </table>
+
+    <!-- Contenedor de paginación -->
+    <div id="pagination-container-procedimientos" style="margin-top: 20px; text-align: center;"></div>
+</div>
+
+
+
+<div id="inocuidad" class="tab-content">
+    <h2>Política de Inocuidad</h2>
+    <div class="reglamento-container" style="text-align: justify; padding: 20px;">
+        <p>Es obligatorio para todo el personal que labora en las instalaciones de la organización, así como todas aquellas personas externas a la operación que ingresen a estas cumplir con las normas de buenas prácticas de manufactura establecidas en el presente reglamento antes de entrar al área de proceso.</p>
+        <ol>
+            <li>Todo el personal debe de practicar los siguientes hábitos de higiene personal:
+                <ul>
+                    <li>√ Presentarse aseado a laborar (bañado y con ropa limpia incluyendo la interior).</li>
+                    <li>√ Los hombres deben traer el cabello corto y limpio, en caso de usar bigote este deber ser recortado a la comisura del labio superior.</li>
+                    <li>√ Las barbas y/o vello facial largo, quedan estrictamente prohibidos para el personal.</li>
+                    <li>√ Usar desodorante y talco.</li>
+                    <li>√ Lavarse los dientes.</li>
+                    <li>√ Rasurarse diariamente.</li>
+                    <li>√ Las uñas deberán usarse cortas, limpias y sin esmalte.</li>
+                    <li>√ Se permite el uso de patillas siempre que estén recortadas y que no se extiendan más allá del lóbulo inferior de la oreja.</li>
+                    <li>√ Prohibido el uso de maquillaje en áreas operativas.</li>
+                    <li>√ Portar uniforme limpio y completo, mismo que deberá traerlo al centro de trabajo dentro de una bolsa plástica limpia.</li>
+                    <li>√ Solo se permite el uso de zapatos cerrados y de suela antideslizante; deberán mantenerse limpios y en buenas condiciones. El uso de tenis dentro del área de proceso no está permitido.</li>
+                </ul>
+            </li>
+            <li>Todo personal operativo no debe exhibir lesiones y/o infecciones en piel, gastrointestinales, garganta y oídos y en caso de presentar alguna notificar al Titular del área para que se tomen las medidas preventivas.</li>
+            <li>Debe portar correctamente el uniforme designado a su área.</li>
+            <li>Utilizar únicamente los materiales y/o uniformes asignados a su área, en caso de requerir algo distinto debe consultar con el área Titular de área y/o Aseguramiento de Calidad.</li>
+            <li>Prohibido el uso de joyas, pulseras, dijes, reloj, escapularios, piercings o adornos ya que estos se pueden desprender y caer en el producto.</li>
+            <li>Prohibido alterar el uniforme, equipo de trabajo o seguridad, escribiendo sobre él o colocando calcomanías, fuera de lo oficialmente designado.</li>
+            <li>Todo el personal que ingrese a las áreas operativas deberá lavar y sanear las manos correctamente:
+                <ul>
+                    <li>√ Antes de iniciar labores.</li>
+                    <li>√ Antes de manipular los productos.</li>
+                    <li>√ Antes y después de comer.</li>
+                    <li>√ Después de ir al servicio sanitario.</li>
+                    <li>√ Después de toser, estornudar o tocarse la nariz.</li>
+                    <li>√ Después de manipular residuos.</li>
+                </ul>
+            </li>
+            <li>En las zonas donde se manipule productos está prohibido todo acto que pueda resultar en contaminación de estos. El personal debe evitar prácticas inadecuadas y antihigiénicas como rascarse la cabeza, tocarse la frente, introducir los dedos en las orejas, nariz y boca, entre otros.</li>
+            <li>Prohibido sentarse en el piso con el uniforme puesto, aplica dentro y fuera de las instalaciones de la planta.</li>
+            <li>Prohibido consumir alimentos, dulces, bebidas, mascar chicle, fumar o escupir dentro de áreas operativas y solo será permitido en las áreas establecidas para tal fin.</li>
+            <li>Todo personal que toque algo que cayó o tuvo contacto con el piso debe lavarse las manos antes de continuar sus tareas.</li>
+            <li>Prohibido colocar el producto y utensilios de trabajo en el piso.</li>
+            <li>El personal sólo se limitará a realizar sus actividades indicadas dentro de su área, así como aquellas otras que le sea designadas por su competencia.</li>
+            <li>En caso de que el producto que está siendo elaborado caiga al piso, inmediatamente debe desecharse.</li>
+            <li>En caso de que cualquier utensilio que caiga al piso debe ser lavado y saneado nuevamente antes de ser usado.</li>
+            <li>Debe respetarse lo documentado en los Procedimientos Operativos Estandarizados de Saneamiento (POES).</li>
+            <li>No colocar utensilios de limpieza sobre equipos, zonas de contacto con el producto o sobre piso sucio.</li>
+            <li>Se deben de guardar los materiales de limpieza, químicos y otras sustancias peligrosas en el lugar asignado, bajo llave y con acceso restringido.</li>
+            <li>Deben lavarse todos los equipos, utensilios y accesorios empleados en la elaboración de productos al finalizar su uso evitando dejar residuos.</li>
+            <li>El personal debe separar o segregar el producto no conforme en el área designada para esta actividad.</li>
+            <li>El personal debe de seguir el Sistema de almacenamiento y rotación de stock establecido primeras entradas-primeras salidas (PEPS).</li>
+            <li>Todo personal que evalúe producto en proceso antes de que lo toque debe sanear sus manos para evitar contaminación cruzada.</li>
+            <li>Todo personal que realice actividades que afecten la calidad del producto y/o inocuidad de estos por ningún motivo debe realizar actividades que pongan en riesgo la calidad e inocuidad del producto.</li>
+            <li>Todo el personal que ingrese al área de proceso deberá cubrir su cabeza con una cofia. El cabello deberá usarse de preferencia corto; aquellas personas con cabello largo deberán sujetarlo para que no salga de la cofia.</li>
+            <li>Todo el personal que entre en contacto con producto o superficies en contacto con el alimento debe cubrirse la boca y la nariz con un cubrebocas o mascarilla.</li>
+            <li>Los objetos personales y ropa deben guardarse únicamente en casilleros asignados para ello.</li>
+            <li>Todo el personal debe mantener aseado el lugar en que desempeñan su trabajo, así como conservar en buen estado y operar los equipos y utensilios proporcionados.</li>
+            <li>Todo el personal debe contribuir a contar con un ambiente laboral de cordialidad y respeto.</li>
+            <li>Conducirse en el centro de trabajo en forma segura para evitar cualquier riesgo en su persona y/o en la inocuidad del producto.</li>
+            <li>Someterse a los exámenes médicos que establezca el área de Recursos Humanos tratándose de trabajadores que interactúan con alimentos.</li>
+            <li>Participar en la capacitación, adiestramiento y eventos de información que el área de Recursos Humanos programe.</li>
+            <li>Informar al Titular de Recursos Humanos sobre sus posibles limitaciones para realizar actividades.</li>
+            <li>Avisar inmediatamente al Titular del área y/o Aseguramiento de Calidad sobre condiciones inseguras o accidentes de trabajo.</li>
+        </ol>
+    </div>
 </div>
 
 
@@ -1638,7 +1790,7 @@ window.addEventListener("click", (event) => {
 
 
         async function loadOrgChartImage() {
-            const storageRef = ref(storage, 'Imagen de WhatsApp 2024-10-31 a las 23.40.09_c810af33.jpg');
+            const storageRef = ref(storage, 'OrganigramaDiciembre2024.pdf');
             const url = await getDownloadURL(storageRef);
             document.querySelector("#orgChartModal img").src = url;
         }
@@ -2361,6 +2513,152 @@ document.addEventListener("DOMContentLoaded", () => {
     loadTabContent("contexto");
 });
 
+//FUNCION PARA ORGRANIGRAMA 
+document.addEventListener("DOMContentLoaded", function () {
+    const modal = document.getElementById("orgChartModal");
+    const closeBtn = document.getElementById("closeOrgChart");
+    const openOrgChartBtn = document.getElementById("openOrgChart");
+
+    // Mostrar el modal
+    openOrgChartBtn.addEventListener("click", () => {
+        modal.style.display = "block";
+    });
+
+    // Cerrar el modal
+    closeBtn.onclick = () => {
+        modal.style.display = "none";
+    };
+
+    // Cerrar el modal al hacer clic fuera del contenido
+    window.onclick = (event) => {
+        if (event.target === modal) {
+            modal.style.display = "none";
+        }
+    };
+});
+
+//FUNCION PARA PROCESOS 
+// Variables para la paginación
+let currentPageProcedimientos = 1;
+const itemsPerPageProcedimientos = 5;
+
+// Función para cargar los archivos de procedimientos con paginación
+async function loadProcedimientosPaginated() {
+    const fileTableBody = document.getElementById("fileTableBody-procedimientos");
+    const paginationContainer = document.getElementById("pagination-container-procedimientos");
+    fileTableBody.innerHTML = "";
+    paginationContainer.innerHTML = "";
+
+    // Obtener todos los archivos desde Firestore
+    const querySnapshot = await getDocs(collection(db, "files-procedimientos"));
+    const files = [];
+    querySnapshot.forEach((doc) => {
+        files.push(doc.data());
+    });
+
+    // Ordenar los archivos por nombre para consistencia
+    files.sort((a, b) => a.name.localeCompare(b.name));
+
+    // Calcular el número total de páginas
+    const totalPages = Math.ceil(files.length / itemsPerPageProcedimientos);
+
+    // Validar que la página actual no exceda el total de páginas
+    if (currentPageProcedimientos > totalPages) {
+        currentPageProcedimientos = totalPages;
+    }
+
+    // Obtener los archivos de la página actual
+    const start = (currentPageProcedimientos - 1) * itemsPerPageProcedimientos;
+    const end = start + itemsPerPageProcedimientos;
+    const currentFiles = files.slice(start, end);
+
+    // Mostrar los archivos en la tabla
+    currentFiles.forEach((fileData) => {
+        const row = document.createElement("tr");
+
+        const titleCell = document.createElement("td");
+        titleCell.textContent = fileData.name;
+
+        const codeCell = document.createElement("td");
+        codeCell.textContent = fileData.code || "Código no encontrado";
+
+        const fileCell = document.createElement("td");
+        if (fileData.url) {
+            const link = document.createElement("a");
+            link.href = fileData.url;
+            link.target = "_blank";
+            link.classList.add("file-link");
+            link.innerHTML = `<img src="https://img.icons8.com/ios-filled/50/000000/pdf.png" class="icon" /> Ver archivo`;
+            fileCell.appendChild(link);
+        } else {
+            fileCell.textContent = "Sin Archivo";
+            fileCell.classList.add("no-file");
+        }
+
+        row.appendChild(titleCell);
+        row.appendChild(codeCell);
+        row.appendChild(fileCell);
+        fileTableBody.appendChild(row);
+    });
+
+    // Crear botones de paginación
+    for (let i = 1; i <= totalPages; i++) {
+        const button = document.createElement("button");
+        button.textContent = i;
+        button.classList.add("pagination-button");
+        if (i === currentPageProcedimientos) button.classList.add("active");
+        button.addEventListener("click", () => {
+            currentPageProcedimientos = i;
+            loadProcedimientosPaginated();
+        });
+        paginationContainer.appendChild(button);
+    }
+}
+
+// Subir archivos de procedimientos
+document.getElementById("uploadBtn-procedimientos").addEventListener("click", async () => {
+    const fileInput = document.getElementById("fileInput-procedimientos");
+    const file = fileInput.files[0];
+
+    if (!file) {
+        alert("Por favor seleccione un archivo para subir.");
+        return;
+    }
+
+    const code = await extractCodeFromPDF(file);
+
+    try {
+        const fileName = file.name;
+        const storageRef = ref(storage, `uploads/procedimientos/${fileName}`);
+        await uploadBytes(storageRef, file);
+        const downloadURL = await getDownloadURL(storageRef);
+
+        await addDoc(collection(db, "files-procedimientos"), {
+            name: fileName,
+            url: downloadURL,
+            code: code,
+            date: new Date().toLocaleDateString()
+        });
+
+        loadProcedimientosPaginated();
+        fileInput.value = "";
+    } catch (error) {
+        console.error("Error al subir el archivo:", error.message);
+        alert("Error al subir el archivo: " + error.message);
+    }
+});
+
+// Cargar los archivos de procedimientos al inicio
+document.getElementById("tab-procedimientos").addEventListener("click", () => {
+    showTabContent("procedimientos");
+    loadProcedimientosPaginated();
+});
+
+
+// Manejar el clic en la pestaña "Política de Inocuidad"
+document.getElementById("tab-inocuidad").addEventListener("click", () => {
+    showTabContent("inocuidad");
+});
 
 
      </script>

@@ -927,6 +927,39 @@ iframe {
     border: none;
 }
 
+#alfaAssistant {
+    background: linear-gradient(135deg, #28a745, #218838); /* Gradiente verde */
+    color: #ffffff; /* Texto blanco */
+    font-size: 16px; /* Tamaño de fuente ligeramente más grande */
+    font-weight: bold;
+    text-align: center;
+    border-radius: 50%;
+    width: 60px; /* Botón más grande para mayor visibilidad */
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    position: absolute;
+    top: 20px;
+    right: 30px; /* Ajuste para moverlo más a la izquierda */
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2); /* Sombra más pronunciada */
+    transition: all 0.3s ease;
+}
+
+#alfaAssistant:hover {
+    background: linear-gradient(135deg, #218838, #1e7e34); /* Gradiente más oscuro en hover */
+    transform: scale(1.1); /* Aumenta el tamaño ligeramente */
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3); /* Sombra más intensa */
+}
+
+#alfaAssistant:active {
+    transform: scale(0.95); /* Leve reducción al hacer clic */
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2); /* Reduce la sombra */
+}
+
+
+
 
 </style>
 
@@ -973,10 +1006,14 @@ iframe {
     <!-- Contenedor de usuario y menú desplegable -->
     <div class="user-box" id="user-box">👤</div>
       <div class="user-box" id="normasIsoButton">📜 Normas ISO</div>
+      
+
     <div class="dropdown-menu" id="dropdown-menu">
         <a href="#" id="viewProfile">Ver mi perfil</a>
         <a href="#" id="openOrgChart">Ver mi puesto y responsabilidades</a>
+         <a href="#" id="alfaAssistant">🤖 Alfa</a>
         <a href="#" id="logout">Cerrar sesión</a>
+        
     </div>
     <div class="marca-de-agua">α4</div>
 
@@ -1342,6 +1379,229 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 const storage = getStorage(app);
+
+
+// Configuración para Alfa
+const alfaAssistant = document.getElementById('alfaAssistant');
+const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+const recognition = SpeechRecognition ? new SpeechRecognition() : null;
+if (recognition) recognition.lang = 'es-ES';
+
+const synth = window.speechSynthesis; // API para que Alfa hable
+
+let currentUserName = "";
+let isVoiceCommand = false; // Flag para determinar si la navegación es por comando de voz
+
+// Verificar si el usuario está autenticado al cargar la página
+async function verifySession() {
+    const user = auth.currentUser;
+    if (user) {
+        // Obtener el nombre del usuario desde Firestore
+        const userRef = doc(db, "users", user.uid);
+        const userDoc = await getDoc(userRef);
+
+        if (userDoc.exists()) {
+            currentUserName = userDoc.data().nombre || "Usuario";
+            console.log(`Usuario autenticado: ${currentUserName}`);
+        } else {
+            console.warn("No se encontró el perfil del usuario.");
+        }
+    } else {
+        console.log("No hay ningún usuario autenticado.");
+        currentUserName = "";
+    }
+}
+
+// Función para saludar al usuario y escuchar comandos
+async function startAlfaAssistant() {
+    if (!auth.currentUser) {
+        speak("Debes iniciar sesión para usar Alfa.");
+        return;
+    }
+
+    await verifySession();
+
+    if (currentUserName) {
+        speak(`Hola ${currentUserName}, soy Alfa. ¿Qué necesitas?`);
+    } else {
+        speak("Hola. Por favor, inicia sesión para usar Alfa.");
+    }
+
+    if (recognition) recognition.start();
+}
+
+// Manejo de resultados de voz
+if (recognition) {
+    recognition.onresult = (event) => {
+        const command = event.results[0][0].transcript.toLowerCase();
+        isVoiceCommand = true; // Indicar que la acción proviene de un comando de voz
+        processCommand(command);
+    };
+
+    recognition.onerror = (event) => {
+        console.error("Error en el reconocimiento de voz:", event.error);
+        speak("Hubo un problema con el reconocimiento de voz. Intenta de nuevo.");
+    };
+
+    // Iniciar reconocimiento de voz al hacer clic en Alfa
+    alfaAssistant.addEventListener('click', async () => {
+        await startAlfaAssistant();
+    });
+} else {
+    console.error("El reconocimiento de voz no es compatible con este navegador.");
+    alert("Tu navegador no admite reconocimiento de voz. Por favor, utiliza uno compatible, como Google Chrome.");
+}
+
+// Función para hablar
+function speak(message) {
+    const utterance = new SpeechSynthesisUtterance(message);
+    utterance.lang = 'es-ES';
+    window.speechSynthesis.speak(utterance);
+}
+
+// Procesar comandos
+async function processCommand(command) {
+    command = command.toLowerCase().trim();
+
+    if (command.includes('abrir pestaña')) {
+        const tabNames = {
+            inicio: 'home',
+            listas: 'lists',
+            formatos: 'files',
+            requisitos: 'requisitos',
+            mapa: 'content-mapa',
+            procedimientos: 'procedimientos',
+            inocuidad: 'inocuidad',
+            normas: 'pdfModal', // Normas ISO
+            organigrama: 'orgChartModal', // Organigrama
+            "no conformidades": "noConformities",
+            "acciones correctivas": "correctiveActions",
+            "decisiones directivas": "directiveDecisions",
+            "otras opciones": "otherOptions"
+        };
+
+        for (const [voiceName, tabId] of Object.entries(tabNames)) {
+            if (command.includes(voiceName)) {
+                // Navegar a la pestaña
+                showTabContent(tabId, true);
+
+                // Si es un modal, mostrarlo manualmente
+                if (tabId === 'pdfModal') {
+                    document.getElementById('pdfModal').style.display = 'flex';
+                } else if (tabId === 'orgChartModal') {
+                    document.getElementById('orgChartModal').style.display = 'block';
+                }
+
+                return;
+            }
+        }
+
+        speak("No encontré esa pestaña.");
+    } else if (command.includes('abrir archivo')) {
+        const fileName = command.replace('abrir archivo', '').trim();
+        try {
+            const querySnapshot = await getDocs(collection(db, 'files'));
+            let foundFile = null;
+
+            querySnapshot.forEach((doc) => {
+                const file = doc.data();
+                if (file.name.toLowerCase().includes(fileName.toLowerCase())) {
+                    foundFile = file;
+                }
+            });
+
+            if (foundFile) {
+                window.open(foundFile.url, '_blank');
+                speak(`Abriendo el archivo ${foundFile.name}.`);
+            } else {
+                speak(`No encontré un archivo llamado ${fileName}.`);
+            }
+        } catch (error) {
+            console.error("Error buscando el archivo:", error);
+            speak("Hubo un error buscando el archivo. Intenta de nuevo.");
+        }
+    } else {
+        speak("No entendí tu comando. Por favor, intenta de nuevo.");
+    }
+}
+
+// Mostrar contenido de pestañas y navegar a la pestaña seleccionada
+function showTabContent(tabId, fromVoiceCommand = false) {
+    // Ocultar todas las pestañas activas
+    document.querySelectorAll('.tab-content').forEach((content) => {
+        content.classList.remove('active');
+    });
+
+    // Obtener la pestaña específica
+    const activeTab = document.getElementById(tabId);
+    if (activeTab) {
+        // Cambiar la URL para reflejar la pestaña activa
+        window.location.hash = `#${tabId}`;
+
+        // Mostrar la pestaña activa
+        activeTab.classList.add('active');
+
+        // Cargar contenido específico si es necesario
+        if (tabId === 'content-mapa') {
+            loadMapaProcesos();
+        } else if (tabId === 'procedimientos') {
+            loadProcedimientosPaginated();
+        }
+
+        // Solo hablar si es un comando de voz
+        if (fromVoiceCommand) {
+            speak(`Navegando a la pestaña ${tabId}`);
+        }
+    } else {
+        speak("No encontré esa pestaña. Verifica el nombre.");
+    }
+
+    isVoiceCommand = false; // Resetear el flag después de la navegación
+}
+
+// Cargar contenido del Mapa de Procesos
+function loadMapaProcesos() {
+    const contentMapa = document.getElementById('content-mapa');
+    const imgMapaProcesos = document.getElementById('mapa-procesos-img');
+
+    if (!contentMapa || !imgMapaProcesos) {
+        console.error("No se encontraron los elementos necesarios para el mapa de procesos.");
+        return;
+    }
+
+    const imageRef = ref(storage, 'Imagen de WhatsApp 2024-12-11 a las 19.25.14_8d4d0dbe.jpg');
+    getDownloadURL(imageRef)
+        .then((url) => {
+            imgMapaProcesos.src = url;
+        })
+        .catch((error) => {
+            console.error('Error al cargar la imagen:', error);
+        });
+}
+
+
+// Navegar automáticamente a la pestaña correspondiente si se utiliza un hash en la URL
+window.addEventListener('load', () => {
+    const hash = window.location.hash.replace('#', '');
+    if (hash) {
+        showTabContent(hash);
+    }
+});
+
+// Verificar la sesión al cargar la página
+verifySession();
+
+
+
+
+
+
+
+
+
+
+
+
 
 // MAPA DE PROCESOS - Código actualizado para centrar la visualización
 
@@ -2099,19 +2359,7 @@ document.getElementById('tab-requisitos').addEventListener('click', () => {
 
         });
 
-        function showTabContent(tabId) {
-            const tabContents = document.querySelectorAll('.tab-content');
-            tabContents.forEach(content => {
-                content.classList.remove('active');
-            });
-            document.getElementById(tabId).classList.add('active');
-
-            const tabs = document.querySelectorAll('.tabs div');
-            tabs.forEach(tab => {
-                tab.classList.remove('active');
-            });
-            document.getElementById(`tab-${tabId}`).classList.add('active');
-        }
+        
 
         loadFiles();
 

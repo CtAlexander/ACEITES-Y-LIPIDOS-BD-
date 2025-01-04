@@ -1384,7 +1384,6 @@ const storage = getStorage(app);
 
 
 
-
 // Configuración para Alfa
 const alfaAssistant = document.getElementById('alfaAssistant');
 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -1632,6 +1631,8 @@ recognition.onerror = (event) => {
     console.error("Error en reconocimiento de voz:", event.error);
     recognition.start();
 };
+
+
 
 
 // MAPA DE PROCESOS - Código actualizado para centrar la visualización

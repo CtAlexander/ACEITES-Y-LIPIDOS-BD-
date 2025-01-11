@@ -1397,6 +1397,7 @@ let isSpeaking = false; // Controla si Alfa está hablando
 let activationListening = true; // Controla si Alfa escucha el comando de activación
 let awaitingSearchQuery = false; // Controla si Alfa está esperando una consulta de búsqueda
 let awaitingVisitResponse = false; // Controla si Alfa está esperando la respuesta para visitar el enlace
+let awaitingFileQuery = false; // Controla si Alfa está esperando la información del archivo para abrir
 let pendingLink = ""; // Almacena el enlace pendiente para visitar
 
 const GOOGLE_API_KEY = "AIzaSyADtBrzg5IgZbyCnxUe63DDlQ4Va02fMoQ"; // Tu clave de API
@@ -1436,6 +1437,9 @@ recognition.onresult = (event) => {
         performCustomSearch(command); // Realizar la búsqueda con la consulta proporcionada
     } else if (awaitingVisitResponse) {
         handleVisitResponse(command);
+    } else if (awaitingFileQuery) {
+        awaitingFileQuery = false; // Dejar de esperar la consulta de archivo
+        handleFileSearch(command); // Buscar el archivo especificado
     } else if (listening) {
         handleCommand(command);
     }
@@ -1464,6 +1468,9 @@ function handleCommand(command) {
         handleMathCommand(command);
     } else if (command.includes('explica la plataforma')) {
         handleExplainPlatformCommand();
+    } else if (command.includes('abrir archivo')) {
+        speak("Por favor, dime el nombre del archivo diciendo 'archivo [nombre del archivo]'.");
+        awaitingFileQuery = true; // Esperar información sobre el archivo
     } else if (command.includes('ya es todo alfa') || command.includes('gracias alfa')) {
         listening = false;
         activationListening = true;
@@ -1471,6 +1478,78 @@ function handleCommand(command) {
     } else {
         speak(`Lo siento ${currentUserName}, no entendí tu solicitud.`);
     }
+}
+
+// Función para buscar y abrir un archivo
+async function handleFileSearch(command) {
+    const fileMatch = command.match(/archivo\s+(.*)/);
+    if (!fileMatch) {
+        speak("Por favor, asegúrate de decir 'archivo' seguido del nombre del archivo.");
+        return;
+    }
+
+    const partialFileName = fileMatch[1].trim().toLowerCase();
+
+    try {
+        const querySnapshot = await getDocs(collection(db, "files"));
+        const matchingFiles = [];
+
+        querySnapshot.forEach((doc) => {
+            const file = doc.data();
+            if (file.name.toLowerCase().includes(partialFileName)) {
+                matchingFiles.push(file);
+            }
+        });
+
+        if (matchingFiles.length === 0) {
+            speak(`No encontré ningún archivo que coincida con el nombre proporcionado: ${partialFileName}.`);
+        } else if (matchingFiles.length === 1) {
+            const file = matchingFiles[0];
+            window.open(file.url, '_blank');
+            speak(`Abriendo el archivo: ${file.name}.`);
+        } else {
+            const fileList = matchingFiles.map((file) => file.name).join(', ');
+            speak(`Encontré varios archivos con nombres similares: ${fileList}. Por favor, dime el nombre completo del archivo para abrir.`);
+        }
+    } catch (error) {
+        console.error("Error al buscar el archivo:", error);
+        speak("Hubo un problema al buscar el archivo. Por favor, intenta nuevamente.");
+    }
+}
+
+// Ajustar el flujo de reconocimiento de voz para integrar la búsqueda de archivos
+recognition.onresult = (event) => {
+    if (isSpeaking) return;
+
+    const command = event.results[0][0].transcript.toLowerCase();
+    if (activationListening && command.includes('oye alfa')) {
+        activationListening = false;
+        listening = true;
+        speak(`Dime, ${currentUserName}.`);
+    } else if (awaitingSearchQuery) {
+        awaitingSearchQuery = false;
+        performCustomSearch(command);
+    } else if (awaitingVisitResponse) {
+        handleVisitResponse(command);
+    } else if (awaitingFileQuery) {
+        awaitingFileQuery = false;
+        handleFileSearch(command);
+    } else if (listening) {
+        handleCommand(command);
+    }
+};
+
+
+// Función para obtener el nombre de la colección según la pestaña
+function getCollectionNameFromTab(tabName) {
+    const tabMap = {
+        'listas': 'files-lists',
+        'formatos': 'files-formats',
+        'requisitos': 'files-requisitos',
+        'procedimientos': 'files-procedimientos',
+        'inocuidad': 'files-inocuidad'
+    };
+    return tabMap[tabName] || null;
 }
 
 // Función para realizar búsquedas personalizadas
@@ -1549,7 +1628,11 @@ function handleLogoutCommand() {
 
 // Leer política de calidad
 function handleQualityPolicyCommand() {
-    const policyText = `en aceites y lipidos bd Nos comprometemos a proveer aceites y mantecas comestibles desarrollando y adecuando las formulaciones de nuevos productos mediante el cumplimiento de las regulaciones nacionales. Gestión de los impactos del cambio climático en nuestros procesos y resultados, y comunicación con todas las partes interesadas para satisfacer sus necesidades y expectativas y lograr la mejora continua.`;
+    const policyText = `en aceites y lipidos bd Nos comprometemos a proveer aceites y mantecas comestibles desarrollando y adecuando las formulaciones de nuevos productos mediante el cumplimiento de las regulaciones nacionales.
+
+Gestión de los impactos del cambio climático en nuestros procesos y resultados, y comunicación con todas las partes interesadas para satisfacer sus necesidades y expectativas y lograr la mejora continua.
+
+Asimismo otorgamos asesoría para el manejo de nuestra gama de productos y desarrollos, generando total confianza y satisfacción plena en nuestros clientes.`;
 
     speak("Leyendo la política de calidad e inocuidad.");
     speak(policyText);
@@ -1631,7 +1714,6 @@ recognition.onerror = (event) => {
     console.error("Error en reconocimiento de voz:", event.error);
     recognition.start();
 };
-
 
 
 

@@ -1403,6 +1403,19 @@ let pendingLink = ""; // Almacena el enlace pendiente para visitar
 const GOOGLE_API_KEY = "AIzaSyADtBrzg5IgZbyCnxUe63DDlQ4Va02fMoQ"; // Tu clave de API
 const SEARCH_ENGINE_ID = "343891ef8427a45dd"; // ID de tu motor de búsqueda personalizado
 
+// Verificar permisos de micrófono y manejar errores
+async function checkMicrophonePermission() {
+    try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        stream.getTracks().forEach((track) => track.stop()); // Detener el flujo de audio
+        console.log("Permiso de micrófono otorgado.");
+        recognition.start();
+    } catch (error) {
+        console.error("Error al obtener permisos de micrófono:", error);
+        speak("No puedo acceder al micrófono. Por favor, revisa los permisos en la configuración de tu dispositivo.");
+    }
+}
+
 // Inicialización de Alfa
 async function initializeAlfa() {
     if (!auth.currentUser) {
@@ -1447,6 +1460,15 @@ recognition.onresult = (event) => {
 
 recognition.onend = () => {
     if (listening || activationListening) {
+        recognition.start();
+    }
+};
+
+recognition.onerror = (event) => {
+    console.error("Error en reconocimiento de voz:", event.error);
+    if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
+        speak("No tengo acceso al micrófono. Por favor, verifica los permisos.");
+    } else {
         recognition.start();
     }
 };
@@ -1515,41 +1537,6 @@ async function handleFileSearch(command) {
         console.error("Error al buscar el archivo:", error);
         speak("Hubo un problema al buscar el archivo. Por favor, intenta nuevamente.");
     }
-}
-
-// Ajustar el flujo de reconocimiento de voz para integrar la búsqueda de archivos
-recognition.onresult = (event) => {
-    if (isSpeaking) return;
-
-    const command = event.results[0][0].transcript.toLowerCase();
-    if (activationListening && command.includes('oye alfa')) {
-        activationListening = false;
-        listening = true;
-        speak(`Dime, ${currentUserName}.`);
-    } else if (awaitingSearchQuery) {
-        awaitingSearchQuery = false;
-        performCustomSearch(command);
-    } else if (awaitingVisitResponse) {
-        handleVisitResponse(command);
-    } else if (awaitingFileQuery) {
-        awaitingFileQuery = false;
-        handleFileSearch(command);
-    } else if (listening) {
-        handleCommand(command);
-    }
-};
-
-
-// Función para obtener el nombre de la colección según la pestaña
-function getCollectionNameFromTab(tabName) {
-    const tabMap = {
-        'listas': 'files-lists',
-        'formatos': 'files-formats',
-        'requisitos': 'files-requisitos',
-        'procedimientos': 'files-procedimientos',
-        'inocuidad': 'files-inocuidad'
-    };
-    return tabMap[tabName] || null;
 }
 
 // Función para realizar búsquedas personalizadas
@@ -1628,11 +1615,11 @@ function handleLogoutCommand() {
 
 // Leer política de calidad
 function handleQualityPolicyCommand() {
-    const policyText = `en aceites y lipidos bd Nos comprometemos a proveer aceites y mantecas comestibles desarrollando y adecuando las formulaciones de nuevos productos mediante el cumplimiento de las regulaciones nacionales.
+    const policyText = `En Aceites y Lípidos BD nos comprometemos a proveer aceites y mantecas comestibles desarrollando y adecuando las formulaciones de nuevos productos mediante el cumplimiento de las regulaciones nacionales.
 
 Gestión de los impactos del cambio climático en nuestros procesos y resultados, y comunicación con todas las partes interesadas para satisfacer sus necesidades y expectativas y lograr la mejora continua.
 
-Asimismo otorgamos asesoría para el manejo de nuestra gama de productos y desarrollos, generando total confianza y satisfacción plena en nuestros clientes.`;
+Asimismo, otorgamos asesoría para el manejo de nuestra gama de productos y desarrollos, generando total confianza y satisfacción plena en nuestros clientes.`;
 
     speak("Leyendo la política de calidad e inocuidad.");
     speak(policyText);
@@ -1705,16 +1692,8 @@ alfaAssistant.addEventListener('click', () => {
     initializeAlfa();
 });
 
-recognition.start();
-recognition.onstart = () => {
-    console.log("Alfa está escuchando.");
-};
-
-recognition.onerror = (event) => {
-    console.error("Error en reconocimiento de voz:", event.error);
-    recognition.start();
-};
-
+// Verificar permisos al cargar la página
+document.addEventListener('DOMContentLoaded', checkMicrophonePermission);
 
 
 // MAPA DE PROCESOS - Código actualizado para centrar la visualización

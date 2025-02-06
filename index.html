@@ -966,6 +966,8 @@ iframe {
 </style>
 
     </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
 </head>
 <body>
@@ -1483,6 +1485,8 @@ function handleCommand(command) {
         handleMathCommand(command);
     } else if (command.includes('explica la plataforma')) {
         handleExplainPlatformCommand();
+     } else if (command.includes('generar factura')) {
+        handleInvoiceCommand(command);
     } else if (command.includes('abrir archivo')) {
         speak("Por favor, dime el nombre del archivo diciendo 'archivo [nombre del archivo]'.");
         awaitingFileQuery = true; // Esperar información sobre el archivo
@@ -1653,16 +1657,58 @@ Asimismo otorgamos asesoría para el manejo de nuestra gama de productos y desar
     speak(policyText);
 }
 
-// Cálculos matemáticos
 function handleMathCommand(command) {
-    const expression = command.replace('realiza un cálculo de', '').replace('calcula', '').trim();
     try {
-        const result = eval(expression);
-        speak(`El resultado del cálculo ${expression} es ${result}.`);
+        let mathExpression;
+        
+        if (command.includes('interés simple')) {
+            const match = command.match(/(\d+(?:\.\d+)?)\s*por ciento de\s*(\d+(?:\.\d+)?)\s*por\s*(\d+)\s*años?/);
+            if (match) {
+                const rate = parseFloat(match[1]) / 100;
+                const principal = parseFloat(match[2]);
+                const time = parseInt(match[3]);
+                const interest = principal * rate * time;
+                speak(`El interés simple es ${interest.toFixed(2)}`);
+                return;
+            } else {
+                speak('Por favor, proporciona una tasa de interés, un monto y un período de tiempo.');
+                return;
+            }
+        } else if (command.includes('interés compuesto')) {
+            const match = command.match(/(\d+(?:\.\d+)?)\s*por ciento de\s*(\d+(?:\.\d+)?)\s*por\s*(\d+)\s*años?/);
+            if (match) {
+                const rate = parseFloat(match[1]) / 100;
+                const principal = parseFloat(match[2]);
+                const time = parseInt(match[3]);
+                const amount = principal * Math.pow((1 + rate), time);
+                const interest = amount - principal;
+                speak(`El interés compuesto es ${interest.toFixed(2)}`);
+                return;
+            } else {
+                speak('Por favor, proporciona una tasa de interés, un monto y un período de tiempo.');
+                return;
+            }
+        } else {
+            mathExpression = command.replace(/realiza un cálculo|calcula|suma|resta|multiplica|divide/g, '').trim();
+            mathExpression = mathExpression.replace(/por/g, '*').replace(/entre/g, '/');
+            
+            if (mathExpression.length === 0) {
+                speak('Por favor, dime qué operación matemática deseas realizar.');
+                return;
+            }
+            
+            const result = eval(mathExpression);
+            if (!isNaN(result)) {
+                speak(`El resultado es ${result}`);
+            } else {
+                speak('Lo siento, no pude realizar el cálculo.');
+            }
+        }
     } catch (error) {
-        speak("Lo siento, no pude realizar el cálculo. Por favor, verifica la expresión matemática.");
+        speak('Hubo un error al realizar el cálculo.');
     }
 }
+
 
 // Explicar la plataforma
 function handleExplainPlatformCommand() {
@@ -1729,6 +1775,168 @@ recognition.onerror = (event) => {
     console.error("Error en reconocimiento de voz:", event.error);
     recognition.start();
 };
+
+
+
+
+
+// Función para manejar la generación de facturas
+async function handleInvoiceCommand(command) {
+    const match = command.match(/generar factura para (.+) por (\d+)/);
+
+    if (!match) {
+        speak("Por favor, indica el nombre del cliente y el monto, por ejemplo: 'Generar factura para Juan Pérez por 5000 pesos'.");
+        return;
+    }
+
+    const cliente = match[1].trim();
+    const monto = match[2].trim();
+
+    speak(`Generando factura para ${cliente} por ${monto} pesos.`);
+
+    const invoiceData = {
+        cliente: cliente,
+        monto: monto,
+        fecha: new Date().toLocaleDateString("es-ES"),
+        descripcion: "Venta de productos y servicios.",
+        numeroFactura: Math.floor(Math.random() * 1000000),
+    };
+
+    generateInvoicePDF(invoiceData);
+}
+
+// Generar PDF de factura con jsPDF
+function generateInvoicePDF(data) {
+    // ✅ Verificar que jsPDF está definido
+    if (!window.jspdf || !window.jspdf.jsPDF) {
+        speak("Error: jsPDF no está disponible. Verifica la conexión con la librería.");
+        console.error("Error: jsPDF no está disponible.");
+        return;
+    }
+
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+
+    // ✅ Agregar logo (si tienes una URL válida)
+    const logoUrl = "https://yourcompany.com/logo.png";
+    const img = new Image();
+    img.src = logoUrl;
+
+    img.onload = function () {
+        doc.addImage(img, "PNG", 140, 10, 50, 20);
+
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(20);
+        doc.text("FACTURA", 20, 20);
+        doc.setLineWidth(0.5);
+        doc.line(20, 25, 190, 25);
+
+        doc.setFontSize(12);
+        doc.setFont("helvetica", "normal");
+        doc.text("Aceites y Lípidos BD", 20, 35);
+        doc.text("Calle Principal #123, Ciudad", 20, 45);
+        doc.text("Teléfono: +52 123 456 7890", 20, 55);
+        doc.text("Correo: contacto@empresa.com", 20, 65);
+
+        doc.setFont("helvetica", "bold");
+        doc.text("Número de Factura:", 20, 80);
+        doc.setFont("helvetica", "normal");
+        doc.text(`${data.numeroFactura}`, 70, 80);
+
+        doc.setFont("helvetica", "bold");
+        doc.text("Cliente:", 20, 90);
+        doc.setFont("helvetica", "normal");
+        doc.text(`${data.cliente}`, 70, 90);
+
+        doc.setFont("helvetica", "bold");
+        doc.text("Fecha:", 20, 100);
+        doc.setFont("helvetica", "normal");
+        doc.text(`${data.fecha}`, 70, 100);
+
+        doc.setFont("helvetica", "bold");
+        doc.text("Monto:", 20, 110);
+        doc.setFont("helvetica", "normal");
+        doc.text(`$${data.monto} MXN`, 70, 110);
+
+        doc.setFont("helvetica", "bold");
+        doc.text("Descripción:", 20, 120);
+        doc.setFont("helvetica", "normal");
+        doc.text(`${data.descripcion}`, 70, 120);
+
+        doc.line(20, 130, 190, 130);
+        doc.setFontSize(10);
+        doc.setFont("helvetica", "italic");
+        doc.text("Esta factura es válida conforme a las normativas fiscales de México.", 20, 140);
+
+        const fileName = `Factura_${data.numeroFactura}.pdf`;
+        doc.save(fileName);
+
+        speak("Factura generada con éxito. Puedes encontrarla en tus descargas.");
+    };
+
+    img.onerror = function () {
+        speak("No se pudo cargar el logo, pero la factura se generará sin él.");
+
+        // Si el logo no carga, generar la factura sin logo
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(20);
+        doc.text("FACTURA", 20, 20);
+        doc.setLineWidth(0.5);
+        doc.line(20, 25, 190, 25);
+
+        doc.setFontSize(12);
+        doc.setFont("helvetica", "normal");
+        doc.text("Aceites y Lípidos BD", 20, 35);
+        doc.text("Calle Principal #123, Ciudad", 20, 45);
+        doc.text("Teléfono: +52 123 456 7890", 20, 55);
+        doc.text("Correo: contacto@empresa.com", 20, 65);
+
+        doc.setFont("helvetica", "bold");
+        doc.text("Número de Factura:", 20, 80);
+        doc.setFont("helvetica", "normal");
+        doc.text(`${data.numeroFactura}`, 70, 80);
+
+        doc.setFont("helvetica", "bold");
+        doc.text("Cliente:", 20, 90);
+        doc.setFont("helvetica", "normal");
+        doc.text(`${data.cliente}`, 70, 90);
+
+        doc.setFont("helvetica", "bold");
+        doc.text("Fecha:", 20, 100);
+        doc.setFont("helvetica", "normal");
+        doc.text(`${data.fecha}`, 70, 100);
+
+        doc.setFont("helvetica", "bold");
+        doc.text("Monto:", 20, 110);
+        doc.setFont("helvetica", "normal");
+        doc.text(`$${data.monto} MXN`, 70, 110);
+
+        doc.setFont("helvetica", "bold");
+        doc.text("Descripción:", 20, 120);
+        doc.setFont("helvetica", "normal");
+        doc.text(`${data.descripcion}`, 70, 120);
+
+        doc.line(20, 130, 190, 130);
+        doc.setFontSize(10);
+        doc.setFont("helvetica", "italic");
+        doc.text("Esta factura es válida conforme a las normativas fiscales de México.", 20, 140);
+
+        const fileName = `Factura_${data.numeroFactura}.pdf`;
+        doc.save(fileName);
+
+        speak("Factura generada con éxito. Puedes encontrarla en tus descargas.");
+    };
+}
+
+
+
+
+
+
+
+
+
+
 
 
 

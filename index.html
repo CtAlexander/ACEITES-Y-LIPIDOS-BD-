@@ -1380,6 +1380,7 @@ iframe {
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-auth.js";
 import { getFirestore, doc, setDoc, getDoc, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore.js";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-storage.js";
+
 // Configuración de Firebase (asegúrate de que ya tienes Firebase configurado)
 
 
@@ -1398,6 +1399,9 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 const storage = getStorage(app);
+
+
+
 
 
 
@@ -1472,6 +1476,8 @@ recognition.onend = () => {
 function handleCommand(command) {
     if (command.includes('abrir pestaña')) {
         handleTabCommand(command);
+  } else if(command.includes('dime las entregas de la semana')) {
+        handleDeliveriesCommand();
     } else if (command.includes('cerrar sesión')) {
         handleLogoutCommand();
     } else if (command.includes('sube un archivo')) {
@@ -1931,6 +1937,71 @@ function generateInvoicePDF(data) {
 
 
 
+
+// Función para obtener TODAS las entregas de la semana
+async function handleDeliveriesCommand() {
+    try {
+        const today = new Date();
+        const weekDays = ["domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado", "pendiente"];
+        const currentDayIndex = today.getDay(); // Día actual como número (0 = domingo, 1 = lunes, etc.)
+
+        console.log("📌 Día actual:", weekDays[currentDayIndex]); // 📌 Imprime qué día es hoy
+
+        const deliveriesRef = collection(db, "entregas");
+        const querySnapshot = await getDocs(deliveriesRef);
+
+        let deliveries = {}; // Objeto para organizar entregas por día
+        let found = false;
+
+        console.log("📌 🔍 Entregas obtenidas desde Firestore:");
+        querySnapshot.forEach((doc) => {
+            const data = doc.data();
+            console.log(data); // 📌 Mostrar cada entrega encontrada
+
+            if (!data.dia || !data.cliente || !data.cantidad || !data.producto || !data.lote) {
+                console.warn("⚠️ Documento con datos faltantes en Firestore:", doc.id, data);
+                return; // Ignorar este documento si falta algún dato
+            }
+
+            const dia = data.dia.toLowerCase().trim(); // Convertir a minúsculas y eliminar espacios extra
+
+            if (!weekDays.includes(dia)) {
+                console.warn("⚠️ Día inválido en Firestore:", data.dia, "- Documento ignorado.");
+                return; // Ignorar documentos con días mal escritos
+            }
+
+            if (!deliveries[dia]) {
+                deliveries[dia] = [];
+            }
+            deliveries[dia].push(data);
+        });
+
+        console.log("📌 ✅ Entregas organizadas por día:", deliveries); // 📌 Ver qué entregas se encontraron
+
+        let response = "Aquí están todas las entregas programadas para esta semana:";
+
+        // 📌 RECORRER TODOS LOS DÍAS SIN FILTRAR DESDE HOY
+        weekDays.forEach((day) => {
+            if (deliveries[day] && deliveries[day].length > 0) {
+                found = true;
+                response += ` El ${day}: `;
+                deliveries[day].forEach(entrega => {
+                    response += `Entrega a ${entrega.cliente}, ${entrega.cantidad} unidades de ${entrega.producto}, lote ${entrega.lote}. `;
+                });
+            }
+        });
+
+        if (!found) {
+            speak("No hay entregas programadas para esta semana.");
+        } else {
+            console.log("📌 ✅ Alfa dirá:", response); // 📌 Imprimir qué dirá Alfa
+            speak(response);
+        }
+    } catch (error) {
+        console.error("Error al obtener entregas:", error);
+        speak("Hubo un problema al obtener las entregas de la semana. Intenta de nuevo más tarde.");
+    }
+}
 
 
 
@@ -2440,53 +2511,85 @@ window.addEventListener("click", (event) => {
             });
         }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
         document.getElementById('registerBtn').addEventListener('click', async () => {
-            const nombre = document.getElementById('nombre').value;
-            const apellido = document.getElementById('apellido').value;
-            const rol = document.getElementById('rol').value;
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
+    const nombre = document.getElementById('nombre').value;
+    const apellido = document.getElementById('apellido').value;
+    const rol = document.getElementById('rol').value;
+    const registerEmail = document.getElementById('email').value;
+    const registerPassword = document.getElementById('password').value;
 
-            if (!nombre || !apellido || !rol || !email || !password) {
-                alert('Por favor complete todos los campos.');
-                return;
-            }
+    if (!nombre || !apellido || !rol || !registerEmail || !registerPassword) {
+        alert('Por favor complete todos los campos.');
+        return;
+    }
 
-            try {
-                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-                const user = userCredential.user;
+    try {
+        const userCredential = await createUserWithEmailAndPassword(auth, registerEmail, registerPassword);
+        const user = userCredential.user;
 
-                await setDoc(doc(db, "users", user.uid), {
-                    nombre: nombre,
-                    apellido: apellido,
-                    rol: rol,
-                    email: email
-                });
-
-                showLoadingScreen();
-            } catch (error) {
-                console.error('Error al registrar usuario:', error.message);
-                alert('Error al registrar usuario: ' + error.message);
-            }
+        await setDoc(doc(db, "users", user.uid), {
+            nombre: nombre,
+            apellido: apellido,
+            rol: rol,
+            email: registerEmail
         });
 
-        document.getElementById('loginBtn').addEventListener('click', async () => {
-            const email = document.getElementById('loginEmail').value;
-            const password = document.getElementById('loginPassword').value;
+        showLoadingScreen();
+    } catch (error) {
+        if (error.code === 'auth/email-already-in-use') {
+            alert("Este correo ya está registrado. Intenta iniciar sesión.");
+        } else {
+            console.error('Error al registrar usuario:', error.message);
+            alert('Error al registrar usuario: ' + error.message);
+        }
+    }
+});
 
-            if (!email || !password) {
-                alert('Por favor ingrese su correo electrónico y contraseña.');
-                return;
-            }
+document.getElementById('loginBtn').addEventListener('click', async () => {
+    const loginEmail = document.getElementById('loginEmail').value;
+    const loginPassword = document.getElementById('loginPassword').value;
 
-            try {
-                await signInWithEmailAndPassword(auth, email, password);
-                showLoadingScreen();
-            } catch (error) {
-                console.error('Error al iniciar sesión:', error.message);
-                alert('Error al iniciar sesión: ' + error.message);
-            }
-        });
+    if (!loginEmail || !loginPassword) {
+        alert('Por favor ingrese su correo electrónico y contraseña.');
+        return;
+    }
+
+    try {
+        const userCredential = await signInWithEmailAndPassword(auth, loginEmail, loginPassword);
+        showLoadingScreen();
+    } catch (error) {
+        if (error.code === 'auth/user-not-found') {
+            alert("No se encontró una cuenta con este correo.");
+        } else if (error.code === 'auth/wrong-password') {
+            alert("La contraseña ingresada es incorrecta.");
+        } else {
+            console.error('Error al iniciar sesión:', error.message);
+            alert('Error al iniciar sesión: ' + error.message);
+        }
+    }
+});
+
+
+
+
+
+
+
+
+
 
         function showLoadingScreen() {
             document.getElementById('register-screen').style.display = 'none';
@@ -2712,12 +2815,21 @@ document.getElementById('tab-requisitos').addEventListener('click', () => {
     });
 });
 
-// Función para cargar los datos del perfil del usuario
+
+
+
+
+
 async function loadUserProfile() {
     const user = auth.currentUser;
+    if (!user) {
+        alert("No se ha iniciado sesión.");
+        return;
+    }
 
-    if (user) {
-        const userRef = doc(db, "users", user.uid); // Asegúrate de que los datos del usuario estén en la colección "users"
+    try {
+        await user.reload(); // Asegura que los datos sean los más recientes
+        const userRef = doc(db, "users", user.uid);
         const userDoc = await getDoc(userRef);
 
         if (userDoc.exists()) {
@@ -2731,10 +2843,19 @@ async function loadUserProfile() {
         } else {
             alert("No se encontraron datos del usuario.");
         }
-    } else {
-        alert("No se ha iniciado sesión.");
+    } catch (error) {
+        console.error("Error al cargar el perfil:", error);
+        alert("Hubo un problema al cargar el perfil del usuario.");
     }
 }
+
+
+
+
+
+
+
+
 
 // Mostrar modal de perfil al hacer clic en "Ver mi perfil"
 document.getElementById("viewProfile").addEventListener("click", loadUserProfile);
@@ -2821,8 +2942,8 @@ window.addEventListener("click", (event) => {
     document.getElementById("otherOptions").addEventListener("click", (event) => {
         event.preventDefault();
         createModal("Otras Opciones", `
-            <li><a href="https://ctalexander.github.io/entradas_y_salidas_2.0/" target="_blank">Entradas y Salidas</a></li>
-            <li><a href="https://ctalexander.github.io/inventario-de-mps-/" target="_blank">Inventario de Materias Primas</a></li>
+            <li><a href="</a></li>
+            <li><a href="</a></li>
         `);
     });
 });
@@ -3469,6 +3590,8 @@ async function uploadFileToFirebase(file, fileName, fileCode) {
 
 // Asociar el evento al botón de subida
 document.getElementById("uploadBtn").addEventListener("click", handleFileUpload);
+
+
 
 
 

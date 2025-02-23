@@ -1466,6 +1466,57 @@ recognition.onend = () => {
     }
 };
 
+
+
+let isRecognizing = false;
+
+recognition.onstart = () => {
+    isRecognizing = true;
+    console.log("Alfa está escuchando.");
+};
+
+recognition.onresult = (event) => {
+    if (isSpeaking) return;
+
+    const command = event.results[0][0].transcript.toLowerCase();
+
+    if (activationListening && command.includes('oye alfa')) {
+        activationListening = false;
+        listening = true;
+        speak(`Dime, ${currentUserName}.`);
+    } else if (awaitingSearchQuery) {
+        awaitingSearchQuery = false;
+        performCustomSearch(command);
+    } else if (awaitingVisitResponse) {
+        handleVisitResponse(command);
+    } else if (awaitingFileQuery) {
+        awaitingFileQuery = false;
+        handleFileSearch(command);
+    } else if (listening) {
+        handleCommand(command);
+    }
+};
+
+recognition.onend = () => {
+    isRecognizing = false;
+    // Reinicia el reconocimiento solo si Alfa debe seguir escuchando.
+    if (listening || activationListening) {
+        setTimeout(() => {
+            try {
+                recognition.start();
+            } catch (error) {
+                console.error("Error al reiniciar el reconocimiento:", error);
+            }
+        }, 500); // Espera medio segundo antes de reiniciar.
+    }
+};
+
+recognition.onerror = (event) => {
+    console.error("Error en reconocimiento de voz:", event.error);
+    // No reinicies aquí; permite que onend se encargue de reiniciar si es necesario.
+};
+
+
 // Manejar comandos de voz
 function handleCommand(command) {
     if (command.includes('abrir pestaña')) {

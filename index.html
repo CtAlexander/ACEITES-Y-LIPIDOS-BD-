@@ -1399,29 +1399,33 @@ const storage = getStorage(app);
 
 
 
+// =====================
 // Configuración para Alfa
+// =====================
 const alfaAssistant = document.getElementById('alfaAssistant');
 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 const recognition = new SpeechRecognition();
 recognition.lang = 'es-ES';
 
 let currentUserName = "";
-let listening = false; // Controla si Alfa está escuchando
+let listening = false;               // Controla si Alfa está escuchando
 const synth = window.speechSynthesis; // Síntesis de voz
-let isSpeaking = false; // Controla si Alfa está hablando
-let activationListening = true; // Controla si Alfa escucha el comando de activación
-let awaitingSearchQuery = false; // Controla si Alfa está esperando una consulta de búsqueda
-let awaitingVisitResponse = false; // Controla si Alfa está esperando la respuesta para visitar el enlace
-let awaitingFileQuery = false; // Controla si Alfa está esperando la información del archivo para abrir
-let pendingLink = ""; // Almacena el enlace pendiente para visitar
+let isSpeaking = false;              // Controla si Alfa está hablando
+let activationListening = true;      // Controla si Alfa escucha el comando de activación
+let awaitingSearchQuery = false;     // Controla si Alfa está esperando una consulta de búsqueda
+let awaitingVisitResponse = false;   // Controla si Alfa está esperando la respuesta para visitar un enlace
+let awaitingFileQuery = false;       // Controla si Alfa está esperando la información del archivo para abrir
+let pendingLink = "";                // Almacena el enlace pendiente para visitar
 
 const GOOGLE_API_KEY = "AIzaSyADtBrzg5IgZbyCnxUe63DDlQ4Va02fMoQ"; // Tu clave de API
-const SEARCH_ENGINE_ID = "343891ef8427a45dd"; // ID de tu motor de búsqueda personalizado
+const SEARCH_ENGINE_ID = "343891ef8427a45dd";                        // ID de tu motor de búsqueda personalizado
 
 // Variable para controlar si el reconocimiento ya está activo
 let isRecognizing = false;
 
+// =====================
 // Función helper para iniciar el reconocimiento solo si no está activo
+// =====================
 function startRecognition() {
   if (!isRecognizing) {
     try {
@@ -1432,7 +1436,9 @@ function startRecognition() {
   }
 }
 
-// Inicialización de Alfa (se llama al hacer click en el botón)
+// =====================
+// Inicialización de Alfa (se activa al presionar el botón)
+// =====================
 async function initializeAlfa() {
   if (!auth.currentUser) {
     speak("Debes iniciar sesión para usar Alfa.");
@@ -1449,7 +1455,9 @@ async function initializeAlfa() {
   startRecognition();
 }
 
-// Consolidamos el onresult (eliminando duplicados)
+// =====================
+// Manejo del reconocimiento de voz (único bloque consolidado)
+// =====================
 recognition.onresult = (event) => {
   if (isSpeaking) return;
   const command = event.results[0][0].transcript.toLowerCase();
@@ -1470,7 +1478,6 @@ recognition.onresult = (event) => {
   }
 };
 
-// Eventos del reconocimiento de voz
 recognition.onstart = () => {
   isRecognizing = true;
   console.log("Alfa está escuchando.");
@@ -1478,26 +1485,30 @@ recognition.onstart = () => {
 
 recognition.onend = () => {
   isRecognizing = false;
-  // Reiniciamos el reconocimiento solo si aún debe seguir escuchando
+  // Se agrega un retraso para evitar reinicios inmediatos que causen error "aborted"
   if (listening || activationListening) {
-    startRecognition();
+    setTimeout(() => {
+      startRecognition();
+    }, 1000);
   }
 };
 
 recognition.onerror = (event) => {
   console.error("Error en reconocimiento de voz:", event.error);
-  // Si el error es "not-allowed", avisamos al usuario y no reiniciamos
   if (event.error === "not-allowed") {
     speak("Por favor, permite el acceso al micrófono para continuar.");
     return;
   }
-  // Si el error es "aborted" u otro, reiniciamos si procede
   if (!isRecognizing && (listening || activationListening)) {
-    startRecognition();
+    setTimeout(() => {
+      startRecognition();
+    }, 1000);
   }
 };
 
+// =====================
 // Función para manejar comandos de voz
+// =====================
 function handleCommand(command) {
   if (command.includes('abrir pestaña')) {
     handleTabCommand(command);
@@ -1530,7 +1541,9 @@ function handleCommand(command) {
   }
 }
 
+// =====================
 // Función para buscar y abrir un archivo
+// =====================
 async function handleFileSearch(command) {
   const fileMatch = command.match(/archivo\s+(.*)/);
   if (!fileMatch) {
@@ -1563,7 +1576,9 @@ async function handleFileSearch(command) {
   }
 }
 
+// =====================
 // Función para obtener el nombre de la colección según la pestaña
+// =====================
 function getCollectionNameFromTab(tabName) {
   const tabMap = {
     'listas': 'files-lists',
@@ -1575,7 +1590,9 @@ function getCollectionNameFromTab(tabName) {
   return tabMap[tabName] || null;
 }
 
-// Función para realizar búsquedas personalizadas
+// =====================
+// Función para realizar búsquedas personalizadas en Google
+// =====================
 async function performCustomSearch(query) {
   try {
     const response = await fetch(`https://www.googleapis.com/customsearch/v1?q=${encodeURIComponent(query)}&key=${GOOGLE_API_KEY}&cx=${SEARCH_ENGINE_ID}`);
@@ -1594,7 +1611,9 @@ async function performCustomSearch(query) {
   }
 }
 
-// Manejar respuesta sobre visitar enlace
+// =====================
+// Función para manejar la respuesta sobre visitar un enlace
+// =====================
 function handleVisitResponse(command) {
   if (command.includes('sí') || command.includes('claro') || command.includes('por supuesto')) {
     window.open(pendingLink, '_blank');
@@ -1609,7 +1628,9 @@ function handleVisitResponse(command) {
   pendingLink = "";
 }
 
-// Manejar comandos para abrir pestañas
+// =====================
+// Función para manejar comandos para abrir pestañas
+// =====================
 function handleTabCommand(command) {
   const tabs = {
     'listas': 'lists',
@@ -1630,7 +1651,9 @@ function handleTabCommand(command) {
   speak(`Lo siento ${currentUserName}, no encontré esa pestaña.`);
 }
 
-// Manejar el comando de cerrar sesión
+// =====================
+// Función para manejar el comando de cerrar sesión
+// =====================
 function handleLogoutCommand() {
   auth.signOut().then(() => {
     speak("Sesión cerrada con éxito. Hasta pronto.");
@@ -1645,13 +1668,18 @@ function handleLogoutCommand() {
   });
 }
 
-// Leer política de calidad
+// =====================
+// Función para leer la política de calidad e inocuidad
+// =====================
 function handleQualityPolicyCommand() {
   const policyText = `En Aceites y Lípidos BD nos comprometemos a: Proveer aceites y mantecas comestibles, desarrollando y adecuando las formulaciones de nuevos productos, cumpliendo con las regulaciones nacionales e internacionales. Contar con personal competente, gestionando los impactos del cambio climático en nuestros procesos y resultados, comunicando de manera efectiva con todas las partes interesadas para satisfacer sus necesidades y expectativas. Lograr la mejora continua otorgando asesoría para el manejo de nuestra gama de productos y desarrollos, aplicando nuestros productos en la elaboración de productos de nuestros clientes, generando una total confianza y satisfacción plena en nuestros clientes.`;
   speak("Leyendo la política de calidad e inocuidad.");
   speak(policyText);
 }
 
+// =====================
+// Función para manejar operaciones matemáticas
+// =====================
 function handleMathCommand(command) {
   try {
     let mathExpression;
@@ -1701,13 +1729,17 @@ function handleMathCommand(command) {
   }
 }
 
-// Explicar la plataforma
+// =====================
+// Función para explicar la plataforma
+// =====================
 function handleExplainPlatformCommand() {
   const explanation = `Esta plataforma está diseñada para gestionar documentos relacionados con las normas ISO, como ISO 9001 e ISO 22000. Puedes navegar entre pestañas, subir documentos, y consultar información clave de calidad e inocuidad.`;
   speak(explanation);
 }
 
-// Mostrar el contenido de una pestaña
+// =====================
+// Función para mostrar el contenido de una pestaña
+// =====================
 function showTabContent(tabId) {
   const tabContents = document.querySelectorAll('.tab-content');
   const tabs = document.querySelectorAll('.tabs div');
@@ -1733,7 +1765,9 @@ function showTabContent(tabId) {
   }
 }
 
-// Función para sintetizar voz
+// =====================
+// Función para sintetizar voz (speak)
+// =====================
 function speak(text) {
   isSpeaking = true;
   const utterance = new SpeechSynthesisUtterance(text);
@@ -1744,13 +1778,192 @@ function speak(text) {
   synth.speak(utterance);
 }
 
+// =====================
+// Función para obtener TODAS las entregas de la semana
+// =====================
+async function handleDeliveriesCommand() {
+  try {
+    const today = new Date();
+    // Lista de días (incluye "pendiente" para casos especiales)
+    const weekDays = ["domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado", "pendiente"];
+    const currentDayIndex = today.getDay();
+    console.log("📌 Día actual:", weekDays[currentDayIndex]);
+    
+    const deliveriesRef = collection(db, "entregas");
+    const querySnapshot = await getDocs(deliveriesRef);
+    
+    let deliveries = {}; // Objeto para organizar entregas por día
+    let found = false;
+    
+    console.log("📌 🔍 Entregas obtenidas desde Firestore:");
+    querySnapshot.forEach((doc) => {
+      const data = doc.data();
+      console.log(data);
+      // Verificar que el documento tenga los datos necesarios
+      if (!data.dia || !data.cliente || !data.cantidad || !data.producto || !data.lote) {
+        console.warn("⚠️ Documento con datos faltantes en Firestore:", doc.id, data);
+        return;
+      }
+      const dia = data.dia.toLowerCase().trim();
+      if (!weekDays.includes(dia)) {
+        console.warn("⚠️ Día inválido en Firestore:", data.dia, "- Documento ignorado.");
+        return;
+      }
+      if (!deliveries[dia]) {
+        deliveries[dia] = [];
+      }
+      deliveries[dia].push(data);
+    });
+    
+    console.log("📌 ✅ Entregas organizadas por día:", deliveries);
+    
+    let response = "Aquí están todas las entregas programadas para esta semana:";
+    weekDays.forEach((day) => {
+      if (deliveries[day] && deliveries[day].length > 0) {
+        found = true;
+        response += ` El ${day}: `;
+        deliveries[day].forEach(entrega => {
+          response += `Entrega a ${entrega.cliente}, ${entrega.cantidad} unidades de ${entrega.producto}, lote ${entrega.lote}. `;
+        });
+      }
+    });
+    
+    if (!found) {
+      speak("No hay entregas programadas para esta semana.");
+    } else {
+      console.log("📌 ✅ Alfa dirá:", response);
+      speak(response);
+    }
+  } catch (error) {
+    console.error("Error al obtener entregas:", error);
+    speak("Hubo un problema al obtener las entregas de la semana. Intenta de nuevo más tarde.");
+  }
+}
+
+// =====================
 // Evento para activar Alfa al presionar el botón
+// =====================
 alfaAssistant.addEventListener('click', () => {
   listening = true;
   initializeAlfa();
 });
 
+// =====================
+// (Opcional) Función para manejar la generación de facturas con jsPDF
+// =====================
+async function handleInvoiceCommand(command) {
+  const match = command.match(/generar factura para (.+) por (\d+)/);
+  if (!match) {
+    speak("Por favor, indica el nombre del cliente y el monto, por ejemplo: 'Generar factura para Juan Pérez por 5000 pesos'.");
+    return;
+  }
+  const cliente = match[1].trim();
+  const monto = match[2].trim();
+  speak(`Generando factura para ${cliente} por ${monto} pesos.`);
+  const invoiceData = {
+    cliente: cliente,
+    monto: monto,
+    fecha: new Date().toLocaleDateString("es-ES"),
+    descripcion: "Venta de productos y servicios.",
+    numeroFactura: Math.floor(Math.random() * 1000000)
+  };
+  generateInvoicePDF(invoiceData);
+}
 
+function generateInvoicePDF(data) {
+  if (!window.jspdf || !window.jspdf.jsPDF) {
+    speak("Error: jsPDF no está disponible. Verifica la conexión con la librería.");
+    console.error("Error: jsPDF no está disponible.");
+    return;
+  }
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+  const logoUrl = "https://yourcompany.com/logo.png";
+  const img = new Image();
+  img.src = logoUrl;
+  img.onload = function () {
+    doc.addImage(img, "PNG", 140, 10, 50, 20);
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(20);
+    doc.text("FACTURA", 20, 20);
+    doc.setLineWidth(0.5);
+    doc.line(20, 25, 190, 25);
+    doc.setFontSize(12);
+    doc.setFont("helvetica", "normal");
+    doc.text("Aceites y Lípidos BD", 20, 35);
+    doc.text("Calle Principal #123, Ciudad", 20, 45);
+    doc.text("Teléfono: +52 123 456 7890", 20, 55);
+    doc.text("Correo: contacto@empresa.com", 20, 65);
+    doc.setFont("helvetica", "bold");
+    doc.text("Número de Factura:", 20, 80);
+    doc.setFont("helvetica", "normal");
+    doc.text(`${data.numeroFactura}`, 70, 80);
+    doc.setFont("helvetica", "bold");
+    doc.text("Cliente:", 20, 90);
+    doc.setFont("helvetica", "normal");
+    doc.text(`${data.cliente}`, 70, 90);
+    doc.setFont("helvetica", "bold");
+    doc.text("Fecha:", 20, 100);
+    doc.setFont("helvetica", "normal");
+    doc.text(`${data.fecha}`, 70, 100);
+    doc.setFont("helvetica", "bold");
+    doc.text("Monto:", 20, 110);
+    doc.setFont("helvetica", "normal");
+    doc.text(`$${data.monto} MXN`, 70, 110);
+    doc.setFont("helvetica", "bold");
+    doc.text("Descripción:", 20, 120);
+    doc.setFont("helvetica", "normal");
+    doc.text(`${data.descripcion}`, 70, 120);
+    doc.line(20, 130, 190, 130);
+    doc.setFontSize(10);
+    doc.setFont("helvetica", "italic");
+    doc.text("Esta factura es válida conforme a las normativas fiscales de México.", 20, 140);
+    const fileName = `Factura_${data.numeroFactura}.pdf`;
+    doc.save(fileName);
+    speak("Factura generada con éxito. Puedes encontrarla en tus descargas.");
+  };
+  img.onerror = function () {
+    speak("No se pudo cargar el logo, pero la factura se generará sin él.");
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(20);
+    doc.text("FACTURA", 20, 20);
+    doc.setLineWidth(0.5);
+    doc.line(20, 25, 190, 25);
+    doc.setFontSize(12);
+    doc.setFont("helvetica", "normal");
+    doc.text("Aceites y Lípidos BD", 20, 35);
+    doc.text("Calle Principal #123, Ciudad", 20, 45);
+    doc.text("Teléfono: +52 123 456 7890", 20, 55);
+    doc.text("Correo: contacto@empresa.com", 20, 65);
+    doc.setFont("helvetica", "bold");
+    doc.text("Número de Factura:", 20, 80);
+    doc.setFont("helvetica", "normal");
+    doc.text(`${data.numeroFactura}`, 70, 80);
+    doc.setFont("helvetica", "bold");
+    doc.text("Cliente:", 20, 90);
+    doc.setFont("helvetica", "normal");
+    doc.text(`${data.cliente}`, 70, 90);
+    doc.setFont("helvetica", "bold");
+    doc.text("Fecha:", 20, 100);
+    doc.setFont("helvetica", "normal");
+    doc.text(`${data.fecha}`, 70, 100);
+    doc.setFont("helvetica", "bold");
+    doc.text("Monto:", 20, 110);
+    doc.setFont("helvetica", "normal");
+    doc.text(`$${data.monto} MXN`, 70, 110);
+    doc.setFont("helvetica", "bold");
+    doc.text("Descripción:", 20, 120);
+    doc.setFont("helvetica", "normal");
+    doc.text(`${data.descripcion}`, 70, 120);
+    doc.line(20, 130, 190, 130);
+    doc.setFontSize(10);
+    doc.setFont("helvetica", "italic");
+    doc.text("Esta factura es válida conforme a las normativas fiscales de México.", 20, 140);
+    const fileName = `Factura_${data.numeroFactura}.pdf`;
+    doc.save(fileName);
+    speak("Factura generada con éxito. Puedes encontrarla en tus descargas.");
+  };
+}
 
 
 

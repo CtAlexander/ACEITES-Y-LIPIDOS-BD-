@@ -1406,8 +1406,7 @@ const alfaAssistant = document.getElementById('alfaAssistant');
 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 const recognition = new SpeechRecognition();
 recognition.lang = 'es-ES';
-// Configuramos el reconocimiento en modo continuo para evitar que se detenga tras pausas
-recognition.continuous = true;
+recognition.continuous = true; // Para que no se detenga automáticamente tras pausas cortas
 
 let currentUserName = "";
 let listening = false;               // Controla si Alfa está escuchando
@@ -1442,6 +1441,7 @@ function startRecognition() {
 // Inicialización de Alfa (se activa al presionar el botón)
 // =====================
 async function initializeAlfa() {
+  // Verifica que el usuario esté autenticado (Firebase Auth)
   if (!auth.currentUser) {
     speak("Debes iniciar sesión para usar Alfa.");
     return;
@@ -1463,6 +1463,7 @@ async function initializeAlfa() {
 recognition.onresult = (event) => {
   if (isSpeaking) return;
   const command = event.results[0][0].transcript.toLowerCase();
+  
   if (activationListening && command.includes('oye alfa')) {
     activationListening = false;
     listening = true;
@@ -1487,7 +1488,7 @@ recognition.onstart = () => {
 
 recognition.onend = () => {
   isRecognizing = false;
-  // Para evitar reinicios inmediatos (que pueden causar "aborted"), se agrega un retraso
+  // Se agrega un retraso para evitar reinicios inmediatos (que puedan generar "aborted")
   if (listening || activationListening) {
     setTimeout(() => {
       startRecognition();
@@ -1497,7 +1498,6 @@ recognition.onend = () => {
 
 recognition.onerror = (event) => {
   console.error("Error en reconocimiento de voz:", event.error);
-  // Si el error es "not-allowed", avisamos al usuario
   if (event.error === "not-allowed") {
     speak("Por favor, permite el acceso al micrófono para continuar.");
     return;
@@ -1506,7 +1506,6 @@ recognition.onerror = (event) => {
   if (event.error === "aborted") {
     return;
   }
-  // En otros casos, se intenta reiniciar con un pequeño retraso
   if (!isRecognizing && (listening || activationListening)) {
     setTimeout(() => {
       startRecognition();
@@ -1799,7 +1798,7 @@ async function handleDeliveriesCommand() {
     const deliveriesRef = collection(db, "entregas");
     const querySnapshot = await getDocs(deliveriesRef);
     
-    let deliveries = {}; // Objeto para organizar entregas por día
+    let deliveries = {}; // Organizar entregas por día
     let found = false;
     
     console.log("📌 🔍 Entregas obtenidas desde Firestore:");
@@ -1845,14 +1844,6 @@ async function handleDeliveriesCommand() {
     speak("Hubo un problema al obtener las entregas de la semana. Intenta de nuevo más tarde.");
   }
 }
-
-// =====================
-// Evento para activar Alfa al presionar el botón
-// =====================
-alfaAssistant.addEventListener('click', () => {
-  listening = true;
-  initializeAlfa();
-});
 
 // =====================
 // (Opcional) Función para manejar la generación de facturas con jsPDF
@@ -1970,6 +1961,16 @@ function generateInvoicePDF(data) {
     speak("Factura generada con éxito. Puedes encontrarla en tus descargas.");
   };
 }
+
+// =====================
+// Evento para activar Alfa al presionar el botón
+// =====================
+alfaAssistant.addEventListener('click', () => {
+  listening = true;
+  initializeAlfa();
+});
+
+
 
 
 // MAPA DE PROCESOS - Código actualizado para centrar la visualización

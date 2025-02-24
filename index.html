@@ -1406,6 +1406,8 @@ const alfaAssistant = document.getElementById('alfaAssistant');
 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 const recognition = new SpeechRecognition();
 recognition.lang = 'es-ES';
+// Configuramos el reconocimiento en modo continuo para evitar que se detenga tras pausas
+recognition.continuous = true;
 
 let currentUserName = "";
 let listening = false;               // Controla si Alfa está escuchando
@@ -1485,7 +1487,7 @@ recognition.onstart = () => {
 
 recognition.onend = () => {
   isRecognizing = false;
-  // Se agrega un retraso para evitar reinicios inmediatos que causen error "aborted"
+  // Para evitar reinicios inmediatos (que pueden causar "aborted"), se agrega un retraso
   if (listening || activationListening) {
     setTimeout(() => {
       startRecognition();
@@ -1495,10 +1497,16 @@ recognition.onend = () => {
 
 recognition.onerror = (event) => {
   console.error("Error en reconocimiento de voz:", event.error);
+  // Si el error es "not-allowed", avisamos al usuario
   if (event.error === "not-allowed") {
     speak("Por favor, permite el acceso al micrófono para continuar.");
     return;
   }
+  // Si el error es "aborted", se ignora para evitar reinicios excesivos
+  if (event.error === "aborted") {
+    return;
+  }
+  // En otros casos, se intenta reiniciar con un pequeño retraso
   if (!isRecognizing && (listening || activationListening)) {
     setTimeout(() => {
       startRecognition();
@@ -1784,7 +1792,6 @@ function speak(text) {
 async function handleDeliveriesCommand() {
   try {
     const today = new Date();
-    // Lista de días (incluye "pendiente" para casos especiales)
     const weekDays = ["domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado", "pendiente"];
     const currentDayIndex = today.getDay();
     console.log("📌 Día actual:", weekDays[currentDayIndex]);
@@ -1799,7 +1806,6 @@ async function handleDeliveriesCommand() {
     querySnapshot.forEach((doc) => {
       const data = doc.data();
       console.log(data);
-      // Verificar que el documento tenga los datos necesarios
       if (!data.dia || !data.cliente || !data.cantidad || !data.producto || !data.lote) {
         console.warn("⚠️ Documento con datos faltantes en Firestore:", doc.id, data);
         return;
@@ -1964,7 +1970,6 @@ function generateInvoicePDF(data) {
     speak("Factura generada con éxito. Puedes encontrarla en tus descargas.");
   };
 }
-
 
 
 // MAPA DE PROCESOS - Código actualizado para centrar la visualización

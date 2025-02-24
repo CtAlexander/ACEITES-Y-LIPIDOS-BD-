@@ -1468,6 +1468,7 @@ recognition.onend = () => {
 
 
 
+//ACTIVAR A ALFA 
 let isRecognizing = false;
 
 recognition.onstart = () => {
@@ -1479,7 +1480,7 @@ recognition.onresult = (event) => {
     if (isSpeaking) return;
 
     const command = event.results[0][0].transcript.toLowerCase();
-
+    
     if (activationListening && command.includes('oye alfa')) {
         activationListening = false;
         listening = true;
@@ -1507,14 +1508,20 @@ recognition.onend = () => {
             } catch (error) {
                 console.error("Error al reiniciar el reconocimiento:", error);
             }
-        }, 500); // Espera medio segundo antes de reiniciar.
+        }, 500); // Espera 500ms antes de reiniciar.
     }
 };
 
+
+
 recognition.onerror = (event) => {
+    if (event.error === 'aborted') {
+        console.log("Reconocimiento abortado, omitiendo error.");
+        return;
+    }
     console.error("Error en reconocimiento de voz:", event.error);
-    // No reinicies aquí; permite que onend se encargue de reiniciar si es necesario.
 };
+
 
 
 // Manejar comandos de voz
@@ -1797,13 +1804,6 @@ recognition.start();
 recognition.onstart = () => {
     console.log("Alfa está escuchando.");
 };
-
-recognition.onerror = (event) => {
-    console.error("Error en reconocimiento de voz:", event.error);
-    recognition.start();
-};
-
-
 
 
 

@@ -1478,8 +1478,9 @@ recognition.onstart = () => {
 
 recognition.onresult = (event) => {
     if (isSpeaking) return;
-
+    
     const command = event.results[0][0].transcript.toLowerCase();
+    console.log("Comando detectado:", command);
     
     if (activationListening && command.includes('oye alfa')) {
         activationListening = false;
@@ -1500,7 +1501,7 @@ recognition.onresult = (event) => {
 
 recognition.onend = () => {
     isRecognizing = false;
-    // Reinicia el reconocimiento solo si Alfa debe seguir escuchando.
+    // Si aún se espera activación o se debe escuchar comandos, reinicia la escucha.
     if (listening || activationListening) {
         setTimeout(() => {
             try {
@@ -1508,11 +1509,9 @@ recognition.onend = () => {
             } catch (error) {
                 console.error("Error al reiniciar el reconocimiento:", error);
             }
-        }, 500); // Espera 500ms antes de reiniciar.
+        }, 500); // Pequeña pausa para evitar llamadas simultáneas.
     }
 };
-
-
 
 recognition.onerror = (event) => {
     if (event.error === 'aborted') {

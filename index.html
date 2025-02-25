@@ -1399,30 +1399,31 @@ const storage = getStorage(app);
 
 
 
-// ==============================
-// Configuración y Variables Globales
-// ==============================
+/***********************************************
+ * CONFIGURACIÓN Y VARIABLES GLOBALES
+ ***********************************************/
 const alfaAssistant = document.getElementById('alfaAssistant');
 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 const recognition = new SpeechRecognition();
 recognition.lang = 'es-ES';
 
 let currentUserName = "";
-let listening = false;                // Controla si Alfa está escuchando
+let listening = false;                // ¿Alfa está escuchando?
 const synth = window.speechSynthesis; // Síntesis de voz
-let isSpeaking = false;               // Controla si Alfa está hablando
-let activationListening = true;       // Controla si Alfa escucha el comando de activación
-let awaitingSearchQuery = false;      // Controla si Alfa espera una consulta de búsqueda
-let awaitingVisitResponse = false;    // Controla si Alfa espera respuesta para visitar un enlace
-let awaitingFileQuery = false;        // Controla si Alfa espera la información del archivo a abrir
-let pendingLink = "";                 // Almacena el enlace pendiente
+let isSpeaking = false;               // ¿Alfa está hablando?
+let activationListening = true;       // ¿Alfa espera el comando de activación?
+let awaitingSearchQuery = false;      // ¿Esperando consulta de búsqueda?
+let awaitingVisitResponse = false;    // ¿Esperando respuesta para visitar enlace?
+let awaitingFileQuery = false;        // ¿Esperando nombre de archivo a abrir?
+let pendingLink = "";                 // Enlace pendiente a abrir
 
-const GOOGLE_API_KEY = "AIzaSyADtBrzg5IgZbyCnxUe63DDlQ4Va02fMoQ"; // Tu clave de API
-const SEARCH_ENGINE_ID = "343891ef8427a45dd";                        // ID de tu motor de búsqueda
+// Configuración para búsqueda personalizada (Google Custom Search)
+const GOOGLE_API_KEY = "AIzaSyADtBrzg5IgZbyCnxUe63DDlQ4Va02fMoQ"; // Tu API key
+const SEARCH_ENGINE_ID = "343891ef8427a45dd";                        // Tu ID de motor de búsqueda
 
-// ==============================
-// Funciones Auxiliares
-// ==============================
+/***********************************************
+ * FUNCIONES AUXILIARES
+ ***********************************************/
 
 /**
  * Función para sintetizar voz.
@@ -1437,8 +1438,8 @@ function speak(text) {
 }
 
 /**
- * Muestra el contenido de una pestaña según su ID.
- * @param {string} tabId ID de la pestaña a mostrar.
+ * Muestra el contenido de una pestaña dado su ID.
+ * @param {string} tabId Identificador de la pestaña a mostrar.
  */
 function showTabContent(tabId) {
     const tabContents = document.querySelectorAll('.tab-content');
@@ -1448,12 +1449,10 @@ function showTabContent(tabId) {
         content.classList.remove('active');
         content.style.display = 'none';
     });
-
     tabs.forEach(tab => tab.classList.remove('active'));
 
     const activeContent = document.getElementById(tabId);
     const activeTab = document.getElementById(`tab-${tabId}`);
-
     if (activeContent) {
         activeContent.classList.add('active');
         activeContent.style.display = 'block';
@@ -1468,9 +1467,9 @@ function showTabContent(tabId) {
 }
 
 /**
- * Retorna el nombre de la colección en función del nombre de la pestaña.
+ * Retorna el nombre de la colección en función de la pestaña.
  * @param {string} tabName Nombre de la pestaña.
- * @returns {string|null} Nombre de la colección o null si no coincide.
+ * @returns {string|null} Nombre de la colección o null si no existe.
  */
 function getCollectionNameFromTab(tabName) {
     const tabMap = {
@@ -1483,19 +1482,19 @@ function getCollectionNameFromTab(tabName) {
     return tabMap[tabName] || null;
 }
 
-// ==============================
-// Inicialización y Configuración de Reconocimiento de Voz
-// ==============================
+/***********************************************
+ * INICIALIZACIÓN Y CONFIGURACIÓN DE VOZ
+ ***********************************************/
 
 /**
- * Inicializa Alfa, verificando el usuario y saludándolo.
+ * Inicializa Alfa comprobando el usuario y saludándolo.
  */
 async function initializeAlfa() {
+    // Verifica si hay usuario autenticado
     if (!auth.currentUser) {
         speak("Debes iniciar sesión para usar Alfa.");
         return;
     }
-
     try {
         const userRef = doc(db, "users", auth.currentUser.uid);
         const userDoc = await getDoc(userRef);
@@ -1512,10 +1511,13 @@ async function initializeAlfa() {
     recognition.start();
 }
 
-// Manejador unificado de resultados de reconocimiento de voz
+/***********************************************
+ * EVENTOS DE RECONOCIMIENTO DE VOZ
+ ***********************************************/
 recognition.onresult = (event) => {
-    if (isSpeaking) return;
+    if (isSpeaking) return; // Evitar solapamientos si Alfa está hablando
     const command = event.results[0][0].transcript.toLowerCase();
+    console.log("Comando recibido:", command);
     
     if (activationListening && command.includes('oye alfa')) {
         activationListening = false;
@@ -1535,7 +1537,7 @@ recognition.onresult = (event) => {
 };
 
 recognition.onend = () => {
-    // Reinicia el reconocimiento si aún estamos en modo escucha o esperando activación
+    // Si aún estamos en modo de escucha o activación, reiniciar el reconocimiento
     if (listening || activationListening) recognition.start();
 };
 
@@ -1548,12 +1550,12 @@ recognition.onerror = (event) => {
     recognition.start();
 };
 
-// ==============================
-// Manejo de Comandos de Voz
-// ==============================
+/***********************************************
+ * MANEJO DE COMANDOS DE VOZ
+ ***********************************************/
 
 /**
- * Procesa el comando recibido y delega a la función correspondiente.
+ * Procesa el comando recibido y redirige a la función correspondiente.
  * @param {string} command Comando de voz.
  */
 function handleCommand(command) {
@@ -1564,6 +1566,7 @@ function handleCommand(command) {
     } else if (command.includes('cerrar sesión')) {
         handleLogoutCommand();
     } else if (command.includes('sube un archivo')) {
+        // Si aún no tienes implementada esta funcionalidad, se incluye un placeholder.
         handleUploadCommand(command);
     } else if (command.includes('dime la política de calidad') || command.includes('dime la política de inocuidad')) {
         handleQualityPolicyCommand();
@@ -1602,8 +1605,8 @@ async function handleFileSearch(command) {
     try {
         const querySnapshot = await getDocs(collection(db, "files"));
         const matchingFiles = [];
-        querySnapshot.forEach(doc => {
-            const file = doc.data();
+        querySnapshot.forEach(docSnap => {
+            const file = docSnap.data();
             if (file.name.toLowerCase().includes(partialFileName)) {
                 matchingFiles.push(file);
             }
@@ -1625,7 +1628,7 @@ async function handleFileSearch(command) {
 }
 
 /**
- * Realiza una búsqueda personalizada utilizando la API de Google Custom Search.
+ * Realiza una búsqueda personalizada usando la API de Google Custom Search.
  * @param {string} query Consulta de búsqueda.
  */
 async function performCustomSearch(query) {
@@ -1658,7 +1661,7 @@ function handleVisitResponse(command) {
         speak("Entendido. Estoy pendiente de tu siguiente solicitud.");
     } else {
         speak("No entendí tu respuesta. ¿Quieres visitar el enlace?");
-        return; // Reintentar obtener la respuesta
+        return; // Se espera una respuesta válida
     }
     awaitingVisitResponse = false;
     pendingLink = "";
@@ -1689,6 +1692,16 @@ function handleTabCommand(command) {
 }
 
 /**
+ * Placeholder para la funcionalidad de subir archivos.
+ * (Implementa según tus necesidades)
+ * @param {string} command Comando de voz.
+ */
+function handleUploadCommand(command) {
+    // Aquí puedes integrar la lógica para subir archivos.
+    speak("La funcionalidad para subir archivos aún no está implementada.");
+}
+
+/**
  * Maneja el cierre de sesión.
  */
 function handleLogoutCommand() {
@@ -1696,7 +1709,7 @@ function handleLogoutCommand() {
         .then(() => {
             speak("Sesión cerrada con éxito. Hasta pronto.");
             setTimeout(() => {
-                // Mostrar la pantalla de registro y la política de calidad
+                // Redirigir o mostrar la pantalla de registro y/o política de calidad
                 document.getElementById('menu-screen').style.display = 'none';
                 document.getElementById('register-screen').style.display = 'block';
                 document.getElementById('info-container').style.display = 'block';
@@ -1709,7 +1722,7 @@ function handleLogoutCommand() {
 }
 
 /**
- * Lee la política de calidad e inocuidad.
+ * Lee y comunica la política de calidad e inocuidad.
  */
 function handleQualityPolicyCommand() {
     const policyText = `En Aceites y Lípidos BD nos comprometemos a: Proveer aceites y mantecas comestibles, desarrollando y adecuando las formulaciones de nuevos productos, cumpliendo con las regulaciones nacionales e internacionales. Contar con personal competente, gestionando los impactos del cambio climático en nuestros procesos y resultados, comunicando de manera efectiva con todas las partes interesadas para satisfacer sus necesidades y expectativas. Lograr la mejora continua otorgando asesoría para el manejo de nuestra gama de productos y desarrollos, aplicando nuestros productos en la elaboración de productos de nuestros clientes, generando una total confianza y satisfacción plena en nuestros clientes.`;
@@ -1774,7 +1787,7 @@ function handleMathCommand(command) {
  * Explica el funcionamiento de la plataforma.
  */
 function handleExplainPlatformCommand() {
-    const explanation = `Esta plataforma está diseñada para gestionar documentos relacionados con las normas ISO, como ISO 9001 e ISO 22000. Puedes navegar entre pestañas, subir documentos, y consultar información clave de calidad e inocuidad.`;
+    const explanation = `Esta plataforma está diseñada para gestionar documentos relacionados con las normas ISO, como ISO 9001 e ISO 22000. Puedes navegar entre pestañas, subir documentos y consultar información clave de calidad e inocuidad.`;
     speak(explanation);
 }
 
@@ -1813,7 +1826,7 @@ function generateInvoicePDF(data) {
     }
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
-    const logoUrl = "https://yourcompany.com/logo.png";
+    const logoUrl = "https://yourcompany.com/logo.png"; // Asegúrate de tener un logo válido
     const img = new Image();
     img.src = logoUrl;
     
@@ -1939,16 +1952,13 @@ async function handleDeliveriesCommand() {
     }
 }
 
-// ==============================
-// Eventos
-// ==============================
-
-// Evento para activar Alfa al hacer clic en el botón
+/***********************************************
+ * EVENTO DE ACTIVACIÓN DE ALFA
+ ***********************************************/
 alfaAssistant.addEventListener('click', () => {
     listening = true;
     initializeAlfa();
 });
-
 
 
 

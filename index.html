@@ -1042,7 +1042,7 @@ iframe {
             <h2>Mi Perfil</h2>
             <p><strong>Nombre:</strong> <span id="userName"></span></p>
             <p><strong>Apellido:</strong> <span id="userLastName"></span></p>
-            <p><strong>Rol:</strong> <span id="userRole"></span></p>
+            <p><strong>perfil:</strong> <span id="userRole"></span></p>
             <p><strong>Correo Electrónico:</strong> <span id="userEmail"></span></p>
         </div>
     </div>
@@ -1069,7 +1069,7 @@ iframe {
         <h1>Crear cuenta</h1>
         <input type="text" id="nombre" placeholder="Nombre" required>
         <input type="text" id="apellido" placeholder="Apellido" required>
-        <input type="text" id="rol" placeholder="Rol" required>
+        <input type="text" id="rol" placeholder="perfil" required>
         <input type="email" id="email" placeholder="Correo Electrónico" required>
         <input type="password" id="password" placeholder="Contraseña" required>
         <button class="button" id="registerBtn">Crear cuenta</button>
@@ -1227,47 +1227,22 @@ iframe {
      </div>
 
      <div id="requisitos" class="tab-content">
-    <h2 style="color: #00b954; text-align: center;">Selección de Requisitos</h2>
-    <div class="tabs" style="justify-content: center;">
-        <div id="req-tab-contexto" class="active">4. Contexto</div>
-        <div id="req-tab-liderazgo">5. Liderazgo</div>
-        <div id="req-tab-planificacion">6. Planificación</div>
-        <div id="req-tab-apoyo">7. Apoyo</div>
-        <div id="req-tab-operacion">8. Operación</div>
-        <div id="req-tab-desempeño">9. Desempeño</div>
-        <div id="req-tab-mejora">10. Mejora</div>
-    </div>
-
-    <div id="requisitos-content" class="requisitos-content" style="display: flex; flex-direction: column; align-items: center;">
-        <!-- Búsqueda -->
-        <div id="search-bar" style="margin: 20px 0; text-align: center;">
-            <input 
-                type="text" 
-                id="searchInput-requisitos" 
-                placeholder="Buscar en los requisitos..." 
-                style="padding: 10px; border-radius: 5px; border: 1px solid #ccc; width: 250px;"
-            />
-            <button id="searchButton-requisitos" class="green-button" style="margin-left: 10px;">Buscar</button>
-        </div>
-
-        <!-- Tabla -->
-        <table style="width: 80%; border-collapse: collapse; margin: 20px 0; text-align: left;">
-            <thead>
-                <tr>
-                    <th style="padding: 10px; background-color: #4b5e6e; color: white; border: 1px solid #ccc;">Título</th>
-                    <th style="padding: 10px; background-color: #4b5e6e; color: white; border: 1px solid #ccc;">Código</th>
-                    <th style="padding: 10px; background-color: #4b5e6e; color: white; border: 1px solid #ccc;">Archivo</th>
-                </tr>
-            </thead>
-            <tbody id="fileTableBody-requisitos">
-                <!-- Los datos dinámicos aparecerán aquí -->
-            </tbody>
-        </table>
-
-        <!-- Paginación -->
-        <div id="pagination-container-requisitos" style="margin-top: 20px; text-align: center;"></div>
-    </div>
+  <h2 style="color: #00b954; text-align: center;">Selección de Requisitos</h2>
+  <div class="tabs" style="justify-content: center;">
+    <div id="req-tab-contexto" class="active" onclick="handleRequisitosTab('contexto')">4.0 Contexto</div>
+    <div id="req-tab-liderazgo" onclick="handleRequisitosTab('liderazgo')">5.0 Liderazgo</div>
+    <div id="req-tab-planificacion" onclick="handleRequisitosTab('planificacion')">6.0 Planificación</div>
+    <div id="req-tab-apoyo" onclick="handleRequisitosTab('apoyo')">7.0 Apoyo</div>
+    <div id="req-tab-operacion" onclick="handleRequisitosTab('operacion')">8.0 Operación</div>
+    <div id="req-tab-desempeno" onclick="handleRequisitosTab('desempeno')">9.0 Desempeño</div>
+    <div id="req-tab-mejora" onclick="handleRequisitosTab('mejora')">10.0 Mejora</div>
+  </div>
+  
+  <div id="requisitos-content" class="requisitos-content" style="margin-top: 20px;">
+    <!-- Aquí se cargará el contenido dinámico de cada sección -->
+  </div>
 </div>
+
 
 <div id="content-mapa" class="tab-content">
     <h2>Mapa de Procesos</h2>
@@ -1393,6 +1368,7 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 const storage = getStorage(app);
+
 
 
 
@@ -1577,6 +1553,9 @@ function handleCommand(command) {
         handleMathCommand(command);
     } else if (command.includes('explica la plataforma')) {
         handleExplainPlatformCommand();
+    } else if (command.includes('abrir requisito')) {
+        handleRequirementCommand(command); // NUEVA FUNCIÓN PARA ABRIR REQUISITOS
+
     } else if (command.includes('generar factura')) {
         handleInvoiceCommand(command);
     } else if (command.includes('abrir archivo')) {
@@ -1952,6 +1931,54 @@ async function handleDeliveriesCommand() {
     }
 }
 
+//REQUIAITOS
+function handleRequirementCommand(command) {
+    const requisito = command.match(/\d+(\.\d+)*$/); // Extrae el número del requisito solicitado
+
+    if (command.includes('todos')) {
+        abrirTodosLosRequisitos(); // Expande todos los requisitos desde 4.0 hasta 10.0
+    } else if (requisito) {
+        abrirRequisitoEspecifico(requisito[0]); // Abre el requisito específico solicitado
+    } else {
+        speak("No encontré el requisito solicitado. Intenta decir 'abrir requisito 5.2.1' por ejemplo.");
+    }
+}
+
+// 🔹 Función para abrir TODOS los requisitos y submódulos
+function abrirTodosLosRequisitos() {
+    document.querySelectorAll('.submenu').forEach(submenu => {
+        submenu.style.display = 'block'; // Expande todos los submenús
+    });
+
+    document.querySelectorAll('button[onclick^="mostrarDetalle"]').forEach(button => {
+        const requisitoId = button.getAttribute('onclick').match(/'(\d+(\.\d+)*)'/);
+        if (requisitoId) {
+            mostrarDetalle(requisitoId[1]); // Muestra cada requisito en detalle
+        }
+    });
+
+    speak("Todos los requisitos han sido abiertos.");
+}
+
+// 🔹 Función para abrir un REQUISITO ESPECÍFICO
+function abrirRequisitoEspecifico(requisitoId) {
+    const button = document.querySelector(`button[onclick="mostrarDetalle('${requisitoId}')"]`);
+
+    if (button) {
+        button.click(); // Simula el clic en el botón correspondiente
+        speak(`Abriendo el requisito ${requisitoId}.`);
+    } else {
+        speak(`No encontré el requisito ${requisitoId}. Intenta con otro número.`);
+    }
+}
+
+
+
+
+
+
+
+
 /***********************************************
  * EVENTO DE ACTIVACIÓN DE ALFA
  ***********************************************/
@@ -1959,6 +1986,8 @@ alfaAssistant.addEventListener('click', () => {
     listening = true;
     initializeAlfa();
 });
+
+
 
 
 
@@ -3018,157 +3047,1233 @@ document.addEventListener("click", (event) => {
 });
 
 
+
+
+
+
+
+
+
+
 //FUNCION PARA REQUISITOS 
-// Encapsulamos todo dentro de un namespace para evitar conflictos
-const TabManager = (() => {
-    // Función para mostrar el contenido de las pestañas
-    function showTabContent(tabId) {
-        const tabContents = document.querySelectorAll('.tab-content');
 
-        // Ocultar todas las pestañas
-        tabContents.forEach((content) => {
-            content.classList.remove('active');
-        });
 
-        // Mostrar solo la pestaña correspondiente
-        const activeTab = document.getElementById(tabId);
-        if (activeTab) {
-            activeTab.classList.add('active');
-        } else {
-            console.error(`No se encontró la pestaña con ID: ${tabId}`);
-        }
 
-        // Cambiar el estado de las pestañas
-        const tabs = document.querySelectorAll('.tabs div');
-        tabs.forEach((tab) => {
-            tab.classList.remove('active');
-        });
 
-        const activeTabButton = document.getElementById(`tab-${tabId}`);
-        if (activeTabButton) {
-            activeTabButton.classList.add('active');
-        }
-    }
 
-    // Función específica para manejar la pestaña "Requisitos"
-    function handleRequisitosTab(tabId) {
-        const requisitosContent = document.getElementById('requisitos-content');
-        if (!requisitosContent) {
-            console.error('No se encontró el contenedor de requisitos.');
-            return;
-        }
 
-        // Cargar contenido dinámico en base al tabId
-        switch (tabId) {
-            case 'contexto':
-                requisitosContent.innerHTML = `
-                    <h3>4. Contexto</h3>
-                    <ul>
-                        <li>4.1 Comprensión de la organización y su contexto</li>
-                        <li>4.2 Comprensión de las necesidades y expectativas de las partes</li>
-                        <li>4.3 Determinación del alcance del sistema de gestión de la calidad</li>
-                        <li>4.4 Sistema de gestión de la calidad y sus procesos</li>
+
+
+
+
+
+
+
+
+
+
+// Función para manejar el contenido de la pestaña seleccionada (de 4.0 a 10.0)
+function handleRequisitosTab(tabId) {
+  const requisitosContent = document.getElementById('requisitos-content');
+  if (!requisitosContent) {
+    console.error('No se encontró el contenedor de requisitos.');
+    return;
+  }
+
+  let html = '';
+
+  switch (tabId) {
+    case 'contexto':
+      html = `
+        <h3>4.0 Contexto</h3>
+        <div style="display: flex; gap: 20px; width: 100%;">
+            <!-- Lista de puntos para Contexto -->
+            <ul style="width: 40%; list-style: none; padding: 0;">
+                <li style="margin-bottom: 10px;">
+                    <button onclick="mostrarDetalle('4.1')" style="width: 100%; padding: 10px;">
+                        4.1 Comprensión de la organización y su contexto
+                    </button>
+                </li>
+                <li style="margin-bottom: 10px;">
+                    <button onclick="mostrarDetalle('4.2')" style="width: 100%; padding: 10px;">
+                        4.2 Comprensión de las necesidades y expectativas de las partes
+                    </button>
+                </li>
+                <li style="margin-bottom: 10px;">
+                    <button onclick="mostrarDetalle('4.3')" style="width: 100%; padding: 10px;">
+                        4.3 Determinación del alcance del SGC
+                    </button>
+                </li>
+                <li>
+                    <button onclick="toggleSubMenu('submenu-4.4')" style="width: 100%; padding: 10px;">
+                        4.4 SGC y sus procesos ▼
+                    </button>
+                    <ul id="submenu-4.4" class="submenu" style="display: none; padding-left: 20px; list-style: none;">
+                        <li><button onclick="mostrarDetalle('4.4.1')" style="width: 100%; padding: 10px;">4.4.1 Generalidades del SGC</button></li>
+                        <li><button onclick="mostrarDetalle('4.4.2')" style="width: 100%; padding: 10px;">4.4.2 Información documentada</button></li>
                     </ul>
-                `;
-                break;
-            case 'liderazgo':
-                requisitosContent.innerHTML = `
-                    <h3>5. Liderazgo</h3>
-                    <ul>
-                        <li>5.1 Liderazgo y compromiso</li>
-                        <li>5.2 Política</li>
-                        <li>5.3 Roles, responsabilidades y autoridades organizacionales</li>
+                </li>
+            </ul>
+            <!-- Área de detalle -->
+            <div id="detalle-requisito" style="width: 60%; padding: 10px; border: 1px solid #ccc; border-radius: 5px;">
+                <p>Selecciona un punto para ver el detalle.</p>
+            </div>
+        </div>
+      `;
+      break;
+
+    case 'liderazgo':
+      html = `
+         <h3>5.0 Liderazgo</h3>
+        <div style="display: flex; gap: 20px; width: 100%;">
+            <!-- Lista de puntos para Liderazgo -->
+            <ul style="width: 40%; list-style: none; padding: 0;">
+                <li style="margin-bottom: 10px;">
+                    <button onclick="toggleSubMenu('submenu-5.1')" style="width: 100%; padding: 10px;">
+                        5.1 Liderazgo y compromiso ▼
+                    </button>
+                    <ul id="submenu-5.1" class="submenu" style="display: none; padding-left: 20px; list-style: none;">
+                        <li><button onclick="mostrarDetalle('5.1.1')" style="width: 100%; padding: 10px;">5.1.1 Generalidades</button></li>
+                        <li><button onclick="mostrarDetalle('5.1.2')" style="width: 100%; padding: 10px;">5.1.2 Enfoque al Cliente</button></li>
                     </ul>
-                `;
-                break;
-            default:
-                requisitosContent.innerHTML = `<p>Contenido no disponible para la pestaña seleccionada.</p>`;
-                break;
-        }
-    }
+                </li>
+                <li style="margin-bottom: 10px;">
+                    <button onclick="toggleSubMenu('submenu-5.2')" style="width: 100%; padding: 10px;">
+                        5.2 Política ▼
+                    </button>
+                    <ul id="submenu-5.2" class="submenu" style="display: none; padding-left: 20px; list-style: none;">
+                        <li><button onclick="mostrarDetalle('5.2.1')" style="width: 100%; padding: 10px;">5.2.1 Establecimiento de la política de la calidad</button></li>
+                        <li><button onclick="mostrarDetalle('5.2.2')" style="width: 100%; padding: 10px;">5.2.2 Comunicación de la política de la calidad</button></li>
+                    </ul>
+                </li>
+                <li style="margin-bottom: 10px;">
+                    <button onclick="mostrarDetalle('5.3')" style="width: 100%; padding: 10px;">
+                        5.3 Roles, responsabilidades y autoridades organizacionales
+                    </button>
+                </li>
+            </ul>
+            <!-- Área de detalle -->
+            <div id="detalle-requisito" style="width: 60%; padding: 10px; border: 1px solid #ccc; border-radius: 5px;">
+                <p>Selecciona un punto para ver el detalle.</p>
+            </div>
+        </div>
+      `;
+      break;
 
-    // Exponemos las funciones necesarias
-    return {
-        showTabContent,
-        handleRequisitosTab,
-    };
-})();
+    case 'planificacion':
+      html = `
+        <h3>6.0 Planificación</h3>
+        <div style="display: flex; gap: 20px; width: 100%;">
+            <!-- Lista de puntos para Planificación -->
+            <ul style="width: 40%; list-style: none; padding: 0;">
+                <li style="margin-bottom: 10px;">
+                    <button onclick="toggleSubMenu('submenu-6.1')" style="width: 100%; padding: 10px;">
+                        6.1 Acciones para abordar riesgos y oportunidades ▼
+                    </button>
+                    <ul id="submenu-6.1" class="submenu" style="display: none; padding-left: 20px; list-style: none;">
+                        <li><button onclick="mostrarDetalle('6.1.1')" style="width: 100%; padding: 10px;">6.1.1 Planificación del sistema de gestión de la calidad</button></li>
+                        <li><button onclick="mostrarDetalle('6.1.2')" style="width: 100%; padding: 10px;">6.1.2 Requisitos para planificar oportunidades</button></li>
+                    </ul>
+                </li>
+                <li style="margin-bottom: 10px;">
+                    <button onclick="toggleSubMenu('submenu-6.2')" style="width: 100%; padding: 10px;">
+                        6.2 Objetivos de la calidad y planificación para lograrlos ▼
+                    </button>
+                    <ul id="submenu-6.2" class="submenu" style="display: none; padding-left: 20px; list-style: none;">
+                        <li><button onclick="mostrarDetalle('6.2')" style="width: 100%; padding: 10px;">6.2 Objetivos de la calidad y planificación para lograrlos</button></li>
+                        <li><button onclick="mostrarDetalle('6.2.1')" style="width: 100%; padding: 10px;">6.2.1 Objetivos de la calidad</button></li>
+                        <li><button onclick="mostrarDetalle('6.2.2')" style="width: 100%; padding: 10px;">6.2.2 Planificación para lograr los objetivos</button></li>
+                    </ul>
+                </li>
+                <li style="margin-bottom: 10px;">
+                    <button onclick="mostrarDetalle('6.3')" style="width: 100%; padding: 10px;">
+                        6.3 Planificación de los cambios
+                    </button>
+                </li>
+            </ul>
+            <!-- Área de detalle -->
+            <div id="detalle-requisito" style="width: 60%; padding: 10px; border: 1px solid #ccc; border-radius: 5px;">
+                <p>Selecciona un punto para ver el detalle.</p>
+            </div>
+        </div>
+      `;
+      break;
 
-// Eventos para manejar las pestañas
-document.addEventListener('DOMContentLoaded', () => {
-    const tabs = document.querySelectorAll('.tabs div');
+    case 'apoyo':
+      html = `
+           <h3>7.0 Apoyo</h3>
+            <div style="display: flex; gap: 20px; width: 100%;">
+                <!-- Lista de puntos para Apoyo -->
+                <ul style="width: 40%; list-style: none; padding: 0;">
+                    <li style="margin-bottom: 10px;">
+                        <button onclick="toggleSubMenu('submenu-7.1')" style="width: 100%; padding: 10px;">
+                            7.1 Recursos ▼
+                        </button>
+                        <ul id="submenu-7.1" class="submenu" style="display: none; padding-left: 20px; list-style: none;">
+                            <li><button onclick="mostrarDetalle('7.1.1')" style="width: 100%; padding: 10px;">7.1.1 Generalidades de Recursos</button></li>
+                            <li><button onclick="mostrarDetalle('7.1.2')" style="width: 100%; padding: 10px;">7.1.2 Personas</button></li>
+                            <li><button onclick="mostrarDetalle('7.1.3')" style="width: 100%; padding: 10px;">7.1.3 Infraestructura</button></li>
+                            <li><button onclick="mostrarDetalle('7.1.4')" style="width: 100%; padding: 10px;">7.1.4 Ambiente para la operación de los procesos</button></li>
+                            <li>
+                                <button onclick="toggleSubMenu('submenu-7.1.5')" style="width: 100%; padding: 10px;">
+                                    7.1.5 Recursos de seguimiento y medición ▼
+                                </button>
+                                <ul id="submenu-7.1.5" class="submenu" style="display: none; padding-left: 20px; list-style: none;">
+                                    <li>
+                                        <button onclick="toggleSubMenu('submenu-7.1.5.1')" style="width: 100%; padding: 10px;">
+                                            7.1.5.1 Generalidades de Recursos de seguimiento y medición ▼
+                                        </button>
+                                        <ul id="submenu-7.1.5.1" class="submenu" style="display: none; padding-left: 20px; list-style: none;">
+                                            <li><button onclick="mostrarDetalle('7.1.5.1')" style="width: 100%; padding: 10px;">7.1.5.1 Generalidades</button></li>
+                                            <li><button onclick="mostrarDetalle('7.1.5.2')" style="width: 100%; padding: 10px;">7.1.5.2 Trazabilidad de las mediciones</button></li>
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </li>
+                            <li><button onclick="mostrarDetalle('7.1.6')" style="width: 100%; padding: 10px;">7.1.6 Conocimientos de la organización</button></li>
+                        </ul>
+                    </li>
 
-    tabs.forEach((tab) => {
-        tab.addEventListener('click', () => {
-            const tabId = tab.id.replace('tab-', '');
-            TabManager.showTabContent(tabId);
+                    <li style="margin-bottom: 10px;">
+                        <button onclick="mostrarDetalle('7.2')" style="width: 100%; padding: 10px;">
+                            7.2 Competencia
+                        </button>
+                    </li>
+                    <li style="margin-bottom: 10px;">
+                        <button onclick="mostrarDetalle('7.3')" style="width: 100%; padding: 10px;">
+                            7.3 Toma de conciencia
+                        </button>
+                    </li>
+                    <li style="margin-bottom: 10px;">
+                        <button onclick="mostrarDetalle('7.4')" style="width: 100%; padding: 10px;">
+                            7.4 Comunicación
+                        </button>
+                    </li>
+                    <li style="margin-bottom: 10px;">
+                        <button onclick="toggleSubMenu('submenu-7.5')" style="width: 100%; padding: 10px;">
+                            7.5 Información documentada ▼
+                        </button>
+                        <ul id="submenu-7.5" class="submenu" style="display: none; padding-left: 20px; list-style: none;">
+                            <li><button onclick="mostrarDetalle('7.5.1')" style="width: 100%; padding: 10px;">7.5.1 Generalidades de información documentada</button></li>
+                            <li><button onclick="mostrarDetalle('7.5.2')" style="width: 100%; padding: 10px;">7.5.2 Creación y actualización de información documentada</button></li>
+                            <li>
+                                <button onclick="toggleSubMenu('submenu-7.5.3')" style="width: 100%; padding: 10px;">
+                                    7.5.3 Control de la información documentada ▼
+                                </button>
+                                <ul id="submenu-7.5.3" class="submenu" style="display: none; padding-left: 20px; list-style: none;">
+                                    <li><button onclick="mostrarDetalle('7.5.3.1')" style="width: 100%; padding: 10px;">7.5.3.1 Generalidades</button></li>
+                                    <li><button onclick="mostrarDetalle('7.5.3.2')" style="width: 100%; padding: 10px;">7.5.3.2 Actividades del Control de la Información documentada</button></li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+                <!-- Área de detalle -->
+                <div id="detalle-requisito" style="width: 60%; padding: 10px; border: 1px solid #ccc; border-radius: 5px;">
+                    <p>Selecciona un punto para ver el detalle.</p>
+                </div>
+            </div>
+      `;
+      break;
 
-            // Verificar si es la pestaña de "Requisitos"
-            if (tabId === 'requisitos') {
-                TabManager.handleRequisitosTab('contexto'); // Cargar el contenido inicial de Requisitos
-            }
-        });
-    });
+   case 'operacion':
+      html = `
+         <h3>8.0 Operación</h3>
+            <div style="display: flex; gap: 20px; width: 100%;">
+                <!-- Lista de puntos para Operación -->
+                <ul style="width: 40%; list-style: none; padding: 0;">
+                    <li><button onclick="mostrarDetalle('8.1')" style="width: 100%; padding: 10px;">8.1 Planificación y control operacional</button></li>
+                    
+                    <li>
+                        <button onclick="toggleSubMenu('submenu-8.2')" style="width: 100%; padding: 10px;">
+                            8.2 Requisitos para los productos y servicios ▼
+                        </button>
+                        <ul id="submenu-8.2" class="submenu" style="display: none; padding-left: 20px; list-style: none;">
+                            <li><button onclick="mostrarDetalle('8.2.1')" style="width: 100%; padding: 10px;">8.2.1 Comunicación con el Cliente</button></li>
+                            <li><button onclick="mostrarDetalle('8.2.2')" style="width: 100%; padding: 10px;">8.2.2 Determinación de los requisitos para los productos y servicios</button></li>
+                            <li>
+                                <button onclick="toggleSubMenu('submenu-8.2.3')" style="width: 100%; padding: 10px;">
+                                    8.2.3 Revisión de los requisitos para los productos y servicios ▼
+                                </button>
+                                <ul id="submenu-8.2.3" class="submenu" style="display: none; padding-left: 20px; list-style: none;">
+                                    <li><button onclick="mostrarDetalle('8.2.3.1')" style="width: 100%; padding: 10px;">8.2.3.1 Generalidades de la revisión de los requisitos</button></li>
+                                    <li><button onclick="mostrarDetalle('8.2.3.2')" style="width: 100%; padding: 10px;">8.2.3.2 Información documentada de la revisión de los requisitos</button></li>
+                                </ul>
+                            </li>
+                            <li><button onclick="mostrarDetalle('8.2.4')" style="width: 100%; padding: 10px;">8.2.4 Cambios en los requisitos para los productos y servicios</button></li>
+                        </ul>
+                    </li>
 
-    // Carga inicial para la pestaña activa
-    const activeTab = document.querySelector('.tabs div.active');
-    if (activeTab) {
-        const tabId = activeTab.id.replace('tab-', '');
-        TabManager.showTabContent(tabId);
-        if (tabId === 'requisitos') {
-            TabManager.handleRequisitosTab('contexto'); // Cargar el contenido inicial
-        }
-    }
-});
+                    <li>
+                        <button onclick="toggleSubMenu('submenu-8.3')" style="width: 100%; padding: 10px;">
+                            8.3 Diseño y desarrollo de los productos y servicios ▼
+                        </button>
+                        <ul id="submenu-8.3" class="submenu" style="display: none; padding-left: 20px; list-style: none;">
+                            <li><button onclick="mostrarDetalle('8.3.1')" style="width: 100%; padding: 10px;">8.3.1 Generalidades</button></li>
+                            <li><button onclick="mostrarDetalle('8.3.2')" style="width: 100%; padding: 10px;">8.3.2 Planificación del Diseño y Desarrollo</button></li>
+                            <li><button onclick="mostrarDetalle('8.3.3')" style="width: 100%; padding: 10px;">8.3.3 Entradas para el diseño y desarrollo</button></li>
+                            <li><button onclick="mostrarDetalle('8.3.4')" style="width: 100%; padding: 10px;">8.3.4 Controles del diseño y desarrollo</button></li>
+                        </ul>
+                    </li>
 
-// Tabs de requisitos
-document.addEventListener("DOMContentLoaded", () => {
-    const tabs = document.querySelectorAll(".tabs div");
-    const requisitosContent = document.getElementById("requisitos-content");
-    const tableBody = document.getElementById("fileTableBody-requisitos");
+                    <li><button onclick="mostrarDetalle('8.6')" style="width: 100%; padding: 10px;">8.6 Liberación de los productos y servicios</button></li>
+                    
+                    <li>
+                        <button onclick="toggleSubMenu('submenu-8.7')" style="width: 100%; padding: 10px;">
+                            8.7 Control de las salidas no conformes ▼
+                        </button>
+                        <ul id="submenu-8.7" class="submenu" style="display: none; padding-left: 20px; list-style: none;">
+                            <li><button onclick="mostrarDetalle('8.7.1')" style="width: 100%; padding: 10px;">8.7.1 Generalidades del control de las salidas no conformes</button></li>
+                            <li><button onclick="mostrarDetalle('8.7.2')" style="width: 100%; padding: 10px;">8.7.2 Información documentada de las salidas no conformes</button></li>
+                        </ul>
+                    </li>
+                </ul>
+                <!-- Área de detalle -->
+                <div id="detalle-requisito" style="width: 60%; padding: 10px; border: 1px solid #ccc; border-radius: 5px;">
+                    <p>Selecciona un punto para ver el detalle.</p>
+                </div>
+            </div>
+      `;
+      break;
+      break;
 
-    // Datos simulados para cada pestaña
-    const requisitosData = {
-        contexto: [
-            { titulo: "4.1 Contexto", codigo: "CON-001", archivo: "Archivo1.pdf" },
-            { titulo: "4.2 Necesidades", codigo: "CON-002", archivo: "Archivo2.pdf" },
-        ],
-        liderazgo: [
-            { titulo: "5.1 Liderazgo", codigo: "LID-001", archivo: "Archivo3.pdf" },
-            { titulo: "5.2 Política", codigo: "LID-002", archivo: "Archivo4.pdf" },
-        ],
-        // Añade más datos aquí para las demás pestañas
-    };
+    case 'desempeno':
+      html = `
+       <h3>9.0 Desempeño</h3>
+        <div style="display: flex; gap: 20px; width: 100%;">
+            <!-- Lista de puntos para Desempeño -->
+            <ul style="width: 40%; list-style: none; padding: 0;">
+                <li style="margin-bottom: 10px;">
+                    <button onclick="toggleSubMenu('submenu-9.1')" style="width: 100%; padding: 10px;">
+                        9.1 Seguimiento, medición, análisis y evaluación ▼
+                    </button>
+                    <ul id="submenu-9.1" class="submenu" style="display: none; padding-left: 20px; list-style: none;">
+                        <li><button onclick="mostrarDetalle('9.1.1')" style="width: 100%; padding: 10px;">9.1.1 Generalidades del seguimiento, medición, análisis y evaluación</button></li>
+                        <li><button onclick="mostrarDetalle('9.1.2')" style="width: 100%; padding: 10px;">9.1.2 Satisfacción del Cliente</button></li>
+                        <li><button onclick="mostrarDetalle('9.1.3')" style="width: 100%; padding: 10px;">9.1.3 Análisis y evaluación</button></li>
+                    </ul>
+                </li>
+                <li style="margin-bottom: 10px;">
+                    <button onclick="toggleSubMenu('submenu-9.2')" style="width: 100%; padding: 10px;">
+                        9.2 Auditoría interna ▼
+                    </button>
+                    <ul id="submenu-9.2" class="submenu" style="display: none; padding-left: 20px; list-style: none;">
+                        <li><button onclick="mostrarDetalle('9.2.1')" style="width: 100%; padding: 10px;">9.2.1 Generalidades</button></li>
+                        <li><button onclick="mostrarDetalle('9.2.2')" style="width: 100%; padding: 10px;">9.2.2 Auditoría interna</button></li>
+                    </ul>
+                </li>
+                <li style="margin-bottom: 10px;">
+                    <button onclick="toggleSubMenu('submenu-9.3')" style="width: 100%; padding: 10px;">
+                        9.3 Revisión por la dirección ▼
+                    </button>
+                    <ul id="submenu-9.3" class="submenu" style="display: none; padding-left: 20px; list-style: none;">
+                        <li><button onclick="mostrarDetalle('9.3.1')" style="width: 100%; padding: 10px;">9.3.1 Generalidades</button></li>
+                        <li><button onclick="mostrarDetalle('9.3.2')" style="width: 100%; padding: 10px;">9.3.2 Entradas de la revisión</button></li>
+                        <li><button onclick="mostrarDetalle('9.3.3')" style="width: 100%; padding: 10px;">9.3.3 Salidas de la revisión</button></li>
+                    </ul>
+                </li>
+            </ul>
+            <!-- Área de detalle -->
+            <div id="detalle-requisito" style="width: 60%; padding: 10px; border: 1px solid #ccc; border-radius: 5px;">
+                <p>Selecciona un punto para ver el detalle.</p>
+            </div>
+        </div>
+      `;
+      break;
 
-    function loadTabContent(tabId) {
-        tableBody.innerHTML = "";
-        const data = requisitosData[tabId] || [];
+    case 'mejora':
+      html = `
+        <h3>10.0 Mejora</h3>
+        <div style="display: flex; gap: 20px; width: 100%;">
+            <!-- Lista de puntos para Mejora -->
+            <ul style="width: 40%; list-style: none; padding: 0;">
+                <li style="margin-bottom: 10px;">
+                    <button onclick="mostrarDetalle('10.1')" style="width: 100%; padding: 10px;">
+                        10.1 Generalidades de la Mejora
+                    </button>
+                </li>
+                <li style="margin-bottom: 10px;">
+                    <button onclick="toggleSubMenu('submenu-10.2')" style="width: 100%; padding: 10px;">
+                        10.2 No conformidad y acción correctiva ▼
+                    </button>
+                    <ul id="submenu-10.2" class="submenu" style="display: none; padding-left: 20px; list-style: none;">
+                        <li><button onclick="mostrarDetalle('10.2.1')" style="width: 100%; padding: 10px;">10.2.1 Generalidades de no conformidades</button></li>
+                        <li><button onclick="mostrarDetalle('10.2.2')" style="width: 100%; padding: 10px;">10.2.2 Información documentada</button></li>
+                    </ul>
+                </li>
+                <li style="margin-bottom: 10px;">
+                    <button onclick="mostrarDetalle('10.3')" style="width: 100%; padding: 10px;">
+                        10.3 Mejora continua
+                    </button>
+                </li>
+            </ul>
+            <!-- Área de detalle -->
+            <div id="detalle-requisito" style="width: 60%; padding: 10px; border: 1px solid #ccc; border-radius: 5px;">
+                <p>Selecciona un punto para ver el detalle.</p>
+            </div>
+        </div>
+      `;
+      break;
 
-        data.forEach((item) => {
-            const row = `
-                <tr>
-                    <td>${item.titulo}</td>
-                    <td>${item.codigo}</td>
-                    <td><a href="#" class="file-link">${item.archivo}</a></td>
-                </tr>
-            `;
-            tableBody.innerHTML += row;
-        });
-    }
+    default:
+      html = `<p>Contenido no disponible para la pestaña seleccionada.</p>`;
+  }
 
-    tabs.forEach((tab) => {
-        tab.addEventListener("click", (e) => {
-            tabs.forEach((t) => t.classList.remove("active"));
-            tab.classList.add("active");
+  requisitosContent.innerHTML = html;
+}
 
-            const tabId = tab.id.replace("req-tab-", "");
-            loadTabContent(tabId);
-        });
-    });
+// Función para alternar la visibilidad de los submódulos
+function toggleSubMenu(id) {
+  const submenu = document.getElementById(id);
+  if (!submenu) return;
 
-    // Cargar la primera pestaña por defecto
-    loadTabContent("contexto");
-});
+  submenu.style.display = (submenu.style.display === 'none' || submenu.style.display === '') ? 'block' : 'none';
+}
+
+// Función para mostrar el detalle del punto seleccionado con contenido completo
+function mostrarDetalle(item) {
+  const detalleDiv = document.getElementById('detalle-requisito');
+  if (!detalleDiv) return;
+
+  let detalleTexto = {
+    "4.1": `<h4>4.1 Comprensión de la organización y su contexto</h4><p>SGC-4400-02 Rev: 1
+
+
+En Aceites y Lípidos BD determinamos las cuestiones externas e internas que son pertinentes para nuestro propósito (misión) y dirección estratégica (visión), que afectan nuestra capacidad para lograr los resultados previstos de nuestro Sistema de Gestión de la Calidad (cumplir regularmente los requisitos de los productos y servicios y aspirar a aumentar la satisfacción del cliente), desde el proceso Estratégico (ver SGC-4400-70).
+
+Realizamos el seguimiento y la revisión de la información sobre estas cuestiones externas e internas al actualizar el Análisis del contexto ejercido, durante la revisión por la dirección conforme se establece en el requisito de Entradas para la revisión por la dirección (SGC-4400-62) y en el procedimiento de Acciones para abordar riesgos y oportunidades y revisión directiva (PRO-6100-01).
+
+De tal manera que conservamos el registro con el resumen de Riesgos y Oportunidades (REG-4100-01), asimismo conservamos el registro de requisitos pertinentes de las partes pertinentes (REG-6100-01)..</p>`,
+
+
+
+    "4.2": `<h4>4.2 Comprensión de las necesidades y expectativas de las partes</h4><p>SGC-4400-03 Rev: 1
+
+
+Debido a su efecto o efecto potencial en la capacidad de Aceites y Lípidos BD de proporcionar regularmente productos y servicios que satisfagan los requisitos del cliente, los legales y reglamentarios aplicables, a partir del proceso Estratégico (ver SGC-4400-70), determinamos mediante el procedimiento de Acciones para abordar riesgos y oportunidades y revisión directiva (PRO-6100-01):
+
+Las partes interesadas que son pertinentes a nuestro Sistema de Gestión de la Calidad;
+Los requisitos pertinentes de estas partes interesadas para el Sistema de Gestión de la Calidad.
+Conservamos registro que contiene los requisitos pertinentes en Partes Interesadas Pertinentes (REG-4200-01).
+En Aceites y Lípidos BD realizamos el seguimiento y la revisión de la información sobre estas partes interesadas y sus requisitos pertinentes conforme se establece en el requisito 9.3.2 Entradas para la revisión por la dirección (SGC-4400-62), mediante la Revisión por la dirección ejercida.</p>`,
+
+
+
+    "4.3": `<h4>4.3 Determinación del alcance del SGC</h4><p>SGC-4400-04 Rev: 1
+
+
+En Aceites y Lípidos BD determinamos el presente sistema de gestión de la calidad con el alcance para:
+
+"Formulación, envasado y distribución de aceites vegetales y mantecas vegetales comestibles y comercialización de materia prima asociadas".
+
+Dado el alcance declarado y la naturaleza de nuestros productos y servicios hemos determinado que todos los requisitos de la norma ISO 9001:2015 son aplicables..</p>`,
+
+
+
+//4.0
+
+    "4.4.1": `<h4>4.4.1 Generalidades del SGC</h4><p>SGC-4400-05 Rev: 1
+
+
+En Aceites y Lípidos BD establecemos, implementamos, mantenemos y mejoramos continuamente el presente sistema de gestión de la calidad incluidos los procesos necesarios y sus interacciones de acuerdo a los requisitos de la norma ISO 9001:2015.
+
+Para lo cual establecemos en el Mapa General de Procesos (ver SGC-4400-68) los procesos necesarios para nuestro sistema de gestión de la calidad y su aplicación a través de Aceites y Lípidos BD:
+
+Determinamos las entradas requeridas y las salidas esperadas de estos procesos, (ver la determinación del proceso Estratégico (SGC-4400-69), de Ventas (SGC-4400-71) y de Producción y distribución (SGC-4400-73);
+Determinamos la secuencia mediante la numeración asignada a cada proceso y la interacción de estos procesos conforme se observa en el mapa general de procesos (SGC-4400-68); el detalle se encuentra en la determinación de los procesos (ver inciso a. del mismo requisito).
+Determinamos y aplicamos los criterios y los métodos contenidos en los mapas de proceso específicos, (ver el proceso Estratégico (SGC-4400-70), de Ventas (SGC-4400-72) y de Producción y distribución (SGC-4400-74)), necesarios para asegurarnos de la operación eficaz y el control de estos procesos incluyendo el seguimiento y la medición a través de los objetivos de la calidad (SGC-4400-14);
+Determinamos los recursos necesarios para estos procesos desde el flujo de efectivo validado y nos aseguramos de su disponibilidad mediante la aplicación de nuestro proceso Estratégico (SGC-4400-70);
+Asignamos las responsabilidades, autoridades y roles para estos procesos mediante la Descripción de puestos (REG-5300-02) vinculadas desde el Organigrama (REG-5300-01), conforme a lo previsto en el requisito 5.3 (SGC-4400-11);
+Abordar los riesgos y oportunidades determinados desde la Planificación descrita en el requisito 6.1.1 del presente sistema de gestión de la calidad (ver SGC-4400-12);
+Valoramos estos procesos mediante el seguimiento y medición de los objetivos de la calidad (ver requisito 6.2 del presente sistema de gestión de la calidad SGC-4400-14) e implementamos cualquier cambio necesario para asegurarnos de que estos procesos logran los resultados previstos;
+En función a los resultados de los objetivos de la calidad, instrumentamos mejoras a los procesos y al Sistema de Gestión de la Calidad, incluyendo cuando se presente incumplimiento a los objetivos durante el seguimiento se aplican correcciones a la medición y en caso de incumplimiento del objetivo, se aplican acciones correctivas conforme a lo previsto en el requisito 10.2.1 (SGC-4400-65).</p>`,
+
+
+
+    "4.4.2": `<h4>4.4.2 Información documentada</h4><p>SGC-4400-06 Rev: 1
+
+
+En Aceites y Lípidos BD:
+
+Mantenemos la documentación en la medida que nos resulta necesaria para apoyar la operación de los procesos, en la que establecemos la manera de realizar las actividades para apoyar la operación de los procesos, mediante la disponibilidad de:
+Política de la calidad (SGC-4400-01)
+Objetivos de la calidad (SGC-4400-14)
+Mapa general de procesos (SGC-4400-68)
+Mapa específico de cada proceso:
+Estratégico (SGC-4400-70)
+Ventas (SGC-4400-72)
+Producción y distribución (SGC-4400-74)
+Determinación de cada proceso:
+Estratégico (SGC-4400-69)
+Ventas (SGC-4400-71)
+Producción y distribución (SGC-4400-73)
+Metodología descrita en Procedimientos, Videos, Audios, Ayudas visuales, Fotos, Software, entre otros, que se desprenden de cada mapa de proceso específico o de los propios requisitos de nuestro Sistema de Gestión de la Calidad (ver lista maestra de control de documentos REG-7532-02).
+Conservamos información documentada, para tener la confianza de que los procesos se realizan según lo planificado, mediante la disponibilidad de registros. (ver lista maestra de control de registros REG-7532-04).</p>`,
+
+
+
+//5.0
+"5.1.1": `
+      <h4>5.1.1 Generalidades</h4>
+      <p>5.1.1 Generalidades Liderazgo y compromisoSGC-4400-07 Rev: 1
+
+
+La alta dirección de Aceites y Lípidos BD mostramos liderazgo y compromiso con respecto al Sistema de Gestión de la Calidad; mediante la aplicación del proceso Estratégico (SGC-4400-70):
+
+Asumiendo la rendición de cuentas de la eficacia del Sistema de Gestión de la Calidad (SGC-4400-61).
+Asegurando que se establece la política de la calidad (SGC-4400-01) y los objetivos de la calidad (SGC-4400-14) y que estos sean compatibles con el contexto y la dirección estratégica de Aceites y Lípidos BD;
+Asegurando la integración de los requisitos del Sistema de Gestión de la Calidad en los procesos de servicio de Aceites y Lípidos BD;
+Promoviendo el uso del enfoque basado en procesos y el pensamiento basado en riesgos a lo largo de todo el Sistema de Gestión de la Calidad;
+Asegurando que los recursos necesarios para el Sistema de Gestión de la Calidad estén disponibles ver requisito 7.1.1 del Sistema de Gestión de la Calidad (SGC-4400-18);
+Comunicando la importancia de una gestión de la calidad eficaz y conforme con los requisitos del Sistema de Gestión de la Calidad;
+Asegurando que el Sistema de Gestión de la Calidad logre los resultados previstos;
+Comprometiendo, dirigiendo y apoyando a las personas para contribuir a la eficacia del Sistema de Gestión de la Calidad;
+Promoviendo la mejora;
+Apoyando los roles pertinentes de la dirección para demostrar su liderazgo aplicado a sus áreas de responsabilidad ver requisito 5.3 del presente Sistema de Gestión de la Calidad (SGC-4400-11)..</p>
+      `,
+    "5.1.2": `
+      <h4>5.1.2 Enfoque al Cliente</h4>
+      <p>5.1.2 Enfoque al ClienteSGC-4400-08 Rev: 1
+
+
+La Alta Dirección de Aceites y Lípidos BD que conduce muestra liderazgo y compromiso con respecto al enfoque al Cliente asegurándonos de que:
+
+Se determinan, se comprenden y se cumplen de manera coherente los requisitos del Cliente y los legales y reglamentarios aplicables, conforme a las actividades previstas en los procesos de:
+Ventas (SGC-4400-72) y de Producción y distribución (SGC-4400-74) y que además considera;
+La evaluación de la conformidad de los requisitos de los productos y servicios otorgados, conforme a lo descrito en el requisito 8.6 del presente Sistema de Gestión de la Calidad (SGC-4400-53)
+Se determinan y se tratan los riesgos y oportunidades que pueden afectar a la conformidad de los productos y los servicios y a la capacidad de aumentar la satisfacción del Cliente, conforme se establece en los requisitos 4.1 (SGC-4400-02), 4.2 (SGC-4400-03) y 4.4.1 (SGC-4400-05) del presente Sistema de Gestión de la Calidad
+Se mantiene el enfoque en aumentar la satisfacción del Cliente en todas las Personas que trabajan en nuestro nombre..</p>
+    `,
+
+    "5.2.1": `
+      <h4>5.2.1 Establecimiento de la política de la calidad</h4>
+      <p>5.2.1 Establecimiento de la política de la calidadSGC-4400-09 Rev: 1
+
+
+La alta dirección de Aceites y Lípidos BD establece, implementa y mantiene la política de la calidad descrita en la pagina principal del presente Sistema de Gestión de la Calidad (SGC-4400-01) que:
+
+Es apropiada a nuestro propósito (misión), a nuestro contexto (SGC-4400-02) y apoya la dirección estratégica (visión);
+Proporciona un marco de referencia para el establecimiento de los objetivos de la calidad, requisito 6.2 (Ver SGC-4400-14);
+Incluye el compromiso de cumplir los requisitos aplicables;
+Incluye el compromiso de mejora continua del Sistema de Gestión de la Calidad.</p>
+    `,
+
+    "5.2.2": `
+      <h4>5.2.2 Comunicación de la política de la calidad</h4>
+      <p>5.2.2 Comunicación de la política de la calidadSGC-4400-10 Rev: 1
+
+
+La política de la calidad:
+
+Está disponible desde la página principal de nuestro sistema de gestión de la calidad (SGC-4400-01), manteniéndole como información documentada;
+Es comunicada a todas las Personas que trabajan en nuestro nombre mediante acceso a nuestro Sistema de Gestión de la Calidad electrónico, nos aseguramos se entienda durante nuestras auditorías internas y nos aseguramos sea aplicada dentro de su quehacer en Aceites y Lípidos BD;
+Se encuentra disponible para las partes interesadas pertinentes, en la documentación de nuestro sistema de gestión de la calidad, de lo anterior se hace participe a las partes interesadas en la comunicación que les hacemos llegar.</p>
+    `,
+
+"5.3": `<h4> 5.3 Roles, responsabilidades y autoridades organizacionales</h4><p>5.3 Roles, responsabilidades y autoridades en la organizaciónSGC-4400-11 Rev: 1
+
+
+La alta dirección de Aceites y Lípidos BD se asegura que las responsabilidades y autoridades para los roles pertinentes se asignan, se comunican y se entiendan dentro de la organización, mediante las Descripciones de puesto (ver REG-5300-02), asimismo, se muestra el puesto de cada persona en el Organigrama general (ver REG-5300-01).
+
+La alta dirección asignamos la responsabilidad y autoridad para:
+
+Asegurarnos de que el sistema de gestión de la calidad es conforme con los requisitos de la norma ISO 9001:2015.
+Asegurarnos de que los procesos están dando las salidas previstas;
+Informar a la alta dirección sobre el desempeño del sistema de gestión de la calidad, y sobre las oportunidades de mejora (véase 10.1, SGC-4400-64 del presente sistema de gestión de la calidad);
+Asegurarnos de que se promueve el enfoque al Cliente a través de la organización;
+Asegurarnos de que la integridad del sistema de gestión de la calidad se mantiene cuando se planifican e implementan cambios en el sistema de gestión e la calidad
+Mediante el control para la Creación y actualización de la información documentada como se establece en el requisito 7.5.2 del presente manual, para cambios del día a día (ver SGC-4400-29).
+Adicionalmente mediante la contribución de la revisión por la dirección cuando se prevén cambios que pudieran impactar de manera significativa al sistema de gestión de la calidad (ver SGC-4400-62).</p>`,
+
+
+
+
+//6.0
+"6.1.1": `
+      <h4>6.1.1 Planificación del sistema de gestión de la calidad</h4>
+      <p>6.1.1 Planificación del sistema de gestión de la calidadSGC-4400-12 Rev: 1
+
+
+Al planificar el sistema de gestión de la calidad, en Aceites y Lípidos BD consideramos las cuestiones referidas en el apartado 4.1 (ver SGC-4400-02) y los requisitos referidos en el apartado 4.2 (ver SGC-4400-03) de tal forma que determinamos las oportunidades y los riesgos que es necesario abordar mediante la aplicación del proceso Estratégico (SGC-4400-70), con el fin de:
+
+Asegurarnos de que el sistema de gestión de la calidad pueda lograr sus resultados previstos;
+Aumentar los efectos deseables;
+Prevenir o reducir efectos no deseados;
+Lograr la mejora.</p>
+    `,
+
+    "6.1.2": `
+      <h4>6.1.2 Requisitos para planificar</h4>
+      <p>6.1.2 Requisitos para planificarSGC-4400-13 Rev: 1
+
+
+En Aceites y Lípidos BD planificamos:
+
+Las acciones para abordar estos riesgos y oportunidades, de tal forma que;
+Integramos e implementamos las acciones en los procesos del sistema de gestión de la calidad al presentar su determinación, ver:
+Estratégico (SGC-4400-69)
+Ventas (SGC-4400-71)
+Producción y distribución (SGC-4400-73)
+Evaluamos la eficacia de estas acciones, durante la revisión por la dirección (ver SGC-4400-61).</p>  `,
+
+"6.2": `<h4>6.2 Objetivos de la calidad y planificación para lograrlos</h4><p>6.2.1 Objetivos de la calidadSGC-4400-15 Rev: 1
+
+
+En Aceites y Lípidos BD establecemos los objetivos de la calidad para las funciones, niveles y procesos pertinentes necesarios para el Sistema de Gestión de la Calidad:
+
+Los objetivos de la calidad:
+
+Son coherentes con la política de la calidad, lo cual aseguramos mediante el establecimiento en la tabla contenida en el requisito 6.2 del presente sistema de gestión de la calidad (SGC-4400-14)
+Son medibles;
+Tienen en cuenta los requisitos aplicables;
+Son pertinentes para la conformidad de los productos y servicios y para el aumento de la satisfacción del Cliente;
+Son objeto de seguimiento al ser el parámetro principal para el seguimiento y medición de los procesos (ver requisito 4.4.1g del presente Sistema de Gestión de la Calidad, (SGC-4400-05);
+Se comunican, ver requisito 7.4 del presente Sistema de Gestión de la Calidad (SGC-4400-27);
+Se actualizan, según corresponda ver requisito 7.5.3.2 del presente Sistema de Gestión de la Calidad (SGC-4400-31).
+Los objetivos de la Calidad se mantienen como información documentada en el requisito 6.2 del presente (ver SGC-4400-14).</p>`,
+
+
+
+
+
+    "6.2.1": `<h4>6.2.1 Objetivos de la calidad</h4><p>6.2.1 Objetivos de la calidadSGC-4400-15 Rev: 1
+
+
+En Aceites y Lípidos BD establecemos los objetivos de la calidad para las funciones, niveles y procesos pertinentes necesarios para el Sistema de Gestión de la Calidad:
+
+Los objetivos de la calidad:
+
+Son coherentes con la política de la calidad, lo cual aseguramos mediante el establecimiento en la tabla contenida en el requisito 6.2 del presente sistema de gestión de la calidad (SGC-4400-14)
+Son medibles;
+Tienen en cuenta los requisitos aplicables;
+Son pertinentes para la conformidad de los productos y servicios y para el aumento de la satisfacción del Cliente;
+Son objeto de seguimiento al ser el parámetro principal para el seguimiento y medición de los procesos (ver requisito 4.4.1g del presente Sistema de Gestión de la Calidad, (SGC-4400-05);
+Se comunican, ver requisito 7.4 del presente Sistema de Gestión de la Calidad (SGC-4400-27);
+Se actualizan, según corresponda ver requisito 7.5.3.2 del presente Sistema de Gestión de la Calidad (SGC-4400-31).
+Los objetivos de la Calidad se mantienen como información documentada en el requisito 6.2 del presente (ver SGC-4400-14).</p>`,
+
+    "6.2.2": `<h4>6.2.2 Planificación para lograr los objetivos</h4><p>6.2.2 Planificación para lograr los objetivosSGC-4400-16 Rev: 1
+
+
+Al planificar cómo lograr los objetivos de la calidad, en Aceites y Lípidos BD incluimos dentro de la información documentada establecida en el requisito SGC-4400-14 del presente sistema de gestión de la calidad:
+
+Qué se va a hacer;
+Qué recursos se requerirán;
+Quién será el responsable;
+Cuándo se finalizará;
+Cómo se evaluarán los resultados.</p>`,
+
+    "6.3": `<h4>6.3 Planificación de los cambios</h4><p>6.3 Planificación de los cambiosSGC-4400-17 Rev: 1
+
+
+Cuando en Aceites y Lípidos BD determinamos la necesidad de realizar cambios en el sistema de gestión de la calidad, estos son llevados a cabo de conformidad con los controles previstos en la sección SGC-4400-29 del presente y de manera sistemática (ver SGC-4400-06).
+
+Para lo cual consideramos:
+
+El propósito de los cambios y sus consecuencias potenciales;
+La integridad del sistema de gestión de la calidad;
+La disponibilidad de recursos;
+La asignación o reasignación de responsabilidades y autoridades.</p>`,
+ 
+ //7.0
+    "7.1.1": `<h4>7.1.1 Generalidades de Recursos</h4><p>7.1.1 Generalidades de RecursosSGC-4400-18 Rev: 1
+
+
+En Aceites y Lípidos BD determinamos y proporcionamos los recursos necesarios para el establecimiento, implementación, mantenimiento y mejora continua del sistema de gestión de la calidad, mediante el seguimiento del Flujo de efectivo semanal para gastos de gasolina, casetas, tambores, bolsas de plástico, cubetas, bidones, desengrasante, cajas, jarciería,papeleria, hardwere y cualquier imprevisto que llegue a sucitarse.
+
+ 
+Para lo cual consideramos:
+
+Las capacidades y limitaciones de los recursos internos existentes, mediante la aplicación del proceso Estratégico (SGC-4400-70);
+Qué se necesita obtener de los proveedores externos, conforme se prevén los procesos en general y ejercido en la fase de compras, previsto en el proceso Estratégico (SGC-4400-70).</p>`,
+
+
+    "7.1.2": `<h4>7.1.2 Personas</h4><p>7.1.2 PersonasSGC-4400-19 Rev: 1
+
+
+En Aceites y Lípidos BD determinamos y proporcionamos las personas necesarias para implementación eficaz del sistema de gestión de la calidad y para la operación y control de sus procesos, mediante la aplicación del proceso Estratégico (SGC-4400-70).</p>`,
+
+    "7.1.3": `<h4>7.1.3 Infraestructura</h4><p>7.1.3 InfraestructuraSGC-4400-20 Rev: 1
+
+
+En Aceites y Lípidos BD determinamos a partir de flujo de efectivo, proporcionamos mediante el ejercicio del mismo y mantenemos la infraestructura necesaria para que la operación de nuestros procesos logren la conformidad de nuestros servicios, mediante el proceso Estratégico (SGC-4400-70).
+
+La infraestructura necesaria es:
+
+Espacios de trabajo y servicios asociados;
+Equipo, incluyendo hardware y software, así como el equipo necesario para el funcionamiento del servicio;
+Recursos de transporte en las condiciones necesarias para el funcionamiento correcto del servicio;
+Tecnología de la información y la comunicación.</p>`,
+
+    "7.1.4": `<h4>7.1.4 Ambiente para la operación de los procesos</h4><p>7.1.4 Ambiente para la operación de los procesosSGC-4400-21 Rev: 1
+
+
+En Aceites y Lípidos BD determinamos como ambiente de trabajo aquella combinación de factores sociales, psicológicos y físicos, como los detallamos de acuerdo con nuestra operación:
+
+Sociales, al evitar la discriminación.
+Psicosociales;
+Los factores físicos atendidos desde el requisito 7.1.3 del Sistema de Gestión de la Calidad (SGC-4400-20).
+Lo anterior a través de la aplicación del Proceso Estratégico (SGC-4400-70). </p>`,
+
+
+//PENDIENTE 7.1.5 SE DE VA AÑADIR MAS FUNCIONES 
+
+    "7.1.5": `<h4>7.1.5 Recursos de seguimiento y medición</h4><p>Herramientas y métodos para medir el desempeño del sistema de gestión de la calidad.</p>`,
+
+
+
+
+
+
+    "7.1.6": `<h4>7.1.6 Conocimientos de la organización</h4><p>7.1.6 Conocimientos de la organizaciónSGC-4400-24 Rev: 1
+
+
+En Aceites y Lípidos BD determinamos los conocimientos necesarios para la operación de nuestros procesos y para lograr la conformidad de los productos y servicios, situación prevista del proceso Estratégico (SGC-4400-70).
+
+Estos conocimientos se mantienen y se ponen a disposición en la extensión necesaria, mediante la aplicación del proceso Estratégico (SGC-4400-70)),   
+
+Al tratar las necesidades y tendencias cambiantes, en Aceites y Lípidos BD consideramos los conocimientos actuales y determinar como adquirir o acceder a los conocimientos adicionales necesarios y a las actualizaciones requeridas, ver proceso Estratégico (SGC-4400-70)..</p>`,
+
+    "7.2": `<h4>7.2 Competencia</h4><p>7.2 CompetenciaSGC-4400-25 Rev: 1
+
+
+En Aceites y Lípidos BD:
+
+Determinamos, a través del Perfil de puestos (REG-7200-01), la competencia necesaria de las personas que colaboran dentro de nuestra organización mediante la aplicación del proceso Estratégico (SGC-4400-70);
+Nos aseguramos que estas personas son competentes, basándose en la educación, formación o experiencia adecuadas, desde el momento de su contratación y mediante la evaluación del desempeño anual para determinar el cumplimiento de las competencias del personal administrativo o en su caso la detección de necesidades de capacitación.
+Cuando sea aplicable, tomamos acciones (cursos de capacitación) para adquirir la competencia necesaria y evaluar la eficacia de las acciones tomadas;
+Conservamos el expediente de personal como evidencia de la competencia de las personas que colaboran dentro de nuestra organización y evidencia de competencia específica de las personas que contribuyen de manera externa.</p>`,
+
+    "7.3": `<h4>7.3 Toma de conciencia</h4><p>7.3 Toma de concienciaSGC-4400-26 Rev: 1
+
+
+La Alta Dirección se asegura de que las personas pertinentes que realizan el trabajo bajo el control de Aceites y Lípidos BD, toman conciencia de:
+
+La política de la calidad (SGC-4400-01);
+Los objetivos de la calidad pertinentes (SGC-4400-14);
+Su contribución a la eficacia del sistema de gestión de la calidad, incluyendo los beneficios de una mejora del desempeño;
+Las implicaciones de no cumplir los requisitos del sistema de gestión de la calidad..</p>`,
+
+    "7.4": `<h4>7.4 Comunicación</h4><p>7.4 ComunicaciónSGC-4400-27 Rev: 1
+
+
+En Aceites y Lípidos BD determinamos la comunicación interna y externa pertinente al sistema de gestión de la calidad que considera: Qué comunicar, cuándo comunicar, a quién comunicar, cómo comunicar y quién comunica, mediante la base establecida en la Tabla de Comunicación (REG-7400-01).</p>`,
+
+    "7.5.1": `<h4>7.5.1 Generalidades de información documentada</h4><p>7.5.1 Generalidades de información documentadaSGC-4400-28 Rev: 1
+
+
+El sistema de gestión de la calidad de Aceites y Lípidos BD incluye:
+
+La información documentada requerida por la norma ISO 9001:2015, que son: El alcance (SGC-4400-04); la política y los objetivos de la calidad (SGC-4400-01), la planificación y control operacional que se desprende del mapa general de los procesos, incluidos los registros requeridos por norma para mostrar evidencia de que conservamos la información documentada necesaria (SGC-4400-68), y referenciada en la lista maestra de control de registros (REG-7532-04),
+
+La información documentada que en Aceites y Lípidos BD determinamos como necesaria para la eficacia del sistema de gestión de la calidad, contenida en la presente plataforma electrónica:
+
+Las diferentes páginas del sistema de gestión de la calidad (REG-7532-01);
+Lista maestra de control de información documentada mantenida (REG-7532-02);
+Lista maestra de control de documentos externos (REG-7532-03);
+Lista maestra de control de registros (REG-7532-04).</p>`,
+
+    "7.5.2": `<h4>7.5.2 Creación y actualización de información documentada</h4><p>7.5.2 Creación y actualización de información documentadaSGC-4400-29 Rev: 1
+
+
+Mediante actividades consideradas en el proceso Estratégico (SGC-4400-70), en Aceites y Lípidos BD, nos aseguramos de que lo siguiente sea apropiado:
+
+Identificación y descripción: Todos los documentos del sistema de gestión de la calidad quedan identificados mediante el título contenido en el mismo. En el caso de los procedimientos por sus características, adicionalmente incluye la fecha de elaboración en el encabezado. En el pie de página el elaborador (o autor), revisor y aprobador, así como las fechas en que éstos han sido elaborados, revisados y aprobados, adicionalmente todos los documentos creados por Aceites y Lípidos BD dentro del Sistema de Gestión de la Calidad (incluidos los formatos de registro) se identifican mediante código conforme se describe en el procedimiento de Elaboración de documentos (PRO-7520-01).
+
+El formato de la documentación del Sistema de Gestión de la Calidad presentada en idioma español y medio electrónico;
+
+Revisión y aprobación con respecto a la conveniencia y adecuación: Todo documento será revisado en cuanto a la conveniencia y adecuación mediante la revisión de la propuesta ejercida por el/la Responsable de Almacén conforme se describe en el procedimiento de Control de documentos (PRO-7532-01).</p>`,
+
+
+
+
+//PENDIENTE 7.5.3 E DE VA AÑADIR MAS FUNCIONES 
+
+    "7.5.3": `<h4>7.5.3 Control de la información documentada</h4><p>Procedimientos para controlar la documentación del sistema de gestión de la calidad.</p>`,
+
+
+
+
+
+
+
+    //8.0
+    "8.1": `<h4>8.1 Planificación y control operacional</h4><p>8.1 Planificación y control operacionalSGC-4400-32 Rev: 1
+
+
+En Aceites y Lípidos BD planificamos, implementamos y controlamos los procesos de Ventas (SGC-4400-72) y de Producción y distribución (SGC-4400-74), los cuales son necesarios para cumplir los requisitos para la producción de productos y prestación de servicios y para implementar las acciones determinadas en el capitulo 6, mediante:
+
+La determinación para los requisitos para nuestros servicios;
+El establecimiento de criterios:
+para los procesos;
+la aceptación de productos y servicios;
+La determinación de los recursos necesarios para lograr la conformidad de los requisitos de los productos y servicios;
+La implementación del control de los procesos de acuerdo a los criterios;
+La determinación y almacenaje de la información documentada en la medida necesaria:
+Para confiar en que los procesos se han llevado a cabo según lo planificado en los mapas y determinación de procesos y documentos que se desprenden de éstos, conforme se establece en el requisito 4.4.2 a) (ver SGC-4400-06);
+Para demostrar la conformidad de servicios y productos con a sus requisitos ver 4.4.2 b) (ver SGC-4400-06).</p>`,
+
+
+    "8.2.1": `<h4>8.2.1 Comunicación con el Cliente</h4><p>8.2.1 Comunicación con el Cliente.SGC-4400-33 Rev: 1
+
+
+La comunicación con nuestros Clientes incluido en la fase comercial del proceso de Ventas (SGC-4400-72), considera:
+
+Proporcionar la información relativa a los productos y servicios;
+La atención de las consultas, los contratos o pedidos, incluyendo los cambios;
+Obtener la retroalimentación de los Clientes relativos a los productos y servicios, incluyendo sus quejas;
+Manipular o controlar las propiedades del Cliente;
+Establecer los requisitos específicos para las acciones de contingencia, cuando sea pertinente.</p>`,
+
+    "8.2.2": `<h4>8.2.2 Determinación de los requisitos</h4><p>8.2.2 Determinación de los requisitos para los productos y serviciosSGC-4400-34 Rev: 1
+
+
+Cuando determinamos los requisitos para los productos y servicios que se ofrecen a los Clientes, en Aceites y Lípidos BD nos aseguramos de que:
+
+Los requisitos para los productos y servicios se definen, incluyendo:
+Cualquier requisito legal y reglamentario aplicables;
+Aquellos considerados necesarios por Aceites y Lípidos BD;
+Aceites y Lípidos BD puede atender las reclamaciones de los productos y servicios que ofrece.</p>`,
+
+
+
+
+
+//PENDIENTE 8.2.3
+
+    "8.2.3": `<h4>8.2.3 Revisión de los requisitos</h4><p>. </p>`,
+
+
+
+
+
+    "8.2.4": `<h4>8.2.4 Cambios en los requisitos</h4><p8.2.4 Cambios en los requisitos para los productos y serviciosSGC-4400-37 Rev: 1
+
+
+En Aceites y Lípidos BD nos aseguramos mediante la aplicación desde los procesos de Ventas (SGC-4400-72) y de Producción y distribución (SGC-4400-74) que la información documentada pertinente sea modificada y de que las personas correspondientes sean conscientes de los requisitos modificados cuando se cambien los requisitos para los productos y servicios.</p>`,
+
+    "8.3.1": `<h4>8.3.1 Generalidades del Diseño</h4><p>8.3.1 Generalidades del diseño y desarrollo de los productos y serviciosSGC-4400-38 Rev: 1
+
+
+En Aceites y Lípidos BD establecemos, implementamos y mantenemos el proceso de Ventas (SGC-4400-72) para asegurarnos del éxito de nuestra organización que es la formulación, fabricación y distribución de aceites y mantecas comestibles, y que asegura la adecuación para la provisión de productos y servicios adecuados a las necesidades de nuestros clientes.</p>`,
+
+    "8.3.2": `<h4>8.3.2 Planificación del Diseño</h4><p>8.3.2 Planificación del Diseño y desarrolloSGC-4400-39 Rev: 1
+
+
+Al determinar las etapas y controles para la formulación y desarrollo, en la planificación del proceso de Ventas (SGC-4400-72) en Aceites y Lípidos BD consideramos:
+
+la naturaleza, duración y complejidad de las actividades de la formulación y desarrollo;
+las etapas del proceso requeridas, incluyendo las revisiones de la formulación y desarrollo aplicables;
+las actividades requeridas de verificación y validación de la formulación y desarrollo;
+las responsabilidades y autoridades involucradas en el proceso de la formulación y desarrollo;
+las necesidades de recursos internos y externos para la formulación y desarrollo de los productos y servicios;
+la necesidad de controlar las interfaces entre las personas que participan activamente en el proceso de la formulación y desarrollo;
+la necesidad de la participación activa de los clientes y usuarios en el proceso de la formulación y desarrollo;
+los requisitos para la posterior provisión de productos y servicios;
+el nivel de control del proceso de la formulación y desarrollo esperado por los clientes y otras partes interesadas pertinentes;
+los procedimientos y registros que se desprenden del proceso de Ventas (SGC-4400-72) para demostrar que se han cumplido los requisitos de la formulación y desarrollo.</p>`,
+
+    "8.3.3": `<h4>8.3.3 Entradas para el diseño</h4><p>8.3.3 Entradas para el diseño y desarrolloSGC-4400-40 Rev: 1
+
+
+En Aceites y Lípidos BD determinamos los requisitos esenciales para los tipos específicos de productos y servicios a formular y desarrollar, para lo cual consideramos, mediante la fórmula, tiempos de agitación y punto de fusión:
+
+los requisitos funcionales y de desempeño, como son las características de uso, tiempo esperado de funcionalidad, entre otros;
+la información proveniente de actividades previas de formulación y desarrollo similares, cuando hubiéramos implementado productos o servicios semejantes, aprovechando experiencias;
+los requisitos legales y reglamentarios;
+normas o códigos de prácticas que hubieramos comprometido a implementar;
+las consecuencias potenciales de fallar debido a la naturaleza de los productos y servicios.
+Las entradas son adecuadas para los fines del diseño y desarrollo, estan completas y sin ambigüedades.
+
+Las entradas del diseño y desarrollo contradictorias deben resolverse.
+
+Conservamos registros de los levantamientos realizados en la fase comercial para disponer de certeza sobre las entradas del diseño y desarrollo.</p>`,
+
+
+    "8.3.4": `<h4>8.3.4 Controles del diseño</h4><p>8.3.4 Controles del diseño y desarrolloSGC-4400-41 Rev: 1
+
+
+En Aceites y Lípidos BD aplicamos controles desde el proceso de Ventas (SGC-4400-72) para asegurarnos de que:
+
+se definen los resultados a lograr;
+se realizan las revisiones para evaluar la capacidad de los resultados de la formulación y desarrollo para cumplir los requisitos;
+se realizan actividades de verificación para asegurarse de que las salidas de la formulación y desarrollo cumplen los requisitos de las entradas;
+se realizan actividades de validación para asegurarse de que los productos y servicios resultante satisfacen los requisitos para su aplicación especificada o uso previsto;
+se toma cualquier acción necesaria sobre los problemas determinados durante las revisiones, o las actividades de verificación y validación;
+se conserva registro de las revisiones, ajustes, validaciones mediante los planos y muestras de impresión.</p>`,
+
+    "8.3.5": `<h4>8.3.5 Salidas del diseño</h4><p>8.3.5 Salidas del diseño y desarrolloSGC-4400-42 Rev: 1
+
+
+En Aceites y Lípidos BD aseguramos de que las fórmulas y muestras:
+
+cumplen los requisitos de las entradas (SGC-4400-40);
+son adecuadas para el proceso de Ventas (SGC-4400-72) para la provisión de productos y servicios;
+incluyen o hacen referencia a los requisitos de seguimiento y medición y los criterios de aceptación;
+especifican las características de los productos y servicios que son esenciales para su propósito previsto y su provisión segura y correcta.
+En Aceites y Lípidos BD conservamos fórmulas, muestras y demás registros sobre las salidas de la formulación y desarrollo.</p>`,
+
+    "8.3.6": `<h4>8.3.6 Cambios en el diseño</h4><p>8.3.6 Cambios del diseño y desarrolloSGC-4400-43 Rev: 1
+
+
+En Aceites y Lípidos BD identificamos, revisamos y controlamos los cambios hechos durante la formulación y desarrollo de los productos y servicios, o posteriormente en la medida necesaria para asegurarnos de que no haya un impacto adverso en la conformidad con los requisitos.
+
+Mediante el control de fórmulas y muestras, conservamos registros sobre:
+
+los cambios de la formulación y desarrollo;
+los resultados de las revisiones;
+la autorización de los cambios;</p>`,
+
+
+"8.4.1": `<h4>8.4.1 Generalidades del control de los procesos, productos y servicios suministrados externamente</h4><p>8.4.1 Generalidades del control de los procesos, productos y servicios suministrados externamenteSGC-4400-44 Rev: 1
+
+
+En Aceites y Lípidos BD nos aseguramos de que los productos y servicios suministrados externamente son conformes a los requisitos, mediante la aplicación del proceso Estratégico (SGC-4400-70) como soporte para la operación.
+
+Para lo que determinamos los controles a aplicar a los procesos, productos y servicios suministrados externamente cuando:
+
+Los productos y servicios de proveedores externos están destinados a incorporarse dentro de nuestros propios productos y servicios de Aceites y Lípidos BD;
+Etapas de los productos y servicios son proporcionados directamente a los Clientes por proveedores externos en nombre de Aceites y Lípidos BD;
+Para lo que determinamos y aplicamos criterios para la evaluación, la selección, el seguimiento del desempeño y la reevaluación de los proveedores externos basándonos en su capacidad para proporcionar procesos o productos y servicios de acuerdo con los requisitos.
+
+Conservamos registros de estas actividades y de cualquier acción necesaria que surja de las evaluaciones.</p>`,
+
+
+"8.4.2": `<h4>8.4.2 Tipo y alcance de control de los procesos, productos y servicios suministrados externamente</h4><p>8.4.2 Tipo y alcance de control de los procesos, productos y servicios suministrados externamenteSGC-4400-45 Rev: 1
+
+
+En Aceites y Lípidos BD nos aseguramos que los productos y servicios suministrados externamente no afectan de manera adversa nuestra capacidad de entregar productos y servicios conformes de manera coherente a nuestros Clientes, para lo cual:
+
+Nos aseguramos de que las etapas de proceso suministrados externamente permanecen dentro del control de nuestro Sistema de Gestión de la Calidad;
+Definimos los controles que pretendemos aplicar a un proveedor externo y los que pretende aplicar a las salidas resultantes;
+Tenemos en consideración:
+El impacto potencial de las etapas de procesos, productos y servicios suministrados externamente en nuestra capacidad de cumplir regularmente los requisitos del Cliente y los legales y reglamentarios aplicables;
+La eficacia de los controles aplicados por el proveedor externo;
+Determinar la verificación u otras actividades, necesarias para asegurarnos de que los procesos, productos y servicios suministrados externamente cumplen los requisitos.</p>`,
+
+
+
+"8.4.3": `<h4>8.4.3 Información para los proveedores externos</h4><p>8.4.3 Información para los proveedores externosSGC-4400-46 Rev: 1
+
+
+En Aceites y Lípidos BD nos aseguramos de la adecuación de los requisitos antes de su comunicación al proveedor externo.
+
+Comunicamos a los proveedores externos nuestros requisitos para:
+
+ 
+
+Los procesos, servicios y productos a proporcionar;
+La aprobación de:
+Productos y servicios;
+Métodos, proceso y equipo;
+La liberación de servicios y productos;
+La competencia incluyendo cualquier calificación de las personas requeridas;
+Las interacciones del proveedor externo con Aceites y Lípidos BD;
+El control y el seguimiento del desempeño del proveedor externo a aplicar por Aceites y Lípidos BD;
+Las actividades de verificación o validación que nosotros, o nuestros Clientes, pretenden llevar a cabo en las instalaciones del proveedor externo.</p>`,
+
+
+
+
+
+ "8.5.1": `<h4>8.5.1 Control de la producción y de la provisión del servicio.</h4><p>8.5.1 Control de la producción y de la provisión del servicio.SGC-4400-47 Rev: 1
+
+
+En Aceites y Lípidos BD implementamos el proceso de Ventas (SGC-4400-72) para asegurarnos de que la producción y prestación del servicio se dé bajo condiciones controladas.
+
+Las condiciones controladas incluyen, cuando sea aplicable:
+
+La disponibilidad de documentos que definen (ver los procesos de Ventas Ventas (SGC-4400-72) y de Producción y distribución (SGC-4400-74))
+Las características de los productos a producir, servicios a prestar, o las actividades a desempeñar, que son la formulación, fabricación y distribución de aceites y mantecas comestibles;
+Los resultados a alcanzar;
+La disponibilidad y el uso de los recursos de seguimiento y medición adecuados;
+La implementación de actividades de seguimiento y medición en las etapas apropiadas para verificar que se cumplen los criterios para el control de los procesos o las salidas, y los criterios de aceptación para los productos y servicios;
+El uso de la infraestructura y el ambiente adecuados para la operación de los procesos;
+La designación de personas competentes, incluyendo cualquier calificación requerida;
+La validación y revalidación periódica de la capacidad para alcanzar los resultados planificados de los procesos de producción y mediante las validaciones previstas en el proceso de Producción y distribución (SGC-4400-74);
+La implementación de acciones para prevenir los errores humanos;
+La implementación de actividades de liberación, entrega y posteriores a la entrega de productos y servicios.</p>`,
+
+
+"8.5.2": `<h4>8.5.2 Identificación y trazabilidad</h4><p>8.5.2 Identificación y trazabilidadSGC-4400-48 Rev: 1
+
+
+En Aceites y Lípidos BD utilizamos medios adecuados para identificar las salidas para asegurar la conformidad de los productos y servicios, mediante la orden de compra y nombre del cliente. 
+
+La identificación del estado de las salidas con respecto a los requisitos de seguimiento y medición a través de la producción y prestación del servicio, mediante el registro de la no conformidad asociada para aquellos servicios que incumplan algún requisito, los servicios que no disponen de registro de no conformidad han sido liberados de conformidad a los requisitos comprometidos.
+
+En Aceites y Lípidos BD controlamos la identificación única de las salidas. Conservando la información documentada necesaria para permitir la trazabilidad.</p>`,
+
+
+"8.5.3": `<h4>8.5.3 Propiedad perteneciente a los Clientes o proveedores externos</h4><p>8.5.3 Propiedad perteneciente a los Clientes o proveedores externos SGC-4400-49 Rev: 1
+
+
+En Aceites y Lípidos BD cuidamos la propiedad perteneciente a los clientes mientras este bajo nuestro control. Identificamos, verificamos, protegemos y salvaguardamos la propiedad de nuestros Clientes.
+
+Cuando la propiedad es de nuestros Clientes o Proveedores, mientras esté bajo nuestro control o esté siendo utilizada por la misma, Aceites y Lípidos BD identifica, verifica, protege y salvaguarda la propiedad, por ejemplo: bidones, cubetas o tambores del cliente para el transvase del producto, los datos personales y la información que nos proporciona para los trámites administrativos y el otorgamiento de nuestros servicios.
+
+Cuando la propiedad de un Cliente se pierda, deteriore o que de algún otro modo se vea afectada, informamos de esto al cliente y conservamos registros sobre lo que ha ocurrido, mediante registro de no conformidad.
+
+Nota 1: La propiedad de un cliente o de un proveedor externo quedará bajo resguardo de Aceites y Lípidos BD por un periodo máximo de 8 días hábiles; Posterior a este tiempo será desechado.  
+
+Nota 2: En Aceites y Lípidos BD se destinará un área para resguardo de material en general.</p>`,
+
+
+
+
+"8.5.4": `<h4>8.5.4 Preservación</h4><p>8.5.4 PreservaciónSGC-4400-50 Rev: 1
+
+
+En Aceites y Lípidos BD preservamos los insumos necesarios para la prestación de nuestros servicios, en la medida necesaria para asegurarnos de la conformidad con los requisitos.
+
+Lo anterior se encuentra previsto en el proceso de Producción y distribución (SGC-4400-74).
+
+La preservación incluye la identificación, el manejo, el empaque, el almacenamiento, el transporte, y la protección de los aceites y mantecas comestibles. </p>`,
+
+
+
+"8.5.5": `<h4>8.5.5 Actividades posteriores a la entrega</h4><p>8.5.5 Actividades posteriores a la entregaSGC-4400-51 Rev: 1
+
+
+En Aceites y Lípidos BD cumplimos los requisitos para las actividades posteriores a la entrega asociadas con los productos y servicios mediante la aplicación de los procesos de Ventas (SGC-4400-72) y de Producción y distribución (SGC-4400-74).
+
+Al determinar el alcance de las actividades posteriores a la entrega que se requieren, consideramos:
+
+Los requisitos legales y reglamentarios;
+Las potenciales consecuencias no deseadas asociadas con sus productos y servicios;
+La naturaleza, el uso y la vida prevista de los productos y servicios;
+Los requisitos del Cliente;
+Retroalimentación del cliente.
+Las actividades posteriores a la entrega incluyen acciones cubiertas por la asesoría de utilización de nuestros productos y reciclamos envases que cumplen con su tiempo de vida.</p>`,
+
+
+
+"8.5.6": `<h4>8.5.6 Control de los cambios</h4><p>8.5.6 Control de los cambiosSGC-4400-52 Rev: 1
+
+
+En Aceites y Lípidos BD revisamos y controlamos los cambios para la producción o prestación del servicio mediante la aplicación de los procesos de Ventas (SGC-4400-72) y de Producción y distribución (SGC-4400-74) en la medida necesaria para asegurarnos de la conformidad continua con los requisitos especificados.
+
+Conservamos registros que describen los resultados de la revisión de los cambios, las personas que autorizan el cambio y de cualquier acción necesaria que surja de la revisión.</p>`,
+
+
+
+    "8.6": `<h4>8.6 Liberación de los productos y servicios</h4><p>8.6 Liberación de los productos y serviciosSGC-4400-53 Rev: 1
+
+
+En Aceites y Lípidos BD implementamos las disposiciones planificadas en las etapas adecuadas de los procesos de Ventas (SGC-4400-72) y de Producción y distribución (SGC-4400-74) para verificar que se cumplen los requisitos de los productos y servicios de Formulación, fabricación y distribución de aceites y mantecas comestibles.
+
+La liberación de los productos y servicios al cliente no se lleva a cabo hasta que se hayan completado satisfactoriamente las disposiciones planificadas, a menos que sea aprobado de otra manera por una autoridad pertinente, y cuando sea aplicable por el Cliente.
+
+En Aceites y Lípidos BD conservamos registros sobre la liberación de los productos y servicios. Éstos incluyen:
+
+Evidencia de la conformidad con los criterios de aceptación;
+Trazabilidad a las personas que han autorizado la liberación.</p>`,
+
+
+   "8.7.1": `<h4>8.7.1 Generalidades del control de las salidas no conformes</h4><p>8.7.1 Generalidades del control de las salidas no conformesSGC-4400-54 Rev: 1
+
+
+En Aceites y Lípidos BD nos aseguramos de que las salidas que no sean conformes con los requisitos se identifican y se controlan para prevenir su uso o entrega no intencional.
+
+Tomamos las acciones adecuadas basándonos en la naturaleza de la no conformidad y su efecto sobre la conformidad de los productos y servicios de Formulación, fabricación y distribución de aceites y mantecas comestibles. Esto se aplica también a los productos y servicios no conformes detectados después de la entrega de los productos, durante o después de la provisión de los servicios.
+
+Tratar las salidas no conformes de una o más de las siguientes maneras:
+
+Corrección;
+Separación, contención, devolución o suspensión de la provisión de productos y servicios;
+Informar al cliente;
+Obtener autorización para su aceptación bajo concesión.
+Verificamos la conformidad con los requisitos cuando las salidas no conformes se corrigen.
+
+La explicación de lo anterior se encuentra descrito en el procedimiento de Control de no conformidades (PRO-8700-01).</p>`,
+
+
+"8.7.2": `<h4>8.7.2 Información documentada de las salidas no conformes</h4><p>8.7.2 Información documentada de las salidas no conformesSGC-4400-55 Rev: 1
+
+
+En Aceites y Lípidos BD, conforme a lo descrito en el procedimiento de Control de no conformidades (PRO-8700-01), conservamos registro (ver REG-8720-02) que:
+
+Describe la no conformidad;
+Describe las acciones tomadas
+Describe todas las concesiones obtenidas
+Identifica la autoridad que decide la acción con respecto a la no conformidad.</p>`,
+
+
+
+
+
+
+
+
+    //9.0
+
+"9.1.1": `<h4>9.1.1 Generalidades del seguimiento, medición, análisis y evaluación</h4><p>9.1.1 Generalidades del seguimiento, medición, análisis y evaluaciónSGC-4400-56 Rev: 1
+
+
+En Aceites y Lípidos BD, a través de la aplicación del proceso Estratégico (SGC-4400-70), determinamos:
+
+El seguimiento y medición de: los procesos del Sistema de Gestión de la Calidad, la conformidad de los servicios de impresos y empaques y la satisfacción de clientes;
+Los métodos de seguimiento, medición, análisis y evaluación necesarios, para asegurar resultados válidos;
+Cuándo se debe llevar a cabo el seguimiento y la medición;
+Cuándo se deben analizar y evaluar los resultados del seguimiento y la medición.
+En Aceites y Lípidos BD evaluamos el desempeño y la eficacia del sistema de gestión de la calidad mediante la medición del proceso Estratégico (SGC-4400-70).
+
+Conservamos información documentada como evidencia de los resultados mediante la aplicación de las mediciones consideradas en el presente requisito.</p>`,
+
+
+
+
+
+
+"9.1.2": `<h4>9.1.2 Satisfacción del Cliente</h4><p>9.1.2 Satisfacción del ClienteSGC-4400-57 Rev: 1
+
+
+En Aceites y Lípidos BD realizamos el seguimiento de las percepciones de los clientes del grado en que se cumplan sus necesidades y expectativas. Determinar los métodos para obtener, realizar el seguimiento y revisar esta información conforme se encuentra previsto en el proceso Estratégico (SGC-4400-70).
+
+La realización del seguimiento de las percepciones del cliente incluye: las encuestas al Cliente, la retroalimentación del Cliente sobre los productos o servicios entregados, recompra, recomendaciones de clientes, etc.</p>`,
+
+
+
+    "9.1.3": `<h4>9.1.3 Análisis y evaluación</h4><p>9.1.3 Análisis y evaluaciónSGC-4400-58 Rev: 1
+
+En Aceites y Lípidos BD implementamos el proceso Estratégico (SGC-4400-70) para analizar y evaluar los datos y la información apropiados originados por el seguimiento y la medición.
+
+Los resultados del análisis y la evaluación son utilizados para evaluar:
+La conformidad de los productos y servicios otorgados por Aceites y Lípidos BD (ver requisito 8.6 SGC-4400-53);
+El grado de satisfacción del Cliente, ver requisito 9.1.2 (SGC-4400-57);
+El desempeño (ver requisito 9.2.1, SGC-4400-59) y la eficacia del sistema de gestión de la calidad (ver requisito 4.4.1g, SGC-4400-05);
+Si lo planificado se ha implementado de forma eficaz (ver requisito 9.3.2 en SGC-4400-62);
+La eficacia de las acciones tomadas para abordar los riesgos y oportunidades, ver requisito 9.3.2 del presente sistema de gestión de la calidad (SGC-4400-62);
+El desempeño de los proveedores externos (ver requisito 8.4.1 en SGC-4400-44);
+La necesidad de mejoras en el sistema de gestión de la calidad (ver requisito 10.1 en SGC-4400-64).
+Los métodos para analizar los datos incluyen técnicas estadísticas.</p>`,
+
+
+    "9.2.1": `<h4>9.2.1 Generalidades de Auditoría Interna</h4><p>9.2.1 Generalidades de la Auditoría internaSGC-4400-59 Rev: 1
+
+
+En Aceites y Lípidos BD llevamos a cabo auditorías internas a intervalos planificados para proporcionar información acerca de si el Sistema de Gestión de la Calidad:
+
+es conforme con: 
+los requisitos propios de la organización para su Sistema de Gestión de la Calidad;
+los requisitos de la norma ISO 9001:2015 
+se implementa y mantiene eficazmente.</p>`,
+
+    "9.2.2": `<h4>9.2.2 Auditoría interna</h4><p>9.2.2 Auditoría internaSGC-4400-60 Rev: 1
+
+
+En Aceites y Lípidos BD:
+
+Planificamos, establecemos, implementamos y mantenemos el Programa de trabajo para la certificación, mantenimiento y mejora del SGC  que incluye la frecuencia, los métodos, las responsabilidades, los requisitos de planificación y la elaboración de informes, que deben tener en consideración la importancia de los procesos involucrados, los cambios que afecten a la organización y los resultados de auditorías previas; 
+definimos los criterios de la auditoria y el alcance para cada auditoría;
+seleccionamos los auditores y llevamos a cabo auditorías para asegurarse de la objetividad y la imparcialidad del proceso de auditoría; 
+nos aseguramos de que los resultados de las auditorías se informen a la Alta Dirección, 
+realizamos las correcciones y tomar las acciones correctivas adecuadas sin demora injustificada;
+conservamos información documentada que sirven como evidencia de la implementación del procedimiento de Auditoría Interna (PRO-9220-01) y de los resultados de la auditoría.</p>`,
+
+    "9.3.1": `<h4>9.3.1 Generalidades de la Revisión</h4><p>9.3.1 Generalidades de la Revisión por la DirecciónSGC-4400-61 Rev: 1
+
+
+La Alta Dirección mediante actividades previstas desde el proceso Estratégico (SGC-4400-70), revisa el sistema de gestión de la calidad de Aceites y Lípidos BD a intervalos planificados anualmente, para asegurarnos de su conveniencia (que es útil para lo que fue creado), adecuación (proximidad entre lo descrito y la realidad de nuestra organización), eficacia (que se alcanzan los objetivos de calidad trazados y en consecuencia se cumple la política de la calidad) y alineación con la dirección estratégica (promoviendo seguir el rumbo trazado desde la visión) de Aceites y Lípidos BD (SGC-4400-01).</p>`,
+
+    "9.3.2": `<h4>9.3.2 Entradas de la revisión</h4><p>9.3.2 Entradas de la revisión por la direcciónSGC-4400-62 Rev: 1
+
+
+La revisión por la dirección se planifica y lleva a cabo incluyendo consideraciones sobre:
+
+El estado de las acciones de las revisiones de la dirección previas, confirmando el grado de cumplimiento de los compromisos establecidos en la minuta de la revisión por la dirección del periodo anterior;
+Los cambios en las cuestiones externas e internas que sean pertinentes al sistema de gestión de la calidad considerando el contexto de la organización, actualizando el análisis establecido en el requisito 4.1 del presente documento (SGC-4400-02) e identificando los cambios en riesgos que hubieran desaparecido, riesgos nuevos, oportunidades que hubieran mantenido y las que hubieran desaparecido; 
+La información sobre el desempeño y la eficacia del sistema de gestión de la calidad, incluidas las tendencias relativas a:
+Satisfacción del cliente (ver requisito 9.1.2 en SGC-4400-57), y la retroalimentación de las partes interesadas pertinentes identificando si fuera el caso, que alguna parte interesada hubiera retroalimentado información;
+El grado en que se han cumplido los objetivos de la calidad (Ver requisito 4.4.1g en SGC-4400-05);
+El desempeño del proceso (ver requisito 4.4.1g en SGC-4400-05) y conformidad de los productos y servicios (ver requisito 8.6 en SGC-4400-53);
+No conformidades (ver REG-8720-01) y acciones correctivas conforme se describe en el requisito 10.2.1 (SGC-4400-65);
+Resultados de seguimiento y medición conforme se describe en el requisito 9.1.3 (SGC-4400-58);
+Resultados de las auditorías (SGC-4400-60);
+El desempeño de los proveedores externos (SGC-4400-46);
+Adecuación de los recursos (SGC-4400-18);
+La eficacia de las acciones tomadas para tratar los riesgos y las oportunidades con base en aquellos riesgos que hubieran desaparecido o reducido su impacto por acciones tomadas o bien el aprovechamiento de oportunidades;
+Oportunidades de mejora.</p>`,
+
+"9.3.3": `<h4>9.3.3 Salidas de la revisión por la dirección</h4><p>9.3.3 Salidas de la revisión por la direcciónSGC-4400-63 Rev: 1
+
+
+Las salidas de la revisión por la dirección incluyen las decisiones y acciones relacionadas con:
+
+Las oportunidades de mejora;
+Cualquier necesidad de cambio en el sistema de gestión de calidad;
+Las necesidades de recursos.
+En Aceites y Lípidos BD conservamos la minuta de la reunión (REG-9330-01) como evidencia de los resultados de las revisiones por la dirección.</p>`,
+
+    //10.0
+    "10.1": `<h4>10.1 Generalidades de la Mejora</h4><p>10.1 Generalidades de la MejoraSGC-4400-64 Rev: 1
+
+
+En Aceites y Lípidos BD mediante la aplicación del proceso de Dirección Estratégico (SGC-4400-70) determinamos y seleccionamos las oportunidades de mejora e implementamos cualquier acción necesaria para cumplir los requisitos de nuestros Clientes, y aumentar la satisfacción de los mismos.
+
+Éstas incluyen:
+
+ 
+
+Mejorar los servicios para cumplir los requisitos, así como tratar las necesidades y expectativas futuras;
+Corregir, prevenir o reducir los efectos no deseados;
+Mejorar el desempeño y la eficacia del sistema de gestión de la calidad.</p>`,
+
+    "10.2.1": `<h4>10.2.1 Generalidades de no conformidades</h4><p>10.2.1 Generalidades de no conformidades y acción correctivaSGC-4400-65 Rev: 1
+
+
+Cuando ocurra una no conformidad, incluida cualquier originada por quejas, en Aceites y Lípidos BD, desde la aplicación del proceso Estratégico (SGC-4400-70):
+
+Reaccionamos ante la no conformidad y cuando sea aplicable:
+Tomamos acciones para controlarla y corregirla;
+Hacemos frente a las consecuencias;
+Mediante la aplicación del Procedimiento de Acción Correctiva (PRO-1022-01), evaluamos la necesidad de acciones para eliminar las causas de la no conformidad, con el fin de que no vuelva a ocurrir, ni ocurra en otra parte, mediante:
+La revisión y el análisis de la no conformidad (REG-8720-02);
+La determinación de las causas de la no conformidad;
+La determinación de si existen no conformidades similares, o que potencialmente podrían ocurrir;
+Implementamos cualquier acción necesaria;
+Revisamos la eficacia de cualquier acción correctiva tomada;
+Si es necesario, actualizar los riesgos y oportunidades determinados durante la planificación;
+Si es necesario, hacer cambios al sistema de gestión de la calidad.
+Las acciones correctivas son adecuadas a los efectos de las no conformidades encontradas.</p>`,
+
+    "10.2.2": `<h4>10.2.2 Información documentada</h4><p>10.2.2 Información documentada de no conformidad y acción correctivaSGC-4400-66 Rev: 1
+
+
+En Aceites y Lípidos BD conservamos registro (REG-8720-02) como evidencia de:
+
+la naturaleza de las no conformidades y cualquier acción tomada posteriormente
+los resultados de cualquier acción correctiva.
+Conforme se describe en el Procedimiento de Control de No Conformidades (PRO-8700-01).</p>`,
+
+    "10.3": `<h4>10.3 Mejora continua</h4><p>10.3 Mejora continuaSGC-4400-67 Rev: 1
+
+
+En Aceites y Lípidos BD aplicamos el proceso Estratégico (SGC-4400-70) mejoramos continuamente la idoneidad, adecuación y eficacia del Sistema de Gestión de la Calidad.
+
+En Aceites y Lípidos BD consideramos los resultados del análisis y la evaluación, y las salidas de la revisión por la dirección, para determinar si hay necesidades u oportunidades que deben tratarse como parte de la mejora continua.</p>`
+
+
+
+  };
+
+  let detailHtml = detalleTexto[item] || `<h4>${item}</h4><p>Detalle no disponible.</p>`;
+  detalleDiv.innerHTML = detailHtml;
+}
+
+// Asegurar que las funciones estén disponibles en el ámbito global
+window.handleRequisitosTab = handleRequisitosTab;
+window.toggleSubMenu = toggleSubMenu;
+window.mostrarDetalle = mostrarDetalle;
+
+// Cargar la pestaña "Contexto" automáticamente
+window.onload = function () {
+  handleRequisitosTab('contexto');
+};
+
+
+
+
 
 //FUNCION PARA ORGRANIGRAMA 
 document.addEventListener("DOMContentLoaded", function () {

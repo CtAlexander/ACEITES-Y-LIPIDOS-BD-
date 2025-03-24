@@ -1127,8 +1127,10 @@ iframe {
         </div>
         <!-- Botón para cargar el archivo HACCP -->
         <button id="btn-haccp" class="green-button">Manual HACCP</button>
-<button id="btn-proceso" class="green-button">Procedimiento</button>
-<button id="btn-calidad" class="green-button">Manual de Gestión de Calidad</button>
+        <button id="btn-proceso" class="green-button">Procedimiento Acciones para abordar riesgos y oportunidades y 
+revisión directiva</button>
+
+        <button id="btn-calidad" class="green-button">Manual de Gestión de Calidad</button>
 
 
         
@@ -1157,7 +1159,7 @@ iframe {
         <a href="#" onclick="showListContent('registros')">Registros</a>
         <a href="#" onclick="showListContent('perfil')">Perfil Funcional</a>
         <a href="#" onclick="showListContent('responsabilidades')">Responsabilidades</a>
-        <a href="#" onclick="showListContent('SGC')">SGC</a>
+        <a href="#" onclick="showListContent('SGC')">SGI</a>
          <!-- Contenedor de paginación -->
     </div>
 
@@ -2438,7 +2440,7 @@ window.addEventListener("click", (event) => {
 
 
         async function loadOrgChartImage() {
-            const storageRef = ref(storage, 'OrganigramaDiciembre2024.pdf');
+            const storageRef = ref(storage, 'organigramamarzo.pdf');
             const url = await getDownloadURL(storageRef);
             document.querySelector("#orgChartModal img").src = url;
         }
@@ -2933,7 +2935,7 @@ window.addEventListener("click", (event) => {
    // Manejar el clic del botón
 document.getElementById("btn-haccp").addEventListener("click", () => {
     // Referencia al archivo en Firebase Storage
-    const fileRef = ref(storage, "Plan de Análisis de Peligros y Puntos Críticos de Control (HACCP) OK.pdf");
+    const fileRef = ref(storage, "Plan de Análisis de Peligros y Puntos Críticos de Control (HACCP) OK (5).pdf");
 
     // Obtén la URL de descarga
     getDownloadURL(fileRef)

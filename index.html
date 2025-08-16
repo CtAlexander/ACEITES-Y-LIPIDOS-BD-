@@ -883,6 +883,36 @@ h2 {
     color: #000000; /* Títulos destacados en negro */
 }
 
+.dropdown-menu {
+    display: none;
+}
+
+#listsDropdownMenu {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+#listsDropdownMenu a {
+    display: inline-block;
+    padding: 8px 14px;
+    background: linear-gradient(135deg, #4facfe, #00f2fe);
+    border-radius: 8px;
+    text-decoration: none;
+    color: #fff;
+    font-weight: 500;
+    font-size: 14px;
+    transition: all 0.3s ease-in-out;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+#listsDropdownMenu a:hover {
+    background: linear-gradient(135deg, #43e97b, #38f9d7);
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+}
+
+
 /* Fondo del modal */
 .modal {
     display: none;
@@ -909,6 +939,7 @@ h2 {
     overflow: hidden;
     position: relative;
 }
+
 
 /* Encabezado del modal */
 #orgChartHeader {
@@ -975,7 +1006,7 @@ iframe {
 <div id="pdfModal" class="modal">
     <div class="modal-content" style="width: 90%; height: 90%; max-width: 1200px; max-height: 800px;">
         <span class="close" id="closePdfModal">&times;</span>
-        <h2>Norma ISO 9001</h2>
+        <h2>Normas ISO</h2>
 
         <!-- Selector de Normas -->
         <select id="normasSelector">
@@ -1017,7 +1048,7 @@ iframe {
         <a href="#" id="logout">Cerrar sesión</a>
         
     </div>
-    <div class="marca-de-agua">α4</div>
+    <div class="marca-de-agua">ALFA 4 Innovación</div>
 
    <!-- Modal para el organigrama -->
 <div id="orgChartModal" class="modal" style="display: none;">
@@ -1152,47 +1183,37 @@ revisión directiva</button>
         
 
         <div id="lists" class="tab-content">
-    <h2>Lista Maestra</h2>
-    <div class="dropdown-menu" id="listsDropdownMenu" style="display: block;">
-        <a href="#" onclick="showListContent('documentada')">Información Documentada Mantenida</a>
-        <a href="#" onclick="showListContent('externos')">Documentos Externos</a>
-        <a href="#" onclick="showListContent('registros')">Registros</a>
-        <a href="#" onclick="showListContent('perfil')">Perfil Funcional</a>
-        <a href="#" onclick="showListContent('responsabilidades')">Responsabilidades</a>
-        <a href="#" onclick="showListContent('SGC')">SGI</a>
-         <!-- Contenedor de paginación -->
-    </div>
-
-<div style="margin: 10px 0; display: flex; justify-content: flex-start; align-items: center; gap: 10px;">
-    <input 
-        type="text" 
-        id="searchInputLists" 
-        placeholder="Buscar por nombre o código..." 
-        style="padding: 10px; width: 70%; border-radius: 5px; border: 1px solid #ccc;"
-    />
-    <button 
-        id="searchButtonLists" 
-        class="green-button"
-        style="padding: 10px 20px;">Buscar</button>
+   <h2>Lista Maestra</h2>
+<div id="listsDropdownMenu" style="display:flex; gap:10px; margin-bottom:15px;">
+  <a href="#" data-type="documentada">Información Documentada Mantenida</a>
+  <a href="#" data-type="externos">Documentos Externos</a>
+  <a href="#" data-type="registros">Registros</a>
+  <a href="#" data-type="perfil">Perfil Funcional</a>
+  <a href="#" data-type="responsabilidades">Responsabilidades</a>
+  <a href="#" data-type="SGC">SGI</a>
 </div>
 
 
-
-    <div id="list-content">
-        <table>
-            <thead>
-                <tr>
-                    <th>Título</th>
-                    <th>Código</th>
-                    <th>Archivo</th>
-                </tr>
-            </thead>
-            <tbody id="fileTableBody-lists"></tbody>
-        </table>
-       
+<div style="margin: 10px 0; display: flex; gap: 10px;">
+    <input type="text" id="searchInputLists" placeholder="Buscar por nombre o código..." style="padding: 10px; width: 70%; border-radius: 5px; border: 1px solid #ccc;">
+    <button id="searchButtonLists" class="green-button" style="padding: 10px 20px;">Buscar</button>
 </div>
-<!-- Contenedor de paginación -->
-       <div id="pagination-container-files" style="margin-top: 20px; text-align: center;"></div>
+
+<div id="list-content">
+    <table>
+        <thead>
+            <tr>
+                <th>Título</th>
+                <th>Código</th>
+                <th>Archivo</th>
+            </tr>
+        </thead>
+        <tbody id="fileTableBody-lists"></tbody>
+    </table>
+</div>
+
+<div id="pagination-container-files" style="margin-top: 20px; text-align: center;"></div>
+
 </div>
 
 
@@ -1345,8 +1366,7 @@ revisión directiva</button>
 </div>
 
 
-  
-    <script type="module">
+<script type="module">
             import { initializeApp } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-app.js";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-auth.js";
 import { getFirestore, doc, setDoc, getDoc, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore.js";
@@ -1373,6 +1393,29 @@ const storage = getStorage(app);
 
 
 
+async function subirAprendizaje(tema, contenido) {
+  const fecha = new Date().toISOString();
+  const data = {
+    alfa: "Alfa Aceites y Lípidos",
+    tema: tema,
+    contenido: contenido,
+    fecha: fecha
+  };
+
+  const url = `https://ia-alfa-default-rtdb.firebaseio.com/colmena/Alfa_Aceites_Lipidos/aprendizajes/${fecha}.json`;
+
+  try {
+    const res = await fetch(url, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data)
+    });
+    const resData = await res.json();
+    console.log("✅ Aprendizaje enviado:", resData);
+  } catch (err) {
+    console.error("❌ Error al subir aprendizaje:", err);
+  }
+}
 
 
 
@@ -2058,7 +2101,7 @@ const pdfViewerContainer = document.getElementById("pdfViewerContainer");
 // Variables para la paginación
 let currentPageFiles = 1;
 let currentPageLists = 1;
-const itemsPerPage = 5;
+const itemsPerPage = 12;
 
 // Función para cargar los archivos con paginación
 async function loadFilesPaginated() {
@@ -2133,91 +2176,115 @@ async function loadFilesPaginated() {
     }
 }
 
-// Función para cargar las listas con paginación
-async function loadListsPaginated(type) {
-    const fileTableBody = document.getElementById("fileTableBody-lists");
-    const paginationContainer = document.getElementById("pagination-container-files");
-    fileTableBody.innerHTML = "";
-    paginationContainer.innerHTML = "";
 
-    // Obtener todos los documentos del tipo especificado
-    const querySnapshot = await getDocs(collection(db, `files-${type}`));
-    const files = [];
-    querySnapshot.forEach((doc) => {
-        files.push(doc.data());
-    });
 
-    // Ordenar los archivos por nombre para consistencia
-    files.sort((a, b) => a.name.localeCompare(b.name));
+// ------- Normalizador/ordenador de códigos -------
+function parseCode(code) {
+  if (!code) return [Number.MAX_SAFE_INTEGER, 0, 0, 0];
 
-    // Calcular el número total de páginas
-    const totalPages = Math.ceil(files.length / itemsPerPage);
+  const up = String(code).toUpperCase().trim();
+  if (up.includes('N/A') || up.includes('NO APLICA')) {
+    return [Number.MAX_SAFE_INTEGER, 0, 0, 0]; // al final
+  }
 
-    // Validar que la página actual no exceda el total de páginas
-    if (currentPageLists > totalPages) {
-        currentPageLists = totalPages;
-    }
+  // Peso por prefijo
+  const weights = { REG:100, PRO:200, ITO:300, VID:400, ISO:500, SGC:600 };
+  const m = up.match(/^(REG|PRO|ITO|VID|ISO|SGC)/);
+  const prefix = m ? m[1] : 'ZZZ';
+  const prefixWeight = weights[prefix] ?? 999; // desconocidos al final
 
-    // Obtener los formatos de la página actual
-    const start = (currentPageLists - 1) * itemsPerPage;
-    const end = start + itemsPerPage;
-    const currentFiles = files.slice(start, end);
+  // Quitar prefijo y separadores tipo REG.: REG- REG:
+  const cleaned = up.replace(/^(REG|PRO|ITO|VID|ISO|SGC)\s*[:.\-]?\s*/,'').trim();
 
-    // Mostrar los formatos en la tabla
-    currentFiles.forEach((fileData) => {
-        const row = document.createElement("tr");
+  // Tomar grupos numéricos seguros (soporta "8510-02", " 8510 - 02", etc.)
+  const parts = cleaned.split('-').map(s => parseInt(s.replace(/\D/g,''), 10) || 0);
+  while (parts.length < 3) parts.push(0);
 
-        const titleCell = document.createElement("td");
-        titleCell.textContent = fileData.name;
-
-        const codeCell = document.createElement("td");
-        codeCell.textContent = fileData.code || "Código no encontrado";
-
-        const fileCell = document.createElement("td");
-        if (fileData.url) {
-            const link = document.createElement("a");
-            link.href = fileData.url;
-            link.target = "_blank";
-            link.classList.add("file-link");
-            link.innerHTML = `<img src="https://img.icons8.com/ios-filled/50/000000/pdf.png" class="icon" /> Ver archivo`;
-            fileCell.appendChild(link);
-        } else {
-            fileCell.textContent = "Sin Archivo";
-            fileCell.classList.add("no-file");
-        }
-
-        row.appendChild(titleCell);
-        row.appendChild(codeCell);
-        row.appendChild(fileCell);
-        fileTableBody.appendChild(row);
-    });
-
-    // Crear botones de paginación
-    for (let i = 1; i <= totalPages; i++) {
-        const button = document.createElement("button");
-        button.textContent = i;
-        button.classList.add("pagination-button");
-        if (i === currentPageLists) button.classList.add("active");
-        button.addEventListener("click", () => {
-            currentPageLists = i;
-            loadListsPaginated(type);
-        });
-        paginationContainer.appendChild(button);
-    }
+  return [prefixWeight, parts[0], parts[1], parts[2]];
 }
 
-// Llamar a las funciones de paginación
-loadFilesPaginated();
+// ------- Cargar + ordenar + paginar -------
+async function loadListsPaginated(type) {
+  const fileTableBody = document.getElementById("fileTableBody-lists");
+  const paginationContainer = document.getElementById("pagination-container-files");
+  fileTableBody.innerHTML = "";
+  paginationContainer.innerHTML = "";
 
-// Mostrar contenido basado en la categoría seleccionada
-window.showListContent = function(type) {
-    currentPageLists = 1; // Reiniciar la página al cambiar de lista
-    loadListsPaginated(type);
-};
+  // Lee la colección de la pestaña elegida
+  const snap = await getDocs(collection(db, `files-${type}`));
+  const files = snap.docs.map(d => d.data()); // <-- siempre array
 
+  // Ordenar SIEMPRE
+  files.sort((a, b) => {
+    const A = parseCode(a.code);
+    const B = parseCode(b.code);
+    for (let i = 0; i < A.length; i++) {
+      if (A[i] !== B[i]) return A[i] - B[i];
+    }
+    // si código igual, desempata por título
+    return String(a.name || '').localeCompare(String(b.name || ''));
+  });
 
+  // Paginación
+  const totalPages = Math.max(1, Math.ceil(files.length / itemsPerPage));
+  if (currentPageLists > totalPages) currentPageLists = totalPages;
 
+  const start = (currentPageLists - 1) * itemsPerPage;
+  const end = start + itemsPerPage;
+  const currentFiles = files.slice(start, end);
 
+  currentFiles.forEach(fileData => {
+    const row = document.createElement("tr");
+    row.innerHTML = `
+      <td>${fileData.name || ''}</td>
+      <td>${fileData.code || 'Código no encontrado'}</td>
+      <td>${
+        fileData.url
+          ? `<a href="${fileData.url}" target="_blank">
+               <img src="https://img.icons8.com/ios-filled/50/000000/pdf.png" class="icon"/> Ver archivo
+             </a>`
+          : 'Sin Archivo'
+      }</td>
+    `;
+    fileTableBody.appendChild(row);
+  });
+
+  // Botones de paginación
+  for (let i = 1; i <= totalPages; i++) {
+    const btn = document.createElement("button");
+    btn.textContent = i;
+    btn.classList.add("pagination-button");
+    if (i === currentPageLists) btn.classList.add("active");
+    btn.addEventListener("click", () => { currentPageLists = i; loadListsPaginated(type); });
+    paginationContainer.appendChild(btn);
+  }
+}
+
+// ------- Navegación del menú (sin onclick) -------
+document.addEventListener('DOMContentLoaded', () => {
+  const menu = document.getElementById('listsDropdownMenu');
+
+  menu.addEventListener('click', (e) => {
+    const a = e.target.closest('a[data-type]');
+    if (!a) return;
+    e.preventDefault();
+
+    // activar visualmente
+    menu.querySelectorAll('a').forEach(x => x.classList.remove('active'));
+    a.classList.add('active');
+
+    // cargar ordenado
+    currentPageLists = 1;
+    loadListsPaginated(a.dataset.type);
+  });
+
+  // pestaña por defecto (marcar activa + cargar)
+  const def = menu.querySelector('a[data-type="SGC"]') || menu.querySelector('a[data-type]');
+  if (def) {
+    def.classList.add('active');
+    loadListsPaginated(def.dataset.type);
+  }
+});
 
 
 
@@ -2835,10 +2902,6 @@ async function loadUserProfile() {
 
 
 
-
-
-
-
 // Mostrar modal de perfil al hacer clic en "Ver mi perfil"
 document.getElementById("viewProfile").addEventListener("click", loadUserProfile);
 
@@ -2980,7 +3043,7 @@ document.addEventListener("click", (event) => {
 // Manejar el clic del botón Proceso
 document.getElementById("btn-proceso").addEventListener("click", () => {
     // Referencia al archivo en Firebase Storage
-    const fileRef = ref(storage, "Acciones para abordar riesgos y oportunidades y rev dir.pdf");
+    const fileRef = ref(storage, "Acciones para abordar riesgos y oportunidades y rev dir (4).pdf");
 
     // Obtén la URL de descarga
     getDownloadURL(fileRef)
@@ -4435,6 +4498,7 @@ document.getElementById("tab-inocuidad").addEventListener("click", () => {
 
 
 // Función para buscar en todas las subcolecciones relacionadas con las pestañas
+// Función para buscar en todas las subcolecciones relacionadas con las pestañas
 async function searchFilesInTabs(searchQuery) {
     try {
         // Lista de subcolecciones que corresponden a las pestañas
@@ -4472,12 +4536,65 @@ async function searchFilesInTabs(searchQuery) {
             });
         }
 
+        // **Ordenar resultados por código**
+        results.sort((a, b) => {
+            if (a.code && b.code) {
+                const numA = parseInt(a.code.match(/\d+/)?.[0] || 0);
+                const numB = parseInt(b.code.match(/\d+/)?.[0] || 0);
+                return numA - numB;
+            }
+            if (a.code && !b.code) return -1;
+            if (!a.code && b.code) return 1;
+            return 0;
+        });
+
         return results;
     } catch (error) {
         console.error("Error al buscar archivos:", error);
         throw new Error("No se pudo realizar la búsqueda.");
     }
 }
+
+// Evento para el botón de búsqueda
+document.getElementById("searchButtonLists").addEventListener("click", async () => {
+    const searchQuery = document.getElementById("searchInputLists").value.trim().toLowerCase();
+
+    if (!searchQuery) {
+        alert("Por favor, escribe algo para buscar.");
+        return;
+    }
+
+    try {
+        const results = await searchFilesInTabs(searchQuery);
+
+        // Limpiar tabla
+        const tableBody = document.getElementById("fileTableBody-lists");
+        tableBody.innerHTML = "";
+
+        // Mostrar resultados en la tabla
+        if (results.length === 0) {
+            tableBody.innerHTML = "<tr><td colspan='3'>No se encontraron resultados.</td></tr>";
+        } else {
+            results.forEach((file) => {
+                const row = document.createElement("tr");
+                row.innerHTML = `
+                    <td>${file.name || "Sin título"}</td>
+                    <td>${file.code || "Sin código"}</td>
+                    <td>
+                        ${file.url ? `<a href="${file.url}" target="_blank" class="file-link">
+                            Ver archivo
+                        </a>` : "Sin archivo"}
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+    } catch (error) {
+        console.error("Error al procesar la búsqueda:", error);
+        alert("Hubo un error al buscar los archivos. Inténtalo nuevamente.");
+    }
+});
+
 
 // Evento para el botón de búsqueda
 document.getElementById("searchButtonLists").addEventListener("click", async () => {
@@ -4650,12 +4767,8 @@ async function uploadFileToFirebase(file, fileName, fileCode) {
 document.getElementById("uploadBtn").addEventListener("click", handleFileUpload);
 
 
+// Función para mostrar el contenido de cada lista
 
-
-
-
-
-
-     </script>
+</script>
 </body>
 </html>

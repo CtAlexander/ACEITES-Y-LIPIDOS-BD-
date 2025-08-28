@@ -887,31 +887,56 @@ h2 {
     display: none;
 }
 
+ /* 🔹 Estilo solo para los botones del menú de pestañas */
 #listsDropdownMenu {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 15px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 15px 0;
 }
 
 #listsDropdownMenu a {
-    display: inline-block;
-    padding: 8px 14px;
-    background: linear-gradient(135deg, #4facfe, #00f2fe);
-    border-radius: 8px;
-    text-decoration: none;
-    color: #fff;
-    font-weight: 500;
-    font-size: 14px;
-    transition: all 0.3s ease-in-out;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  display: inline-block;
+  padding: 10px 18px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #4facfe, #00f2fe);
+  color: white;
+  text-decoration: none;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.15);
 }
 
 #listsDropdownMenu a:hover {
-    background: linear-gradient(135deg, #43e97b, #38f9d7);
-    transform: translateY(-3px) scale(1.05);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  background: linear-gradient(135deg, #43e97b, #38f9d7);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
 }
 
+#listsDropdownMenu a:active {
+  transform: scale(0.95);
+}
+
+/* 🔹 Botón activo (cuando se seleccione una pestaña) */
+#listsDropdownMenu a.active {
+  background: linear-gradient(135deg, #ff6a00, #ee0979);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+}
+
+    /* 🔹 Contenedor de contenido */
+    .listContent {
+      display: none;
+      padding: 20px;
+      background: white;
+      border-radius: 8px;
+      margin: 20px auto;
+      width: 80%;
+      box-shadow: 0px 4px 10px rgba(0,0,0,0.1);
+    }
+
+    .listContent.active {
+      display: block;
+    }
 
 /* Fondo del modal */
 .modal {
@@ -1182,40 +1207,47 @@ revisión directiva</button>
 
         
 
-        <div id="lists" class="tab-content">
+       <div id="lists" class="tab-content">
    <h2>Lista Maestra</h2>
-<div id="listsDropdownMenu" style="display:flex; gap:10px; margin-bottom:15px;">
-  <a href="#" data-type="documentada">Información Documentada Mantenida</a>
-  <a href="#" data-type="externos">Documentos Externos</a>
-  <a href="#" data-type="registros">Registros</a>
-  <a href="#" data-type="perfil">Perfil Funcional</a>
-  <a href="#" data-type="responsabilidades">Responsabilidades</a>
-  <a href="#" data-type="SGC">SGI</a>
-</div>
 
+   <!-- 🔹 Menú de pestañas -->
+   <div id="listsDropdownMenu" class="tabs-menu">
+      <a href="#" data-type="documentada">Información Documentada Mantenida</a>
+      <a href="#" data-type="externos">Documentos Externos</a>
+      <a href="#" data-type="registros">Registros</a>
+      <a href="#" data-type="perfil">Perfil Funcional</a>
+      <a href="#" data-type="responsabilidades">Responsabilidades</a>
+      <a href="#" data-type="SGC">SGI</a>
+   </div>
 
-<div style="margin: 10px 0; display: flex; gap: 10px;">
-    <input type="text" id="searchInputLists" placeholder="Buscar por nombre o código..." style="padding: 10px; width: 70%; border-radius: 5px; border: 1px solid #ccc;">
-    <button id="searchButtonLists" class="green-button" style="padding: 10px 20px;">Buscar</button>
-</div>
+   <!-- 🔹 Buscador -->
+   <div style="margin: 10px 0; display: flex; gap: 10px;">
+      <input type="text" id="searchInputLists" placeholder="Buscar por nombre o código..." style="padding: 10px; width: 70%; border-radius: 5px; border: 1px solid #ccc;">
+      <button id="searchButtonLists" class="green-button" style="padding: 10px 20px;">Buscar</button>
+   </div>
 
-<div id="list-content">
-    <table>
-        <thead>
+   <!-- 🔹 Subir archivos -->
+   <div style="margin: 15px 0; display: flex; gap: 10px; align-items: center;">
+      <input type="file" id="fileInput-lists">
+      <button class="green-button" onclick="uploadListFile('lists')">Subir archivo</button>
+   </div>
+
+   <!-- 🔹 Tabla -->
+   <div id="list-content">
+      <table>
+         <thead>
             <tr>
-                <th>Título</th>
-                <th>Código</th>
-                <th>Archivo</th>
+               <th>Título</th>
+               <th>Código</th>
+               <th>Archivo</th>
             </tr>
-        </thead>
-        <tbody id="fileTableBody-lists"></tbody>
-    </table>
+         </thead>
+         <tbody id="fileTableBody-lists"></tbody>
+      </table>
+   </div>
+
+   <div id="pagination-container-files" style="margin-top: 20px; text-align: center;"></div>
 </div>
-
-<div id="pagination-container-files" style="margin-top: 20px; text-align: center;"></div>
-
-</div>
-
 
   <!-- Menú de tres puntos -->
  <div class="three-dots-menu" id="threeDotsMenu">⋮</div>
@@ -2641,214 +2673,214 @@ document.getElementById('loginBtn').addEventListener('click', async () => {
 
 
         function showLoadingScreen() {
-            document.getElementById('register-screen').style.display = 'none';
-            document.getElementById('signin-screen').style.display = 'none';
-            document.getElementById('info-container').style.display = 'none';
-            document.getElementById('loading-screen').style.display = 'flex';
+    document.getElementById('register-screen').style.display = 'none';
+    document.getElementById('signin-screen').style.display = 'none';
+    document.getElementById('info-container').style.display = 'none';
+    document.getElementById('loading-screen').style.display = 'flex';
 
-            setTimeout(() => {
-                document.getElementById('loading-screen').style.display = 'none';
-                document.getElementById('menu-screen').style.display = 'block';
-                loadFiles();
-            }, 5000);
+    setTimeout(() => {
+        document.getElementById('loading-screen').style.display = 'none';
+        document.getElementById('menu-screen').style.display = 'block';
+        loadFiles();
+    }, 5000);
+}
+
+document.getElementById('switchToSignIn').addEventListener('click', () => {
+    document.getElementById('register-screen').style.display = 'none';
+    document.getElementById('signin-screen').style.display = 'block';
+});
+
+document.getElementById('switchToRegister').addEventListener('click', () => {
+    document.getElementById('signin-screen').style.display = 'none';
+    document.getElementById('register-screen').style.display = 'block';
+});
+
+// 🔹 Subir archivos al apartado general "files"
+document.getElementById('uploadBtn').addEventListener('click', async () => {
+    const fileInput = document.getElementById("fileInput");
+    const file = fileInput.files[0];
+
+    if (!file) {
+        alert("Por favor seleccione un archivo para subir.");
+        return;
+    }
+
+    const code = await extractCodeFromPDF(file);
+
+    try {
+        const fileName = file.name;
+        const storageRef = ref(storage, `uploads/files/${fileName}`);
+        await uploadBytes(storageRef, file);
+        const downloadURL = await getDownloadURL(storageRef);
+
+        await addDoc(collection(db, "files"), {
+            name: fileName,
+            url: downloadURL,
+            code: code,
+            date: new Date().toLocaleDateString()
+        });
+
+        loadFiles();
+        fileInput.value = "";
+    } catch (error) {
+        console.error("Error al subir el archivo:", error.message);
+        alert("Error al subir el archivo: " + error.message);
+    }
+});
+
+async function loadFiles() {
+    const fileTableBody = document.getElementById("fileTableBody");
+    fileTableBody.innerHTML = '';
+    const querySnapshot = await getDocs(collection(db, "files"));
+
+    querySnapshot.forEach((doc) => {
+        const fileData = doc.data();
+        const row = document.createElement("tr");
+
+        const titleCell = document.createElement("td");
+        titleCell.textContent = fileData.name;
+
+        const codeCell = document.createElement("td");
+        codeCell.textContent = fileData.code || "Código no encontrado";
+
+        const fileCell = document.createElement("td");
+        if (fileData.url) {
+            const link = document.createElement("a");
+            link.href = fileData.url;
+            link.target = "_blank";
+            link.classList.add("file-link");
+            link.innerHTML = `<img src="https://img.icons8.com/ios-filled/50/000000/pdf.png" class="icon" /> Ver archivo`;
+            fileCell.appendChild(link);
+        } else {
+            fileCell.textContent = "Sin Archivo";
+            fileCell.classList.add("no-file");
         }
 
-        document.getElementById('switchToSignIn').addEventListener('click', () => {
-            document.getElementById('register-screen').style.display = 'none';
-            document.getElementById('signin-screen').style.display = 'block';
+        row.appendChild(titleCell);
+        row.appendChild(codeCell);
+        row.appendChild(fileCell);
+        fileTableBody.appendChild(row);
+    });
+}
+
+window.showListContent = function(type) {
+    const listContent = document.getElementById("list-content");
+    listContent.innerHTML = `
+        <h3>${getListTitle(type)}</h3>
+        <input type="file" id="fileInput-${type}" />
+        <button class="button" onclick="uploadListFile('${type}')">Subir archivo</button>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>Título</th>
+                    <th>Código</th>
+                    <th>Archivo</th>
+                </tr>
+            </thead>
+            <tbody id="fileTableBody-${type}">
+            </tbody>
+        </table>
+    `;
+    loadListFiles(type);
+};
+
+function getListTitle(type) {
+    switch (type) {
+        case 'documentada': return 'Información Documentada Mantenida';
+        case 'externos': return 'Documentos Externos';
+        case 'registros': return 'Registros';
+        case 'perfil': return 'Perfil Funcional';
+        case 'responsabilidades': return 'Responsabilidades';
+        case 'SGC': return 'SGC';
+        default: return 'Lista';
+    }
+}
+
+// 🔹 Subida dinámica según apartado
+window.uploadListFile = async function(type) {
+    const fileInput = document.getElementById(`fileInput-${type}`);
+    const file = fileInput.files[0];
+
+    if (!file) {
+        alert("Por favor seleccione un archivo para subir.");
+        return;
+    }
+
+    const code = await extractCodeFromPDF(file);
+
+    try {
+        const fileName = file.name;
+        const storageRef = ref(storage, `uploads/${type}/${fileName}`);
+        await uploadBytes(storageRef, file);
+        const downloadURL = await getDownloadURL(storageRef);
+
+        await addDoc(collection(db, `files-${type}`), {
+            name: fileName,
+            url: downloadURL,
+            code: code,
+            date: new Date().toLocaleDateString()
         });
 
-        document.getElementById('switchToRegister').addEventListener('click', () => {
-            document.getElementById('signin-screen').style.display = 'none';
-            document.getElementById('register-screen').style.display = 'block';
-        });
+        loadListFiles(type);
+        fileInput.value = "";
+    } catch (error) {
+        console.error("Error al subir el archivo:", error.message);
+        alert("Error al subir el archivo: " + error.message);
+    }
+};
 
-        document.getElementById('uploadBtn').addEventListener('click', async () => {
-            const fileInput = document.getElementById("fileInput");
-            const file = fileInput.files[0];
+async function loadListFiles(type) {
+    const fileTableBody = document.getElementById(`fileTableBody-${type}`);
+    fileTableBody.innerHTML = '';
+    const querySnapshot = await getDocs(collection(db, `files-${type}`));
 
-            if (!file) {
-                alert("Por favor seleccione un archivo para subir.");
-                return;
-            }
+    querySnapshot.forEach((doc) => {
+        const fileData = doc.data();
+        const row = document.createElement("tr");
 
-            const code = await extractCodeFromPDF(file);
+        const titleCell = document.createElement("td");
+        titleCell.textContent = fileData.name;
 
-            try {
-                const fileName = file.name;
-                const storageRef = ref(storage, `uploads/${fileName}`);
-                await uploadBytes(storageRef, file);
-                const downloadURL = await getDownloadURL(storageRef);
+        const codeCell = document.createElement("td");
+        codeCell.textContent = fileData.code || "Código no encontrado";
 
-                await addDoc(collection(db, "files"), {
-                    name: fileName,
-                    url: downloadURL,
-                    code: code,
-                    date: new Date().toLocaleDateString()
-                });
-
-                loadFiles();
-                fileInput.value = "";
-            } catch (error) {
-                console.error("Error al subir el archivo:", error.message);
-                alert("Error al subir el archivo: " + error.message);
-            }
-        });
-
-        async function loadFiles() {
-            const fileTableBody = document.getElementById("fileTableBody");
-            fileTableBody.innerHTML = '';
-            const querySnapshot = await getDocs(collection(db, "files"));
-
-            querySnapshot.forEach((doc) => {
-                const fileData = doc.data();
-                const row = document.createElement("tr");
-
-                const titleCell = document.createElement("td");
-                titleCell.textContent = fileData.name;
-
-                const codeCell = document.createElement("td");
-                codeCell.textContent = fileData.code || "Código no encontrado";
-
-                const fileCell = document.createElement("td");
-                if (fileData.url) {
-                    const link = document.createElement("a");
-                    link.href = fileData.url;
-                    link.target = "_blank";
-                    link.classList.add("file-link");
-                    link.innerHTML = `<img src="https://img.icons8.com/ios-filled/50/000000/pdf.png" class="icon" /> Ver archivo`;
-                    fileCell.appendChild(link);
-                } else {
-                    fileCell.textContent = "Sin Archivo";
-                    fileCell.classList.add("no-file");
-                }
-
-                row.appendChild(titleCell);
-                row.appendChild(codeCell);
-                row.appendChild(fileCell);
-                fileTableBody.appendChild(row);
-            });
+        const fileCell = document.createElement("td");
+        if (fileData.url) {
+            const link = document.createElement("a");
+            link.href = fileData.url;
+            link.target = "_blank";
+            link.classList.add("file-link");
+            link.innerHTML = `<img src="https://img.icons8.com/ios-filled/50/000000/pdf.png" class="icon" /> Ver archivo`;
+            fileCell.appendChild(link);
+        } else {
+            fileCell.textContent = "Sin Archivo";
+            fileCell.classList.add("no-file");
         }
 
-        window.showListContent = function(type) {
-            const listContent = document.getElementById("list-content");
-            listContent.innerHTML = `
-                <h3>${getListTitle(type)}</h3>
-                <input type="file" id="fileInput-${type}" />
-                <button class="button" onclick="uploadListFile('${type}')">Subir archivo</button>
-                
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Título</th>
-                            <th>Código</th>
-                            <th>Archivo</th>
-                        </tr>
-                    </thead>
-                    <tbody id="fileTableBody-${type}">
-                    </tbody>
-                </table>
-            `;
-            loadListFiles(type);
-        };
+        row.appendChild(titleCell);
+        row.appendChild(codeCell);
+        row.appendChild(fileCell);
+        fileTableBody.appendChild(row);
+    });
+}
 
-        function getListTitle(type) {
-            switch (type) {
-                case 'documentada': return 'Información Documentada Mantenida';
-                case 'externos': return 'Documentos Externos';
-                case 'registros': return 'Registros';
-                case 'perfil': return 'Perfil Funcional';
-                case 'responsabilidades': return 'Responsabilidades';
-                case 'SGC': return 'SGC';
-                default: return 'Lista';
-            }
-        }
+document.getElementById('tab-home').addEventListener('click', () => {
+    showTabContent('home');
+});
 
-        // Define la función como global para resolver el error de referencia
-        window.uploadListFile = async function(type) {
-            const fileInput = document.getElementById(`fileInput-${type}`);
-            const file = fileInput.files[0];
+document.getElementById('tab-lists').addEventListener('click', () => {
+    showTabContent('lists');
+});
 
-            if (!file) {
-                alert("Por favor seleccione un archivo para subir.");
-                return;
-            }
+document.getElementById('tab-files').addEventListener('click', () => {
+    showTabContent('files');
+});
 
-            const code = await extractCodeFromPDF(file);
-
-            try {
-                const fileName = file.name;
-                const storageRef = ref(storage, `uploads/${type}/${fileName}`);
-                await uploadBytes(storageRef, file);
-                const downloadURL = await getDownloadURL(storageRef);
-
-                await addDoc(collection(db, `files-${type}`), {
-                    name: fileName,
-                    url: downloadURL,
-                    code: code,
-                    date: new Date().toLocaleDateString()
-                });
-
-                loadListFiles(type);
-                fileInput.value = "";
-            } catch (error) {
-                console.error("Error al subir el archivo:", error.message);
-                alert("Error al subir el archivo: " + error.message);
-            }
-        };
-
-        async function loadListFiles(type) {
-            const fileTableBody = document.getElementById(`fileTableBody-${type}`);
-            fileTableBody.innerHTML = '';
-            const querySnapshot = await getDocs(collection(db, `files-${type}`));
-
-            querySnapshot.forEach((doc) => {
-                const fileData = doc.data();
-                const row = document.createElement("tr");
-
-                const titleCell = document.createElement("td");
-                titleCell.textContent = fileData.name;
-
-                const codeCell = document.createElement("td");
-                codeCell.textContent = fileData.code || "Código no encontrado";
-
-                const fileCell = document.createElement("td");
-                if (fileData.url) {
-                    const link = document.createElement("a");
-                    link.href = fileData.url;
-                    link.target = "_blank";
-                    link.classList.add("file-link");
-                    link.innerHTML = `<img src="https://img.icons8.com/ios-filled/50/000000/pdf.png" class="icon" /> Ver archivo`;
-                    fileCell.appendChild(link);
-                } else {
-                    fileCell.textContent = "Sin Archivo";
-                    fileCell.classList.add("no-file");
-                }
-
-                row.appendChild(titleCell);
-                row.appendChild(codeCell);
-                row.appendChild(fileCell);
-                fileTableBody.appendChild(row);
-            });
-        }
-
-        document.getElementById('tab-home').addEventListener('click', () => {
-            showTabContent('home');
-        });
-
-        document.getElementById('tab-lists').addEventListener('click', () => {
-            showTabContent('lists');
-        });
-
-        document.getElementById('tab-files').addEventListener('click', () => {
-            showTabContent('files');
-        });
 document.getElementById('tab-requisitos').addEventListener('click', () => {
     showTabContent('requisitos');
+});
 
-        });
-
-        
 
         loadFiles();
 

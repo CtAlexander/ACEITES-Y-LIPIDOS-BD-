@@ -2898,17 +2898,6 @@ document.getElementById('tab-requisitos').addEventListener('click', () => {
 
         loadFiles();
 
-       document.getElementById("logout").addEventListener("click", () => {
-    signOut(auth).then(() => {
-        alert("Confirma cerrar sesión.");
-        // Cambiar redirección a la pantalla de creación de cuenta e inicio de sesión
-        document.getElementById('menu-screen').style.display = 'none';
-        document.getElementById('signin-screen').style.display = 'block';
-         document.getElementById('info-container').style.display = 'block';
-    }).catch((error) => {
-        console.error("Error al cerrar sesión:", error);
-    });
-});
 
 
 

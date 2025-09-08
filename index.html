@@ -1015,7 +1015,21 @@ iframe {
 }
 
 
-
+ /* --- Estilos básicos --- */
+    .info-container, .login-container, .signin-container, .menu-container {
+        padding: 20px;
+        margin: 20px;
+        border-radius: 10px;
+        background: #f2f2f2;
+    }
+    .menu-container { display: none; }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+    .tabs div { display: inline-block; margin-right: 10px; padding: 10px; cursor: pointer; background: #ddd; border-radius: 5px; }
+    .tabs .active { background: #00b954; color: white; }
+    .green-button { background: #00b954; color: white; padding: 10px 20px; border: none; border-radius: 5px; margin: 5px; cursor: pointer; }
+    
+</style>
 
 </style>
 
@@ -2948,6 +2962,9 @@ window.addEventListener("click", (event) => {
         document.getElementById("profileModal").style.display = "none";
     }
 });
+
+
+
    // Funcionalidad para el menú de tres puntos
      document.addEventListener("DOMContentLoaded", () => {
     const threeDotsMenu = document.getElementById("threeDotsMenu");
@@ -3151,22 +3168,94 @@ document.addEventListener("click", (event) => {
 
 
 
+//FUNCION PARA MANTENER LA PANTALLA DE BIENVENIDA 
+document.addEventListener("DOMContentLoaded", () => {
+    const user = localStorage.getItem("user"); // verificamos si ya hay sesión
+
+    if (user) {
+        // Si ya inició sesión, mostramos el menú y ocultamos registro/login y info inicial
+        showMenuScreen();
+    } else {
+        // Si no hay sesión, mostramos únicamente la pantalla de registro
+        showRegisterScreen();
+    }
+
+    // Cambiar entre registro y login
+    document.getElementById("switchToSignIn").addEventListener("click", showSignInScreen);
+    document.getElementById("switchToRegister").addEventListener("click", showRegisterScreen);
+
+    // Botón de crear cuenta
+    document.getElementById("registerBtn").addEventListener("click", () => {
+        const nombre = document.getElementById("nombre").value;
+        const apellido = document.getElementById("apellido").value;
+        const rol = document.getElementById("rol").value;
+        const email = document.getElementById("email").value;
+        const password = document.getElementById("password").value;
+
+        if (!nombre || !apellido || !rol || !email || !password) {
+            alert("Completa todos los campos");
+            return;
+        }
+
+        // Guardar usuario en localStorage
+        localStorage.setItem("user", JSON.stringify({ nombre, apellido, rol, email }));
+        showMenuScreen();
+    });
+
+    // Botón de iniciar sesión
+    document.getElementById("loginBtn").addEventListener("click", () => {
+        const email = document.getElementById("loginEmail").value;
+        const password = document.getElementById("loginPassword").value;
+
+        if (!email || !password) {
+            alert("Completa todos los campos");
+            return;
+        }
+
+        // Guardamos la sesión
+        localStorage.setItem("user", JSON.stringify({ email }));
+        showMenuScreen();
+    });
+
+    // Botón de cerrar sesión
+    document.getElementById("logout").addEventListener("click", () => {
+        // Limpiamos la sesión local
+        localStorage.removeItem("user");
+
+        // Si usas Firebase, cerrar sesión de Firebase también
+        if (typeof auth !== "undefined") {
+            signOut(auth).catch((error) => console.error("Error al cerrar sesión:", error));
+        }
+
+        // Mostramos únicamente la pantalla de registro y ocultamos login
+        showRegisterScreen();
+    });
+});
+
+// Funciones para mostrar/ocultar pantallas
+function showMenuScreen() {
+    document.getElementById("menu-screen").style.display = "block";
+    document.getElementById("register-screen").style.display = "none";
+    document.getElementById("signin-screen").style.display = "none";
+    document.getElementById("info-container").style.display = "none"; // ocultamos info inicial
+}
+
+function showRegisterScreen() {
+    document.getElementById("menu-screen").style.display = "none";
+    document.getElementById("register-screen").style.display = "block";
+    document.getElementById("signin-screen").style.display = "none"; // ocultamos login
+    document.getElementById("info-container").style.display = "block"; // mostramos info inicial
+}
+
+function showSignInScreen() {
+    document.getElementById("menu-screen").style.display = "none";
+    document.getElementById("register-screen").style.display = "none"; 
+    document.getElementById("signin-screen").style.display = "block";
+    document.getElementById("info-container").style.display = "block"; 
+}
+
 
 //FUNCION PARA REQUISITOS 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 // Función para manejar el contenido de la pestaña seleccionada (de 4.0 a 10.0)

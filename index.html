@@ -19,7 +19,7 @@
         /* Body Styling */
         body {
             font-family: 'Roboto', sans-serif;
-            background-color: #2a3c4f;
+            background-color: #eaf207;
             color: #d0d0d0;
             margin: 0;
             padding: 0;
@@ -40,7 +40,7 @@
             left: 0;
             width: 50%;
             height: 100%;
-            background: radial-gradient(circle at 20% 50%, #00b954, transparent 70%);
+            background: radial-gradient(circle at 20% 50%, hsl(123, 91%, 42%), transparent 70%);
             opacity: 0.15;
             z-index: -1;
         }
@@ -1242,8 +1242,8 @@ revisión directiva</button>
 
    <!-- 🔹 Subir archivos -->
    <div style="margin: 15px 0; display: flex; gap: 10px; align-items: center;">
-      <input type="file" id="fileInput-lists">
-      <button class="green-button" onclick="uploadListFile('lists')">Subir archivo</button>
+     <input type="file" id="fileInput" /><button class="button" id="uploadBtn">Subir archivo</button>
+
    </div>
 
    <!-- 🔹 Tabla -->
@@ -1274,9 +1274,9 @@ revisión directiva</button>
 
     
   <div id="files" class="tab-content">
-            <h2>Formatos</h2>
+            <h2>Subir archivos</h2>
             <input type="file" id="fileInput" />
-            <button class="button" id="uploadBtn">Subir Formatos </button>
+            <button class="button" id="uploadBtn">Subir archivos</button>
             
             <table>
                 <thead>
@@ -1298,13 +1298,13 @@ revisión directiva</button>
      <div id="requisitos" class="tab-content">
   <h2 style="color: #00b954; text-align: center;">Selección de Requisitos</h2>
   <div class="tabs" style="justify-content: center;">
-    <div id="req-tab-contexto" class="active" onclick="handleRequisitosTab('contexto')">4.0 Contexto</div>
-    <div id="req-tab-liderazgo" onclick="handleRequisitosTab('liderazgo')">5.0 Liderazgo</div>
-    <div id="req-tab-planificacion" onclick="handleRequisitosTab('planificacion')">6.0 Planificación</div>
-    <div id="req-tab-apoyo" onclick="handleRequisitosTab('apoyo')">7.0 Apoyo</div>
-    <div id="req-tab-operacion" onclick="handleRequisitosTab('operacion')">8.0 Operación</div>
-    <div id="req-tab-desempeno" onclick="handleRequisitosTab('desempeno')">9.0 Desempeño</div>
-    <div id="req-tab-mejora" onclick="handleRequisitosTab('mejora')">10.0 Mejora</div>
+    <div id="req-tab-contexto" class="active" onclick="handleRequisitosTab('contexto')">4 Contexto</div>
+    <div id="req-tab-liderazgo" onclick="handleRequisitosTab('liderazgo')">5 Liderazgo</div>
+    <div id="req-tab-planificacion" onclick="handleRequisitosTab('planificacion')">6 Planificación</div>
+    <div id="req-tab-apoyo" onclick="handleRequisitosTab('apoyo')">7 Apoyo</div>
+    <div id="req-tab-operacion" onclick="handleRequisitosTab('operacion')">8 Operación</div>
+    <div id="req-tab-desempeno" onclick="handleRequisitosTab('desempeno')">9 Desempeño</div>
+    <div id="req-tab-mejora" onclick="handleRequisitosTab('mejora')">10 Mejora</div>
   </div>
   
   <div id="requisitos-content" class="requisitos-content" style="margin-top: 20px;">
@@ -2686,7 +2686,8 @@ document.getElementById('loginBtn').addEventListener('click', async () => {
 
 
 
-        function showLoadingScreen() {
+      // 🔹 Funciones de carga y pantalla de loading
+function showLoadingScreen() {
     document.getElementById('register-screen').style.display = 'none';
     document.getElementById('signin-screen').style.display = 'none';
     document.getElementById('info-container').style.display = 'none';
@@ -2709,9 +2710,14 @@ document.getElementById('switchToRegister').addEventListener('click', () => {
     document.getElementById('register-screen').style.display = 'block';
 });
 
-// 🔹 Subir archivos al apartado general "files"
+// 🔹 Subida general al apartado "files"
 document.getElementById('uploadBtn').addEventListener('click', async () => {
-    const fileInput = document.getElementById("fileInput");
+    await uploadFile('files', 'fileInput');
+});
+
+// 🔹 Función universal para subir archivos
+async function uploadFile(type, inputId) {
+    const fileInput = document.getElementById(inputId);
     const file = fileInput.files[0];
 
     if (!file) {
@@ -2723,29 +2729,35 @@ document.getElementById('uploadBtn').addEventListener('click', async () => {
 
     try {
         const fileName = file.name;
-        const storageRef = ref(storage, `uploads/files/${fileName}`);
+        const storageRef = ref(storage, `uploads/${type}/${fileName}`);
         await uploadBytes(storageRef, file);
         const downloadURL = await getDownloadURL(storageRef);
 
-        await addDoc(collection(db, "files"), {
+        await addDoc(collection(db, `files-${type}`), {
             name: fileName,
             url: downloadURL,
             code: code,
             date: new Date().toLocaleDateString()
         });
 
-        loadFiles();
+        if (type === 'files') {
+            loadFiles();
+        } else {
+            loadListFiles(type);
+        }
+
         fileInput.value = "";
     } catch (error) {
         console.error("Error al subir el archivo:", error.message);
         alert("Error al subir el archivo: " + error.message);
     }
-});
+}
 
+// 🔹 Cargar archivos del apartado general "files"
 async function loadFiles() {
     const fileTableBody = document.getElementById("fileTableBody");
     fileTableBody.innerHTML = '';
-    const querySnapshot = await getDocs(collection(db, "files"));
+    const querySnapshot = await getDocs(collection(db, "files-files"));
 
     querySnapshot.forEach((doc) => {
         const fileData = doc.data();
@@ -2777,12 +2789,13 @@ async function loadFiles() {
     });
 }
 
+// 🔹 Mostrar contenido de lista según tipo
 window.showListContent = function(type) {
     const listContent = document.getElementById("list-content");
     listContent.innerHTML = `
         <h3>${getListTitle(type)}</h3>
         <input type="file" id="fileInput-${type}" />
-        <button class="button" onclick="uploadListFile('${type}')">Subir archivo</button>
+        <button class="button" onclick="uploadFile('${type}', 'fileInput-${type}')">Subir archivo</button>
         
         <table>
             <thead>
@@ -2799,6 +2812,7 @@ window.showListContent = function(type) {
     loadListFiles(type);
 };
 
+// 🔹 Títulos de secciones
 function getListTitle(type) {
     switch (type) {
         case 'documentada': return 'Información Documentada Mantenida';
@@ -2811,39 +2825,7 @@ function getListTitle(type) {
     }
 }
 
-// 🔹 Subida dinámica según apartado
-window.uploadListFile = async function(type) {
-    const fileInput = document.getElementById(`fileInput-${type}`);
-    const file = fileInput.files[0];
-
-    if (!file) {
-        alert("Por favor seleccione un archivo para subir.");
-        return;
-    }
-
-    const code = await extractCodeFromPDF(file);
-
-    try {
-        const fileName = file.name;
-        const storageRef = ref(storage, `uploads/${type}/${fileName}`);
-        await uploadBytes(storageRef, file);
-        const downloadURL = await getDownloadURL(storageRef);
-
-        await addDoc(collection(db, `files-${type}`), {
-            name: fileName,
-            url: downloadURL,
-            code: code,
-            date: new Date().toLocaleDateString()
-        });
-
-        loadListFiles(type);
-        fileInput.value = "";
-    } catch (error) {
-        console.error("Error al subir el archivo:", error.message);
-        alert("Error al subir el archivo: " + error.message);
-    }
-};
-
+// 🔹 Cargar archivos por sección
 async function loadListFiles(type) {
     const fileTableBody = document.getElementById(`fileTableBody-${type}`);
     fileTableBody.innerHTML = '';
@@ -2879,26 +2861,22 @@ async function loadListFiles(type) {
     });
 }
 
+// 🔹 Manejo de pestañas
 document.getElementById('tab-home').addEventListener('click', () => {
     showTabContent('home');
 });
-
 document.getElementById('tab-lists').addEventListener('click', () => {
     showTabContent('lists');
 });
-
 document.getElementById('tab-files').addEventListener('click', () => {
     showTabContent('files');
 });
-
 document.getElementById('tab-requisitos').addEventListener('click', () => {
     showTabContent('requisitos');
 });
 
-
-        loadFiles();
-
-
+// Cargar archivos iniciales
+loadFiles();
 
 
 
@@ -3152,6 +3130,54 @@ document.addEventListener("click", (event) => {
 
 
 
+document.getElementById('uploadBtn').addEventListener('click', async () => {
+    const fileInput = document.getElementById("fileInput-current");
+    const file = fileInput.files[0];
+
+    if (!file) {
+        alert("Por favor seleccione un archivo para subir.");
+        return;
+    }
+
+    // Detectar la sección activa por el ID del contenedor que se muestra
+    let activeSection = "";
+    if (document.getElementById("files-SGC").style.display === "block") activeSection = "SGC";
+    else if (document.getElementById("files-documentada").style.display === "block") activeSection = "documentada";
+    else if (document.getElementById("files-externos").style.display === "block") activeSection = "externos";
+    else if (document.getElementById("files-files").style.display === "block") activeSection = "files";
+    else if (document.getElementById("files-lists").style.display === "block") activeSection = "lists";
+    else if (document.getElementById("files-perfil").style.display === "block") activeSection = "perfil";
+    else if (document.getElementById("files-registros").style.display === "block") activeSection = "registros";
+    else if (document.getElementById("files-responsabilidades").style.display === "block") activeSection = "responsabilidades";
+    else {
+        alert("No se pudo detectar la sección activa.");
+        return;
+    }
+
+    const code = await extractCodeFromPDF(file);
+
+    try {
+        const fileName = file.name;
+        const storageRef = ref(storage, `uploads/${activeSection}/${fileName}`);
+        await uploadBytes(storageRef, file);
+        const downloadURL = await getDownloadURL(storageRef);
+
+        await addDoc(collection(db, `files-${activeSection}`), {
+            name: fileName,
+            url: downloadURL,
+            code: code,
+            date: new Date().toLocaleDateString()
+        });
+
+        // Recargar la lista correspondiente
+        loadListFiles(activeSection);
+
+        fileInput.value = ""; // Limpiar input
+    } catch (error) {
+        console.error("Error al subir el archivo:", error.message);
+        alert("Error al subir el archivo: " + error.message);
+    }
+});
 
 
 
@@ -4962,27 +4988,7 @@ async function handleFileUpload() {
     }
 }
 
-// Función para subir el archivo a Firebase
-async function uploadFileToFirebase(file, fileName, fileCode) {
-    try {
-        const storageRef = ref(storage, `uploads/${fileName}`);
-        await uploadBytes(storageRef, file);
-        const downloadURL = await getDownloadURL(storageRef);
 
-        await addDoc(collection(db, "files"), {
-            name: fileName,
-            url: downloadURL,
-            code: fileCode,
-            date: new Date().toLocaleDateString()
-        });
-
-        alert("Archivo subido exitosamente.");
-        loadFiles();
-    } catch (error) {
-        console.error("Error al subir el archivo:", error.message);
-        alert("Error al subir el archivo: " + error.message);
-    }
-}
 
 // Asociar el evento al botón de subida
 document.getElementById("uploadBtn").addEventListener("click", handleFileUpload);

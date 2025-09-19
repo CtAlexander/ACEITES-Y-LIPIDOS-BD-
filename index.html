@@ -1089,22 +1089,34 @@ iframe {
     </div>
     <div class="marca-de-agua">ALFA 4 Innovación</div>
 
+
    <!-- Modal para el organigrama -->
 <div id="orgChartModal" class="modal" style="display: none;">
-  <div class="modal-content" style="width: 80%; max-width: 1000px; height: 80%; max-height: 700px; margin: auto;">
-    <span class="close" id="closeOrgChart" style="font-size: 30px; cursor: pointer;">&times;</span>
-    <!-- Encabezado -->
-    <h2 id="orgChartHeader" style="text-align: center; margin-bottom: 15px;">Organigrama</h2>
-    <!-- Iframe para el PDF -->
+  <div class="modal-content" style="width: 80%; max-width: 1000px; height: 80%; max-height: 700px; margin: auto; position: relative;">
+    
+    <!-- Botón cerrar -->
+    <span class="close" id="closeOrgChart" style="font-size: 30px; cursor: pointer; position: absolute; top: 10px; right: 15px;">&times;</span>
+    
+    <!-- Encabezado con botón Cambiar -->
+    <h2 id="orgChartHeader" style="text-align: center; margin-bottom: 15px;">
+      Organigrama
+      <button id="changeOrgChartBtn" style="font-size: 12px; padding: 5px 10px; margin-left: 10px; border: none; border-radius: 5px; background: #007bff; color: white; cursor: pointer;">
+        Cambiar
+      </button>
+    </h2>
+
+    <!-- Iframe para mostrar el organigrama -->
     <iframe 
       id="orgChartIframe"
-      src="https://firebasestorage.googleapis.com/v0/b/plataforma-39bde.appspot.com/o/organigramamarzo.pdf?alt=media&token=062b24e4-d8b9-46b8-8961-5ecb566c7c54"
+      src=""
       title="Organigrama"
       style="width: 100%; height: 100%; border: none; border-radius: 10px;">
     </iframe>
+
+    <!-- Input oculto para subir PDF -->
+    <input type="file" id="orgChartUpload" accept="application/pdf" style="display: none;">
   </div>
 </div>
-
 
 
 
@@ -1439,6 +1451,47 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 const storage = getStorage(app);
+const orgChartRef = ref(storage, "https://firebasestorage.googleapis.com/v0/b/plataforma-39bde.appspot.com/o/organigramamarzo.pdf?alt=media&token=062b24e4-d8b9-46b8-8961-5ecb566c7c54");
+
+  // Botón abrir input
+  document.getElementById("changeOrgChartBtn").addEventListener("click", () => {
+    document.getElementById("orgChartUpload").click();
+  });
+
+  // Subir archivo
+  document.getElementById("orgChartUpload").addEventListener("change", async (event) => {
+    const file = event.target.files[0];
+    if (!file || file.type !== "application/pdf") {
+      alert("Por favor selecciona un archivo PDF válido.");
+      return;
+    }
+
+    try {
+      // Subir a Firebase
+      await uploadBytes(orgChartRef, file);
+
+      // Obtener URL pública
+      const downloadURL = await getDownloadURL(orgChartRef);
+
+      // Actualizar iframe
+      document.getElementById("orgChartIframe").src = downloadURL;
+
+      alert("✅ Organigrama actualizado con éxito.");
+    } catch (error) {
+      console.error("Error al subir el PDF:", error);
+      alert("❌ Hubo un error al subir el organigrama.");
+    }
+  });
+
+  // Al cargar la página, traer siempre el PDF actualizado
+  window.addEventListener("load", async () => {
+    try {
+      const url = await getDownloadURL(orgChartRef);
+      document.getElementById("orgChartIframe").src = url;
+    } catch (error) {
+      console.error("Error al cargar el organigrama:", error);
+    }
+  });
 
 
 
@@ -1562,7 +1615,7 @@ function getCollectionNameFromTab(tabName) {
 async function initializeAlfa() {
     // Verifica si hay usuario autenticado
     if (!auth.currentUser) {
-        speak("Debes iniciar sesión para usar Alfa.");
+        speak("Debes iniciar sesión para usar MD Alfa.");
         return;
     }
     try {
@@ -1570,7 +1623,7 @@ async function initializeAlfa() {
         const userDoc = await getDoc(userRef);
         if (userDoc.exists()) {
             currentUserName = userDoc.data().nombre;
-            speak(`Hola ${currentUserName}, soy Alfa. Estoy listo para ayudarte.`);
+            speak(`Hola ${currentUserName}, soy MD Alfa. Estoy listo para ayudarte.`);
         } else {
             speak("No se encontraron datos del usuario.");
         }
@@ -1589,7 +1642,7 @@ recognition.onresult = (event) => {
     const command = event.results[0][0].transcript.toLowerCase();
     console.log("Comando recibido:", command);
     
-    if (activationListening && command.includes('oye alfa')) {
+    if (activationListening && command.includes('alfa')) {
         activationListening = false;
         listening = true;
         speak(`Dime, ${currentUserName}.`);
@@ -1612,7 +1665,7 @@ recognition.onend = () => {
 };
 
 recognition.onstart = () => {
-    console.log("Alfa está escuchando.");
+    console.log("MD Alfa está escuchando.");
 };
 
 recognition.onerror = (event) => {
@@ -1652,7 +1705,7 @@ function handleCommand(command) {
 
     } else if (command.includes('generar factura')) {
         handleInvoiceCommand(command);
-    } else if (command.includes('abrir archivo')) {
+    } else if (command.includes('buscar archivo')) {
         speak("Por favor, dime el nombre del archivo diciendo 'archivo [nombre del archivo]'.");
         awaitingFileQuery = true;
     } else if (command.includes('ya es todo alfa') || command.includes('gracias alfa')) {
@@ -2615,10 +2668,7 @@ window.addEventListener("click", (event) => {
 
 
 
-
-
-
-
+  
 
 
 
@@ -2675,7 +2725,7 @@ document.getElementById('loginBtn').addEventListener('click', async () => {
             alert("La contraseña ingresada es incorrecta.");
         } else {
             console.error('Error al iniciar sesión:', error.message);
-            alert('Error al iniciar sesión: ' + error.message);
+            alert('Error al iniciar sesión');
         }
     }
 });
@@ -3062,7 +3112,7 @@ document.addEventListener("click", (event) => {
 // Manejar el clic del botón Proceso
 document.getElementById("btn-proceso").addEventListener("click", () => {
     // Referencia al archivo en Firebase Storage
-    const fileRef = ref(storage, "Acciones para abordar riesgos y oportunidades y rev dir (4).pdf");
+    const fileRef = ref(storage, "https://firebasestorage.googleapis.com/v0/b/plataforma-39bde.appspot.com/o/Acciones%20para%20abordar%20riesgos%20y%20oportunidades%20y%20rev%20dir%20(5)%20(1).pdf?alt=media&token=279f60cd-ac4f-415b-a253-8c8af4959c82");
 
     // Obtén la URL de descarga
     getDownloadURL(fileRef)
@@ -3183,7 +3233,21 @@ document.getElementById('uploadBtn').addEventListener('click', async () => {
 });
 
 
+// Al hacer clic en el botón "Cambiar"
+  document.getElementById("changeOrgChartBtn").addEventListener("click", () => {
+    document.getElementById("orgChartUpload").click();
+  });
 
+  // Cuando seleccionas un nuevo archivo PDF
+  document.getElementById("orgChartUpload").addEventListener("change", (event) => {
+    const file = event.target.files[0];
+    if (file && file.type === "application/pdf") {
+      const fileURL = URL.createObjectURL(file);
+      document.getElementById("orgChartIframe").src = fileURL;
+    } else {
+      alert("Por favor selecciona un archivo PDF válido.");
+    }
+  });
 
 
 //FUNCION PARA MANTENER LA PANTALLA DE BIENVENIDA 
@@ -4805,8 +4869,17 @@ async function searchFilesInTabs(searchQuery) {
     }
 }
 
-// Evento para el botón de búsqueda
-document.getElementById("searchButtonLists").addEventListener("click", async () => {
+// 🗂️ Mapeo de códigos a pestañas (data-type)
+const codeToTab = {
+    "7532-01": "SGC",
+    "7532-02": "documentada",
+    "7532-03": "externos",
+    "7532-04": "registros"
+};
+
+// 🚨 Evento único para el botón de búsqueda
+document.getElementById("searchButtonLists").addEventListener("click", async (e) => {
+    e.preventDefault(); // evitar comportamiento doble
     const searchQuery = document.getElementById("searchInputLists").value.trim().toLowerCase();
 
     if (!searchQuery) {
@@ -4814,14 +4887,32 @@ document.getElementById("searchButtonLists").addEventListener("click", async () 
         return;
     }
 
-    try {
-        const results = await searchFilesInTabs(searchQuery);
+    // 👉 Caso 1: Si coincide con un código → abrir pestaña y NO mostrar archivos
+    if (codeToTab[searchQuery]) {
+        const tabType = codeToTab[searchQuery];
+        const tabLink = document.querySelector(`[data-type="${tabType}"]`);
 
-        // Limpiar tabla
+        // Limpiar resultados de tabla para que no quede nada viejo
         const tableBody = document.getElementById("fileTableBody-lists");
         tableBody.innerHTML = "";
 
-        // Mostrar resultados en la tabla
+        if (tabLink) {
+            tabLink.click(); // Simular click en la pestaña
+        }
+
+        // Limpiar input después de abrir pestaña (opcional)
+        document.getElementById("searchInputLists").value = "";
+
+        return; // 🚫 Detener aquí, no hace búsqueda de archivos
+    }
+
+    // 👉 Caso 2: Si NO es un código, hace la búsqueda normal en archivos
+    try {
+        const results = await searchFilesInTabs(searchQuery);
+
+        const tableBody = document.getElementById("fileTableBody-lists");
+        tableBody.innerHTML = "";
+
         if (results.length === 0) {
             tableBody.innerHTML = "<tr><td colspan='3'>No se encontraron resultados.</td></tr>";
         } else {
@@ -4844,55 +4935,6 @@ document.getElementById("searchButtonLists").addEventListener("click", async () 
         alert("Hubo un error al buscar los archivos. Inténtalo nuevamente.");
     }
 });
-
-
-// Evento para el botón de búsqueda
-document.getElementById("searchButtonLists").addEventListener("click", async () => {
-    const searchQuery = document.getElementById("searchInputLists").value.trim().toLowerCase();
-
-    if (!searchQuery) {
-        alert("Por favor, escribe algo para buscar.");
-        return;
-    }
-
-    try {
-        const results = await searchFilesInTabs(searchQuery);
-
-        // Limpiar tabla
-        const tableBody = document.getElementById("fileTableBody-lists");
-        tableBody.innerHTML = "";
-
-        // Mostrar resultados en la tabla
-        if (results.length === 0) {
-            tableBody.innerHTML = "<tr><td colspan='3'>No se encontraron resultados.</td></tr>";
-        } else {
-            results.forEach((file) => {
-                const row = document.createElement("tr");
-                row.innerHTML = `
-                    <td>${file.name || "Sin título"}</td>
-                    <td>${file.code || "Sin código"}</td>
-                    <td>
-                        <a href="${file.url}" target="_blank" class="file-link">
-                            Ver archivo
-                        </a>
-                    </td>
-                `;
-                tableBody.appendChild(row);
-            });
-        }
-    } catch (error) {
-        console.error("Error al procesar la búsqueda:", error);
-        alert("Hubo un error al buscar los archivos. Inténtalo nuevamente.");
-    }
-});
-
-
-
-
-
-
-
-
 
 
 // Función para verificar si el archivo o código ya existe en Firebase (busca coincidencias parciales)
